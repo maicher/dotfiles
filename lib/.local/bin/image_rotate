@@ -1,0 +1,100 @@
+#!/bin/sh
+
+showHelp () {
+cat << EOF
+
+NAME
+	image_rotate rotates images
+
+SYNOPSIS
+	image_rotate [FILENAME] [OPTION...]
+
+ARGUMENTS
+	FILENAME - name of the file to be converted
+	           (ignored when -f options is provided)
+
+OPTIONS
+	-l, --left              (default) rotate 90 left
+	-r, --right             rotate 90 right
+	-R, --rotate            rotate 180
+	-j, --jobs JOBS         (default: 1)
+	-f, --files FILES       list of newline separated file name
+	                        (when used, the FILENAME argument is ignored)
+	-v, --verbose           what the script is doing
+	-d, --debug             dump debug info into ./debug.txt file
+
+EXAMPLES
+	Rotate a single file right:
+
+		image_rotate filename.jpg -r
+
+	Process multiple files (in 2 threads):
+
+		image_rotate -r -j 2 -f 'filename1.jpg
+		file name2.jpg
+		filename3.jpg'
+
+EOF
+}
+
+# Init options.
+degree=270
+jobs=0
+files=''
+verbose=''
+debug=0
+
+options=$(getopt -l "help,jobs:,left,right,rotate,files:,verbose,debug" -o "hj:lrRcf:vd" -a -- "$@")
+eval set -- "$options"
+
+while true; do
+	case $1 in
+		-h|--help) showHelp; exit 0 ;;
+		-j|--jobs) shift; jobs=$1 ;;
+		-l|--left) degree=270 ;;
+		-r|--right) degree=90 ;;
+		-R|--rotate) degree=180 ;;
+		-f|--files) shift; files="$1" ;;
+		-d|--debug) debug=1 ;;
+		-v|--verbose) verbose='-verbose' ;;
+		--) shift; break;;
+	esac
+	shift
+done
+
+# Init from arguments (unless -f was provided).
+if [ -z "$files" ]; then
+	files="$@"
+fi
+
+if [[ -z $files ]]; then
+	exit
+fi
+
+files=$(echo "$files" | tr '\n' '\0' | xargs -0 realpath)
+
+# Build list of jobs
+list=""
+
+while IFS= read -r file; do
+	name=$(echo "$file" | sed -e 's/"/\\"/g' -e 's/\$/\\$/g')
+
+	case $(file -bi \"$name\") in
+		image/jpeg*)
+			list+="jpegtran $verbose -rotate $degree -copy all -outfile \"$name\" \"$name\""
+			;;
+		*)
+			list+="mogrify $verbose -rotate $degree \"$name\""
+			;;
+	esac
+
+	list+=$'\n'
+done <<< "$files"
+
+# Dump debug info
+if [ $debug -eq 1 ]; then
+	echo "$list" > ./image_rotate_debug.txt
+fi
+
+# Run
+echo "$list" | parallel --jobs $jobs

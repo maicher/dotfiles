@@ -1,0 +1,68 @@
+#!/bin/sh
+
+# `build` prepares the dotfiles to be deployed.
+# At first it copies files from lib/ to tmp/.
+# Then it removes the _tagged lines_.
+#
+# Usage:
+#   bin/build [TAG..]
+#
+# Arguments:
+#   TAG   name of a tag
+#
+# How the tags work:
+#
+# To tag a line or multiple lines, surround it with following comments:
+#
+#  # DOT SKIP tag
+#  ...
+#  # DOT END
+#
+# To tag a whole file, place the comment on the first line (without the DOT END):
+#
+#  # DOT SKIP tag
+#  ...
+#
+# Note: In above example, # is used as a comment, but it can be any char that
+# represents comment in the given context.
+# Eg. in .vimrc the " sign would be used.
+#
+
+. bin/cprint --source-only
+
+tags="$@"
+cprint NC "Building with tags: "
+cprint YELLOW "$tags"
+
+mkdir -p tmp/build
+
+# Detect list of used tags, so that arguments can be validated.
+tags_in_files=$(find lib -type f | xargs sed -n -E "/DOT SKIP/p" | awk '{print $4}' | sort | uniq)
+
+# Validate arguments.
+for tag in "$@"; do
+	match=$(echo "$tags_in_files" | grep -x "$tag")
+
+	if [ $? -eq 1 ]; then
+		cprint RED "\nTag \"$tag\" is invalid"
+		suggestions=$(echo "$tags_in_files" | grep $tag)
+		if [ $? -eq 0 ]; then
+			cprint NC "\nDid you mean: \"$suggestions\"?"
+		fi
+
+		cprint NC "\n"
+		exit 1
+	fi
+done
+
+# Copy the files to the temp so they can be modified.
+rsync -a lib/ tmp/build/ --delete
+
+# Remove lined between the given tags.
+for tag in "$@"; do
+	find tmp/build -type f | xargs sed -i "/DOT SKIP $tag/,/DOT END/d"
+done
+
+# Remove the remaining tags.
+find tmp/build -type f | xargs sed -i -E '/DOT (SKIP|END)/d'
+cprint NC "\n"

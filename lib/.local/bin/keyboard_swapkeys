@@ -1,0 +1,5 @@
+# DOT SKIP server
+#!/bin/sh
+
+setxkbmap -option caps:escape
+setxkbmap -option ctrl:swap_lalt_lctl

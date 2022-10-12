@@ -1,0 +1,20 @@
+[alias]
+	tree = "log --graph --pretty=format:'%C(auto)%h%d%Creset %C(cyan)(%cr)%Creset %s %C(green)%cn <%ce>%Creset'"
+	a = add .
+	ciam = commit -am
+	ca = commit --amend
+	co = checkout
+	br = branch
+	dh = diff HEAD
+	dm = diff master
+	dd = diff development
+[user]
+	email = krzysztof.maicher@gmail.com
+	name = Krzysztof Maicher
+[core]
+	editor = vim
+	autocrlf = false
+	autolf = false
+	safecrlf = false
+[pager]
+	branch = false

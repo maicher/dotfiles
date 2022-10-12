@@ -1,0 +1,27 @@
+#compdef _trash trash
+
+function _trash {
+	files=$(find . -maxdepth 1 -print0)
+	if [ ! -z $files ]; then
+		files=$(echo "$files" | xargs -0 -I{} basename -a "{}" | xargs -I{} echo "\"{}\"")
+	fi
+
+	_arguments -C \
+		"-h[display help]" \
+		"--help[display help]" \
+		"-p[show trash path and exit]" \
+		"--path[show trash path and exit]" \
+		"-i[show trash stats and exit]" \
+		"--info[show trash stats and exit]" \
+		"-v[show what the script is doing]" \
+		"--verbose[show what the script is doing]" \
+		"-d[dump debug info into ./debug.txt file]" \
+		"--debug[dump debug info into ./debug.txt file]" \
+		"-e[empty the trash]" \
+		"--empty[empty the trash]" \
+		"-t[put the files into a dir in trash]" \
+		"--timestamp[put the files into a dir in trash]" \
+		"-f[list of newline separated file name]" \
+		"--files[list of newline separated file name]" \
+		"*: :($files)"
+}

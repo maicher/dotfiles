@@ -1,0 +1,19 @@
+#compdef _kfind kfind
+
+function _kfind {
+	files=$(find . -maxdepth 1 -print0)
+	if [ ! -z $files ]; then
+		files=$(echo "$files" | xargs -0 -I{} basename -a "{}" | xargs -I{} echo "\"{}\"")
+	fi
+
+	_arguments -C \
+		"-h[display help]" \
+		"--help[display help]" \
+		"-f[list of newline separated file name]" \
+		"--files[list of newline separated file name]" \
+		"-r[regex by which filter the files]" \
+		"--regex[regex by which filter the files]" \
+		"-s[display the results in a random order]" \
+		"--shuffle[display the results in a random order]" \
+		"*: :($files)"
+}

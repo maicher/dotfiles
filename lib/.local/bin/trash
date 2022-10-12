@@ -1,0 +1,122 @@
+#!/bin/sh
+
+# TODO: handle delete directories
+
+showHelp () {
+cat << EOF
+
+NAME
+	Move a file to the trash.
+	Move mulfiple files to the trash.
+	Empty the trash.
+	Print trash into.
+
+SYNOPSIS
+	trash FILENAME [OPTION...]
+	trash -f FILENAME [OPTION...]
+
+ARGUMENTS
+	FILENAME - name of the file to be moved to trash
+	           (ignored when -f options is provided)
+
+OPTIONS
+	-h, --help         display this help and exit
+	-i, --info         show trash stats and exit
+	-f, --files FILES  list of newline separated file names to move to the trash
+	-t, --timestamp    put files into a dir in trash (trash easier to manage)
+	-e, --empty        empty the trash
+	-v, --verbose      show what the script is doing
+	-d, --debug        dump debug info into ./trash_debug.txt file
+
+EXAMPLES
+	Mmove a file to the trash:
+
+		trash filename.txt
+
+	Move many files to the trash:
+
+		trash -f 'filename1.txt
+		file name 2.txt
+		file! with special chars"\'.txt'
+
+	Empty the trash:
+
+		trash -e
+
+	Empty the trash and then move a file to the trash:
+
+		trash -e filename.txt
+
+	Print trash info:
+
+		trash -i
+
+EOF
+}
+
+# Init options.
+export show_path=0
+export info=0
+export files=''
+export timestamp=0
+export empty=0
+export verbose=''
+export debug=0
+
+options=$(getopt -l "help,path,info,files:,timestamp,empty,debug,verbose" -o "hpif:tedv" -a -- "$@")
+eval set -- "$options"
+
+while true; do
+	case $1 in
+		-h|--help) showHelp; exit 0 ;;
+		-i|--info) export info=1 ;;
+		-f|--files) shift; export files="$1" ;;
+		-t|--timestamp) export timestamp=1 ;;
+		-e|--empty) export empty=1 ;;
+		-d|--debug) export debug=1 ;;
+		-v|--verbose) export verbose='-v' ;;
+		--) shift; break;;
+	esac
+	shift
+done
+
+# Init arguments (unless -f was provided)
+if [ -z "$files" ]; then
+	files="$@"
+fi
+
+# Build relative paths.
+files=$(printf "$files" | tr '\n' '\0' | xargs -0 -I{} realpath "{}" --relative-to="$PWD")
+
+trash_path=$(trashpath)
+
+# Show trash stats
+if [ $info -eq 1 ]; then
+	echo "$(du -h $trash_path)"
+	exit
+fi
+
+# Empty the trash
+if [ $empty -eq 1 ]; then
+	rsync -a $verbose --delete "$(mktemp -d)/" "$trash_path"
+fi
+
+# Return if no files
+if [[ -z $files ]]; then
+	exit 0
+fi
+
+# Append timestamp to trash path
+if [ $timestamp -eq 1 ]; then
+	segment=$(date +%s%N)
+	trash_path+="$segment/"
+fi
+
+# Dump debug info
+if [ $debug -eq 1 ]; then
+	echo "$files" > ./trash_debug.txt
+	echo "Trash: $trash_path" >> ./trash_debug.txt
+fi
+
+# Move to trash using rsync
+rsync -a $verbose --remove-source-files --files-from=<(printf "$files") . "$trash_path"

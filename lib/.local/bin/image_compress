@@ -1,0 +1,79 @@
+#!/bin/sh
+
+showHelp () {
+cat << EOF
+
+NAME
+	image_compress changes jpeg images compression quality
+
+SYNOPSIS
+	image_compress [FILENAME] [OPTION...]
+
+ARGUMENTS
+	FILENAME - name of the file to be converted
+	           (ignored when -f options is provided)
+
+OPTIONS
+	-h, --help              display this help and exit
+	-j, --jobs JOBS         (default: 1) number of parallel jobs
+	-q, --quality QUALITY   (default: 90) target jpeg quality
+	-f, --files FILES       list of newline separated file name
+	                        (when used, the FILENAME argument is ignored)
+	-v, --verbose           what the script is doing
+	-d, --debug             dump debug info into ./debug.txt file
+
+EXAMPLES
+	Process single file:
+
+		image_compress filename.jpg -q 80
+
+	Process multiple files:
+
+		image_compress -j 90 -j 4 -f 'filename1.jpg
+		file name2.jpg
+		filename3.jpg'
+
+EOF
+}
+
+# Init options.
+jobs=1
+quality=90
+files=''
+verbose=''
+debug=0
+
+options=$(getopt -l "help,jobs:,quality:,files:,debug,verbose" -o "hj:q:f:dv" -a -- "$@")
+eval set -- "$options"
+
+while true; do
+	case $1 in
+		-h|--help) showHelp; exit 0 ;;
+		-j|--jobs) shift; jobs=$1 ;;
+		-q|--quality) shift; quality=$1 ;;
+		-f|--files) shift; files="$1" ;;
+		-d|--debug) debug=1 ;;
+		-v|--verbose) verbose='-verbose' ;;
+		--) shift; break;;
+	esac
+	shift
+done
+
+# Init from arguments (unless -f was provided).
+if [ -z "$files" ]; then
+	files="$@"
+fi
+
+if [[ -z $files ]]; then
+	exit 0
+fi
+
+# Run
+list=$(echo "$files" | sed -e 's/"/\\"/g' -e 's/\$/\\$/g' | tr '\n' '\0' | xargs -0 -I{} echo "mogrify $verbose -quality $quality \"{}\"")
+
+# Dump debug info
+if [ $debug -eq 1 ]; then
+	echo "$list" > ./image_compress_debug.txt
+fi
+
+echo "$list" | parallel --jobs $jobs

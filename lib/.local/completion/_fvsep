@@ -1,0 +1,26 @@
+# DOT SKIP server
+#compdef _fvsep fvsep
+
+# zsh autocompletion for fvsep script.
+#
+# Set the CUSTOMERS env for better autocompletion, eg:
+#   $ export CUSTOMERS="A B C"
+#
+function _fvsep {
+	files=$(find . -maxdepth 1 -name "*.ods" -print0)
+
+	# Escape some special chars (not ideal)
+	if [ ! -z $files ]; then
+		files=$(echo "$files" | xargs -0 -I{} basename -a "{}" | xargs -I{} echo "\"{}\"")
+	fi
+
+	_arguments -C \
+		"-c[create also copies of the extracted pages]" \
+		"--copy[create also copies of the extracted pages]" \
+		"-p[add given phrase to the front of created result files]" \
+		"--prefix[add given phrase to the front of created result files]" \
+		"-s[add given phrase to the end of the name of created result files]" \
+		"--suffix[add given phrase to the end of the name of created result files]" \
+		"1: :($files)" \
+		"*: :(_ $CUSTOMERS)"
+}

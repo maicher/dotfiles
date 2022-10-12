@@ -1,0 +1,152 @@
+# DOT SKIP server
+#!/bin/sh
+
+showHelp () {
+cat << EOF
+
+NAME
+	Extracts given pages from ods sheet as pdfs.
+
+SYNOPSIS
+	fvsep FILENAME [PAGE...] [OPTIONS]
+
+ARGUMENTS
+	FILENAME  name of the file to be processed
+	PAGE      name of the result file (extracted page/sheet)
+	          (n argument represents the n-th page/sheet, use _ to skip one)
+
+OPTIONS
+	-h, --help            display this help and exit
+	-c, --copy            create also copies of the extracted pages
+	-p, --prefix PREFIX   add given phrase to the front of created result files
+	-s, --suffix SUFFIX   add given phrase to the end of the name of created result files
+
+EXAMPLES
+	Extract 3 pages (result files: x.pdf, y.pdf and z.pdf):
+
+		fvsep invoices.ods x y z
+
+
+	Extract 3 pages, but each file also have a copy with the transformed content
+	(result files: x.pdf, y.pdf and z.pdf, x_c.pdf, y_c.pdf, z_c.pdf):
+
+		fvsep invoices.ods x y z -c
+
+
+	Extract first and third page (result files: x.pdf and z.pdf):
+
+		fvsep invoices.ods x _ z
+
+
+	Extract first and third page
+	(result files: invoice_x_suffix.pdf and invoice_z_suffix.pdf):
+
+		fvsep invoices.ods x _ z -p invoice_ -s _suffix
+
+
+	Convert to pdf without extractng pages (result file: invoices.pdf):
+
+		fvsep invoices.ods
+
+COMPLETIONS
+
+
+EOF
+}
+
+create_copy () {
+	file="$1"
+	out_file="$2"
+	tmp_dir="__tmp_$$"
+
+	mkdir $tmp_dir
+	cp "$file" "$tmp_dir/$file"
+	cd $tmp_dir
+	unzip -o "$file" > /dev/null
+	sed -i -e 's/ORYGINAŁ/KOPIA/g' -e 's/ORIGINAL/COPY/g' content.xml
+	zip -f "$file" content.xml > /dev/null
+	cd ..
+	mv "$tmp_dir/$file" "$out_file"
+	rm -rf $tmp_dir
+}
+
+# Init options.
+create_copies=0
+suffix=''
+prefix=''
+
+options=$(getopt -l "help,copy,suffix:,prefix" -o "hcs:p:" -a -- "$@")
+eval set -- "$options"
+
+while true; do
+	case $1 in
+		-h|--help) showHelp; exit 0 ;;
+		-c|--copy) create_copies=1 ;;
+		-s|--suffix) shift; suffix=$1 ;;
+		-p|--prefix) shift; prefix=$1 ;;
+		--) shift; break;;
+	esac
+	shift
+done
+
+# Validate arguments.
+if [ -z "$1" ]; then
+	showHelp
+	exit 1
+fi
+
+echo "$1" | grep -qE "\.ods$"
+if [ $? -eq 1 ]; then
+	echo "The first argument has to have an ods extension" >&2
+	exit 1
+fi
+
+if [ ! -f "$1" ]; then
+	echo "Given file does not exist" >&2
+	exit 1
+fi
+
+# Init arguments.
+file_ods="$1"
+file_pdf=$(echo "$file_ods" | sed 's/.ods$/.pdf/')
+
+# START
+
+# Create copies if requested
+if [ $create_copies -eq 1 ]; then
+	{
+		name="__tmp_ods_$$.ods"
+		create_copy "$1" "$name"
+		args=$(echo "$@" | sed "s/$1/$name/")
+		fvsep $args -s _c -p "$prefix"
+		rm $name
+	} &
+fi
+
+# Produce a pdf.
+libreoffice --convert-to pdf "$file_ods" > /dev/null
+
+if [ -z "$2" ]; then
+	exit
+fi
+
+# Extract pages from the pdf.
+i=-1
+for page in "$@"
+do
+	((i++))
+
+	# Skip the first argument, since it's a filename.
+	if [ $i -eq 0 ]; then
+		continue
+	fi
+
+	if [ "$page" = '_' ]; then
+		continue
+	fi
+
+	filename="$prefix$i_$page$suffix.pdf"
+	pdfseparate -f $i -l $i "$file_pdf" "$filename"
+done
+
+rm "$file_pdf"

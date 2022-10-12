@@ -1,0 +1,44 @@
+#!/bin/sh
+
+showHelp () {
+cat << EOF
+
+NAME
+	video_parts generates a text file with list of videos that can be later
+	joined using video_join.
+	Prints out the generated file name on exit.
+
+SYNOPSIS
+	video_parts -f FILES [OPTION...]
+
+OPTIONS
+	-h, --help              display this help and exit
+	-f, --files FILES       list of newline separated source file names
+
+EOF
+}
+
+# Init options.
+files=''
+
+options=$(getopt -l "help,files:" -o "hf:" -a -- "$@")
+eval set -- "$options"
+
+while true; do
+	case $1 in
+		-h|--help) showHelp; exit 0 ;;
+		-f|--files) shift; files="$1" ;;
+		--) shift; break;;
+	esac
+	shift
+done
+
+# Extract full paths.
+files=$(printf "$files" | tr '\n' '\0' | xargs -0 realpath)
+
+# Remove count number from the file name and add suffix, eg
+# video.1.mp4 > video.mp4_parts.txt
+parts_file="$(echo "$files" | sed '1q' | sed -E 's/\.[[:digit:]]+(\.[[:alnum:]]+)$/\1/')_parts.txt"
+
+printf "$files" > $parts_file
+echo $parts_file

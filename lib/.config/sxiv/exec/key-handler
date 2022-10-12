@@ -1,0 +1,24 @@
+# DOT SKIP server
+#!/bin/sh
+
+# This file needs to have x perms.
+#
+# Press C-x followed by:
+#   C-c   copy to clipboard (only the first marked image will be copied)
+#   C-g   open in Gimp      (all marked images will be opened)
+#   C-l   rotate left       (all marked images will be rotated (in 24 parallel threads))
+#   C-r   rotate right      (as above)
+#   C-R   rotate 180        (as above)
+#   C-d   move to trash     (all marked images will be moved to trash)
+#   C-D   remove            (all marked images will be removed)
+#
+case "$1" in
+	"C-c") sed '1q' | tr '\n' '\0' | xargs -0 -I{} xclip -selection clipboard -target image/png "{}" ;;
+	"C-g") tr '\n' '\0' | xargs -0 gimp & ;;
+	"C-l") tr '\n' '\0' | xargs -0 realpath | xargs -0 image_rotate --left --jobs 24 --files ;;
+	"C-r") tr '\n' '\0' | xargs -0 realpath | xargs -0 image_rotate --right --jobs 24 --files ;;
+	"C-R") tr '\n' '\0' | xargs -0 realpath | xargs -0 image_rotate --rotate --jobs 24 --files ;;
+	"C-d") tr '\n' '\0' | xargs -0 realpath | xargs -0 trash --timestamp --files ;;
+	"C-m") tr '\n' '\0' | xargs -0 realpath | xargs -0 -I{} lf -remote "send toggle {}" ;;
+	"C-D") tr '\n' '\0' | xargs -0 rm ;;
+esac

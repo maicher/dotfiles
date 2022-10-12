@@ -1,0 +1,7 @@
+# DOT SKIP server
+#!/bin/sh
+
+# dwms_refresh sends a signal to dwms to trigger a refresh.
+# more info: github.com/maicher/dwms
+#
+pkill -USR1 dwms$

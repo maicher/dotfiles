@@ -1,0 +1,4 @@
+# DOT SKIP server
+#!/bin/sh
+
+pamixer --list-sources | grep Microphone | cut -d ' ' -f 1

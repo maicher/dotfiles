@@ -1,0 +1,10 @@
+npm-debug.log
+.DS_Store
+.yardoc
+.solargraph.yml
+.idea/
+*.swp
+tags.lock
+tags.temp
+tags
+doc

@@ -1,0 +1,371 @@
+# Custom commands mapping are prefixed with: \
+# It makes the \ act like a special key.
+#
+# Press \ key to see custom commands mappings.
+# Then press one of the following keys to see more specific mappings:
+#   \f  file general commands
+#   \i  image manipulations
+#   \v  video manipulations
+#   \V  video manipulations destructive
+#   \a  audio specific commands
+#
+# Above commands are applied to the file(s) which path is in $fx variable,
+# that is to the current file or, when some files are selected, to the selected files.
+# Additionally, if a dir is present in $fx variable, it gets searched recursively for files and found
+# files are also processed.
+#
+# <enter> is mapped to give different possibilities of opening the given file
+#
+
+# SETTINGS
+set icons
+set shell zsh
+set shellopts "-euy"
+set ifs "\n"
+set filesep "\n"
+set dircounts
+set number
+set relativenumber
+set incsearch
+set timefmt "2006-01-02 15:04"
+set infotimefmtnew "2006-01-02 15:04"
+set infotimefmtold "2006-01-02 15:04"
+set scrolloff 10
+
+
+# BUILTINS' REMAPS
+#
+# Command history navigation remaps
+map <c-k> cmd-history-prev
+cmap <c-k> cmd-history-prev
+map <c-j> cmd-history-next
+cmap <c-j> cmd-history-next
+
+# Sort by date but display sizes info.
+map sx :set sortby ctime; set reverse!; set info size;
+
+
+# CUSTOM COMMANDS
+# File general commands (prefix key: \f)
+
+# Extract file
+cmd extract ${{
+	set -f
+	case $f in
+		*.tar.bz|*.tar.bz2|*.tbz|*.tbz2) tar xjvf $f;;
+		*.tar.gz|*.tgz) tar xzvf $f;;
+		*.tar.xz|*.txz) tar xJvf $f;;
+		*.zip) unzip $f;;
+		*.rar) unrar x $f;;
+		*.7z) 7z x $f;;
+	esac
+}}
+map \\fe extract
+
+# Compress file with tar
+cmd tar ${{
+	set -f
+	mkdir $1
+	cp -r $fx $1
+	tar czf $1.tar.gz $1
+	rm -rf $1
+}}
+map \\ft push :tar<space>
+
+# Compress file with zip
+cmd zip ${{
+	set -f
+	mkdir $1
+	cp -r $fx $1
+	zip -r $1.zip $1
+	rm -rf $1
+}}
+map \\fz push :zip<space>
+
+# Move file to trash
+cmd trash &{{
+	set -f
+	trash -tf "$fx"
+	lf -remote "send $id load"
+}}
+map <delete> trash
+map \\fd trash
+
+# Convert documents to PDF
+cmd pdf !libreoffice --convert-to pdf "$f"
+map \\fp pdf
+
+# Calculate used space
+cmd used-space-calculate &{{
+	set -f
+	lf -remote "send $id echo Calculating.."
+	size=$(echo "$fx" | xargs du -hc "$fx" | tail -n 1)
+	lf -remote "send $id echo $size"
+}}
+map \\fu used-space-calculate
+
+# Make dir
+cmd mkdir ${{
+	mkdir -p "$*"
+	lf -remote "send $id select \"$*\""
+}}
+map \\fm push :mkdir<space>
+map \\m push :mkdir<space>
+
+# Copy the path of a file(s)
+cmd copy-file-path ${{
+	set -f
+	echo "$fx" | xclip -i -selection clipbopard
+}}
+map \\fc copy-file-path
+
+
+# CUSTOM COMMANDS
+# Video manipulations (prefix key: \v)
+
+cmd video-rotate !{{
+	filename=$(basename -- "$f")
+	extension="${filename##*.}"
+	filename="${filename%.*}_r.$extension"
+	ffmpeg -i $f -vf "transpose=dir=$1" $filename
+	lf -remote "send $id load"
+}}
+map \\vl video-rotate 2
+map \\vr video-rotate 1
+
+cmd video-stabilize &{{
+	filename=$(basename -- "$f")
+	extension="${filename##*.}"
+	fn="${filename%.*}_s.mp4"
+	vec="${filename}_transform_vectors.trf"
+	ffmpeg -i $f -vf vidstabdetect=stepsize=32:shakiness=10:accuracy=15:result=$vec -f null -
+	ffmpeg -i $f -y -vf vidstabtransform=input=$vec:zoom=0:smoothing=10,unsharp=5:5:0.8:3:3:0.4 -vcodec libx264 -tune film $fn
+	rm $vec
+	lf -remote "send $id load"
+}}
+map \\vs video-stabilize
+
+cmd video-compress &{{
+	filename=$(basename -- "$f")
+	extension="${filename##*.}"
+	target="${filename%.*}_c.mp4"
+	ffmpeg -i "$f" -y -vcodec libx264 -tune film "$target"
+	lf -remote "send $id load"
+}}
+map \\vc video-compress
+
+cmd video-scaledown &{{
+	filename=$(basename -- "$f")
+	extension="${filename##*.}"
+	filename="${filename%.*}_$1x$2.$extension"
+	ffmpeg -i $f -vf scale=$1:$2 -ab 64000 $filename
+	lf -remote "send $id load"
+}}
+map \\v8 video-scaledown 800 450
+map \\v6 video-scaledown 640 380
+
+cmd video-find-extract-join !{{
+	set -f
+	files=$(kfind -r "_markers\.txt$" -f "$fx")
+
+	markers=$(echo "$files" | sed 's/_markers.txt//')
+	echo "Splitting"
+	video_extract -tp -j 24 -f "$markers"
+	echo "Joining"
+	parts=$(echo "$files" | sed 's/_markers.txt/_parts.txt/')
+	video_join -t -j 24 -f "$parts"
+	echo "Done"
+}}
+map \\vE video-find-extract-join
+
+cmd video-extract !{{
+	set -f
+	files=$(kfind -r "_markers\.txt$" -f "$fx")
+	files=$(echo "$files" | sed 's/_markers.txt//')
+	video_extract -p -j 24 -f "$files"
+}}
+map \\ve video-extract
+
+cmd video-parts ${{
+	set -f
+	video_parts -f "$fx"
+}}
+map \\vp video-parts
+
+cmd video-extract-to-dir !{{
+	set -f
+	mkdir "$1"
+	files=$(kfind -r "_markers\.txt$" -f "$fx")
+	files=$(echo "$files" | sed 's/_markers.txt//')
+	video_extract -t -j 24 -o "$1" -f "$files"
+}}
+map \\vd push :video-extract-to-dir<space>
+
+map \\vJ video-join-from-file
+cmd video-join-from-file !{{
+	set -f
+	video_join -f "$fx"
+}}
+
+map \\vj video-join
+cmd video-join !{{
+	set -f
+	file_with_parts=$(video_parts -f "$fx")
+	video_join -f "$file_with_parts"
+}}
+
+map \\Vj destructive-video-join
+cmd destructive-video-join !{{
+	set -f
+	file_with_parts=$(video_parts -f "$fx")
+	video_join -t -f "$file_with_parts"
+}}
+
+map \\VJ destructive-video-join-from-file
+cmd destructive-video-join-from-file !{{
+	set -f
+	video_join -t -f "$fx"
+}}
+
+# CUSTOM COMMANDS
+# Image manipulations (prefix key: \i)
+
+# Image JPG compressing
+cmd image_compress !{{
+	set -f
+	files=$(kfind -r "\.(jpeg|jpg|png|gif|webp)$" -f "$fx")
+	image_compress --quality $1 --jobs $2 --verbose --files "$files"
+}}
+map \\ic8 image_compress 80 24
+map \\ic9 image_compress 90 24
+
+cmd image2 !{{
+	set -f
+	files=$(kfind -f "$fx")
+
+	image2 --format $1 --jobs $2 "$files"
+}}
+map \\icj image2 jpg 24
+map \\icw image2 webp 24
+
+cmd open-sxiv &{{
+	set -f
+
+	# store miniatures in /dev/shm dir, which means in RAM
+	export XDG_CACHE_HOME=/dev/shm
+
+	if [ -v 2 ]; then
+		shuffle="-s"
+		phrase="$2"
+	elif [ -v 1 ];then
+		if [ "$1" = "rand" ]; then
+			shuffle="-s"
+			phrase=""
+		else
+			shuffle=""
+			phrase="$1"
+		fi
+	else
+		shuffle=""
+		phrase=""
+	fi
+	lf -remote "send $id echo Searching $phrase"
+
+	files=$(kfind $shuffle -r "$(printf '%s.*\.(jpeg|jpg|png|gif|webp)$' $phrase)" -f "$fx")
+	if [ -z "$files"]; then
+		lf -remote "send $id echo No files found"
+		exit
+	fi
+
+	count=$(echo "$files" | wc -l)
+	lf -remote "send $id echo Found $count files"
+
+	if [ $count -eq 1 ]; then
+		sxiv "$files"
+	else
+		echo "$files" | sxiv -t -
+	fi
+
+	dwms_refresh
+}}
+
+cmd open-mpv &{{
+	set -f
+	players_count=${PLAYERS_COUNT:=1}
+
+	if [ -v 2 ]; then
+		shuffle="-s"
+		phrase="$2"
+	elif [ -v 1 ];then
+		if [ "$1" = "rand" ]; then
+			shuffle="-s"
+			phrase=""
+		else
+			shuffle=""
+			phrase="$1"
+		fi
+	else
+		shuffle=""
+		phrase=""
+	fi
+	lf -remote "send $id echo Searching $phrase"
+
+	files=$(kfind $shuffle -r "$(printf '%s.*\.(mp4|wmv|mkv|avi|webm|rm|part)$' $phrase)" -f "$fx")
+	if [ -z "$files" ]; then
+		lf -remote "send $id echo No files found"
+		exit
+	fi
+
+	count=$(echo "$files" | wc -l)
+	lf -remote "send $id echo Found $count files"
+
+	for i in $(seq $players_count); do
+		echo "$files" | sort -R | mpv --playlist=- &
+	done
+
+	dwms_refresh
+}}
+
+# Display exif orientation
+cmd orientation-show &{{
+	lf -remote "send $id echo $(exiv2 -K Exif.Image.Orientation $f)"
+}}
+map \\ios orientation-show
+
+cmd orientation-clear !{{
+	set -f
+	kfind -r "\.(jpeg|jpg)" -f "$fx" | xargs -d '\n' exiv2 -v -M"set Exif.Image.Orientation 0"
+}}
+map \\ioc orientation-clear
+
+# Audio player
+cmd audacious-enquque &{{
+	set -f
+	echo "$fx" | sed 's/\ /\\ /g' | xargs audacious -$1
+}}
+map \\aa audacious-enquque e
+map \\aA audacious-enquque E
+
+# MISC
+
+# Execute current file (must be executable)
+map x !$f
+
+# Open in sxiv
+map <enter><enter> open-sxiv
+map <enter>s push :open-sxiv<space>rand<space>
+
+# Open in mpv
+map <enter>mm open-mpv
+map <enter>mr open-mpv rand
+map <enter>mf push :open-mpv<space>
+
+# Open in Vim
+map o $vim "$f"
+map <enter>v $vim "$f"
+
+# Open using file opener
+map <enter>o $mimeopen --ask "$f"
+
+# Open using file opener and save as default for the given file type
+map <enter>O $mimeopen -d "$f"

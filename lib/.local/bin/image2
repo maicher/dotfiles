@@ -1,0 +1,53 @@
+#!/bin/sh
+
+showHelp () {
+cat << EOF
+
+NAME
+	image2 converts images to different formats
+
+SYNOPSIS
+	image2 FILENAME... [OPTION...]
+
+ARGUMENTS
+	FILENAME - newline separated list of filenames
+
+OPTIONS
+	-f, --format FORMAT  (default: jpg) jpg, webp
+	-j, --jobs JOBS      (default: 1)
+	-h, --help           display this help
+
+EXAMPLES
+	Pass the file names as a newline-separated and single-quoted list.
+	Below example converts 3 files to jpg:
+
+	$ image2 jpg -j 90 -j 4 'filename1.psd
+	file name2.png
+	filename3.jpg'
+
+EOF
+}
+
+# Init defaults.
+format=jpg
+jobs=1
+
+options=$(getopt -l "help,format:,jobs:" -o "hf:j:" -a -- "$@")
+eval set -- "$options"
+
+while true; do
+	case $1 in
+		-h|--help) showHelp; exit 0 ;;
+		-f|--format) shift; format=$1 ;;
+		-j|--jobs) shift; jobs=$1 ;;
+		--) shift; break;;
+	esac
+	shift
+done
+
+images="$@"
+
+# Run
+list=$(echo "$images" | sed '/^$/d' | tr '\n' '\0' | xargs -0 -I{} echo "convert -verbose \"{}\" \"{}.$format\"")
+
+echo "$list" | parallel --jobs $jobs

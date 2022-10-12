@@ -1,0 +1,20 @@
+# DOT SKIP server
+#!/bin/sh
+
+echo 'Installing solargraph'
+if [ -z $1 ]; then
+	gem install solargraph
+else
+	gem install solargraph -v $1
+fi
+
+echo 'Installing core'
+solargraph download-core
+
+echo 'Generating docs for gems'
+gem install yard
+yard gems
+yard
+
+echo 'Installing coc vim extensions'
+vim +"CocInstall coc-solargraph coc-tsserver coc-json coc-html coc-css"

@@ -1,0 +1,5 @@
+#!/bin/sh
+
+# Cleans the tmp/ dir
+#
+rm -rf tmp/build

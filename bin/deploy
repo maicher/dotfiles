@@ -1,0 +1,92 @@
+#!/bin/sh
+
+# `deploy` copies files from tmp/ (see bin/build) to a specified location.
+#
+# Usage:
+#   bin/deploy [LOCATION]
+#
+# Arguments:
+#   LOCATION  A directory where the files are meant to be copied.
+#             Defaults to $HOME.
+#             Can be a remote path (as in `rsync`, see examples).
+#
+# Examples:
+#   bin/deploy                   copy to the home directory
+#   bin/deploy /home/user        copy to the specified dir
+#   bin/deploy user@10.0.0.1:    copy to a remote host
+#
+. bin/cprint --source-only
+
+destination="$1"
+if [ -z $destination ]; then
+	destination="$HOME"
+fi
+
+# Copy modified files to target destination.
+cprint NC "Deploying to "
+cprint YELLOW $destination
+result=$(rsync -zaPv --no-perms tmp/build/ "$destination" --min-size=1 --prune-empty-dirs --checksum 2>&1)
+if [ ! $? -eq 0 ]; then
+	cprint RED " error\n"
+	echo "$result"
+	exit 1
+fi
+
+# Print summary.
+cprint GREEN " done"
+files=`echo "$result" | sed -nE '/^\.[[:print:]]+[^\/]$/ p'`
+if [ -z "$files" ]; then
+	cprint GREY " (no files were modified)\n"
+	exit 0
+fi
+
+cprint NC "\n\nFollowing files were modified:\n"
+echo "$files"
+echo ""
+
+echo "$files" | grep -E 'sxhkdrc$'
+if [ $? -eq 0 ]; then
+	sxhkdreload
+	cprint GREEN " sxhkdrc reloaded\n"
+fi
+
+echo "$files" | grep -E 'tmux.conf$'
+if [ $? -eq 0 ]; then
+	tmux source-file ~/.config/tmux/tmux.conf
+	cprint GREEN " tmux reloaded\n"
+fi
+
+echo "$files" | grep -E 'fonts.conf'
+if [ $? -eq 0 ]; then
+	fc-cache
+	cprint GREEN " fonts cache reloaded\n"
+fi
+
+echo "$files" | grep -E '/local|/bin|zshrc$'
+if [ $? -eq 0 ]; then
+	hash -r
+	cprint GREEN " rehashed\n"
+fi
+
+echo "$files" | grep -E 'completion/'
+if [ $? -eq 0 ]; then
+	echo "To reload completions, run:"
+	echo "  autoload -Uz compinit && compinit"
+fi
+
+echo "$files" | grep -E 'zshrc$'
+if [ $? -eq 0 ]; then
+	echo "You need to restart or source open shells:"
+	echo "  source ~/.zshrc"
+fi
+
+echo "$files" | grep -E 'vimrc$'
+if [ $? -eq 0 ]; then
+	echo "You need to reload open Vim(s), or run:"
+	echo "  :so $MYVIMRC"
+fi
+
+echo "$files" | grep -E 'lfrc$'
+if [ $? -eq 0 ]; then
+	echo "You need to restart lf"
+fi

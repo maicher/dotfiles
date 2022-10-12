@@ -1,0 +1,70 @@
+# DOT SKIP server
+#!/bin/sh
+
+showHelp () {
+cat << EOF
+
+SYNOPSIS
+	bt                    list available devices
+	bt DEVICE COMMAND     change state of a given device
+
+ARGUMENTS
+	DEVICE     part of the name of the device
+	COMMAND    one of the available commands:
+	           connect disconnect pair trust untrust remove
+
+EXAMPLES
+	Show available devices:
+
+		$ bt
+		Device 5C:FB:7C:78:6B:75 JBL Flip 3 SE
+		Device 04:5D:4B:DF:2C:39 MDR-1000X
+
+	Connect to a device (pass a phrase to grep by).
+	Below examples are equvalent:
+
+		$ bt MDR connect
+		$ bt 04:5D connect
+		$ bt 1000X connect
+
+EOF
+}
+
+if [[ $1 == "-h" ]]; then
+	showHelp
+	exit
+fi
+
+dwms_refresh
+device_name=$1
+command=$2
+
+devices=$(bluetoothctl devices)
+
+if [ -z "$device_name" ]; then
+	echo "$devices"
+	echo ""
+	echo "Type bt -h for more info"
+	exit 1
+fi
+
+if [ -z $command ]; then
+	echo "No command, available commands:"
+	echo "connect disconnect pair trust untrust remove"
+	echo ""
+	echo "Type bt -h for more info"
+	exit 1
+fi
+
+selected_device=$(echo "$devices" | grep -i $device_name | awk '{ print $2 }')
+
+if [ $? -eq 1 ]; then
+	echo 'Device not found, available devices:'
+	echo "$devices"
+	exit 1
+fi
+
+echo $selected_device
+
+bluetoothctl $command $selected_device
+dwms_refresh

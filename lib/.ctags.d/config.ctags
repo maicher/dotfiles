@@ -1,0 +1,6 @@
+--exclude=node_modules
+--exclude=git
+--exclude=logs
+--exclude=tmp
+--exclude=public
+--exclude=various

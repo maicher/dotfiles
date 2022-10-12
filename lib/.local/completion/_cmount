@@ -1,0 +1,9 @@
+#compdef _cmount cmount
+
+function _cmount {
+	drives=$(lsblk --pairs --fs | grep 'MOUNTPOINTS=""' | grep -v 'FSTYPE=""' | awk '{print $1}' | sed 's/NAME=/\/dev\//' | tr -d '"')
+
+	_arguments -C \
+		"1: :($drives)" \
+		"*::arg:->args"
+}

@@ -1,0 +1,132 @@
+#!/bin/sh
+
+showHelp () {
+cat << EOF
+
+NAME
+	video_extract extracts video parts from the source file according to time
+	markers read from text file.
+
+	File with markers should contain time duration pairs in the same format
+	as described in ffmpeg-utils(1).
+	File with markers should have the same name as the source file suffixed
+	with "_markers.txt" phrase.
+
+	Spaces in filenames are handled correctly but it fails when the file name
+	contains special chars like "'$%&. Don't use this special characters in file names.
+
+SYNOPSIS
+	video_extract [FILENAME] [OPTION...]
+
+ARGUMENTS
+	FILENAME - name of the source file
+	           (ignored when -f option is provided)
+
+OPTIONS
+	-h, --help          display this help and exit
+	-j, --jobs JOBS     (default: 1) number of parallel jobs
+	-f, --files FILES   list of newline separated source file names
+	                    (when used, the FILENAME argument is ignored)
+	-o, --out-dir       output dir for generated parts
+	-p, --parts         generate a txt file with listed parts
+	-t, --trash         move source marker file to trash after processing
+	-v, --verbose       show what the script is doing
+	-d, --debug         dump debug info into ./ksplit_debug.txt file
+
+EOF
+}
+
+function log () {
+	if [[ $verbose == "-verbose" ]]; then
+		echo "$1"
+	fi
+}
+
+# Init options.
+jobs=1
+files=''
+concat=0
+out_dir=''
+verbose='-hide_banner -loglevel error'
+parts=0
+trash=0
+debug=0
+
+options=$(getopt -l "help,jobs:,files:,out-dir:,verbose,parts,trash,debug" -o "hj:f:o:vptd" -a -- "$@")
+eval set -- "$options"
+
+while true; do
+	case $1 in
+		-h|--help) showHelp; exit 0 ;;
+		-f|--files) shift; files="$1" ;;
+		-o|--out-dir) shift; out_dir="$1" ;;
+		-t|--trash) trash=1 ;;
+		-p|--parts) parts=1 ;;
+		-d|--debug) debug=1 ;;
+		-v|--verbose) verbose='' ;;
+		--) shift; break;;
+	esac
+	shift
+done
+
+# Init from arguments (unless -f was provided).
+if [ -z "$files" ]; then
+	files="$@"
+fi
+
+# Create out dir if not exist.
+if [ ! -z "$out_dir" ]; then
+	if [ ! -d "$out_dir" ]; then
+		mkdir "$out_dir"
+	fi
+fi
+
+# Remove empty lines and extract full paths.
+files=$(printf "$files" | sed '/^$/d' | tr '\n' '\0' | xargs -0 realpath)
+
+# Build list of jobs.
+list=""
+trash_list=""
+while IFS= read -r file; do
+	marker_file="${file}_markers.txt"
+	trash_list+=$(echo "$marker_file")
+	trash_list+=$'\n'
+
+	parts_file="${file}_parts.txt"
+
+	if [ ! -f "$marker_file" ]; then
+		echo "No markers file for: $file"
+		exit 1
+	fi
+
+	marker_pairs=$(cat "$marker_file" | xargs -n2)
+
+	name=$(printf "$file" | sed 's/\.[^.]*$//')
+	ext=$(printf "$file" | sed 's/^.*\.//')
+
+	if [ -z $out_dir ]; then
+		target_name="$name"
+	else
+		target_name="${out_dir}/$(basename "$name")"
+	fi
+
+	list+=$(printf "$marker_pairs" | awk '{ printf "ffmpeg '"$verbose"' -y -ss %s -to %s -i \047'"$name"'.'"$ext"'\047 -acodec copy -vcodec copy \047'"$target_name"'.%s.'"$ext"'\047\n", $1, $2, NR }')
+	list+=$'\n'
+
+	if [ $parts -eq 1 ]; then
+		printf "$marker_pairs" | awk '{ printf "'"$target_name"'.%s.'"$ext"'\n", NR }' > $parts_file
+	fi
+done <<< "$files"
+
+# Dump debug info
+if [ $debug -eq 1 ]; then
+	echo "$list" > ./video_exrtact_debug.txt
+fi
+
+# Run
+printf "$list" | parallel --jobs $jobs
+
+# Move to trash
+if [ $trash -eq 1 ]; then
+	trash -t -f "$trash_list"
+fi

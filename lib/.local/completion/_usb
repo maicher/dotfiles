@@ -1,0 +1,14 @@
+#compdef _usb usb
+
+# zsh autocompletion for usb script.
+#
+# Set the USB_DEVICES env for better autocompletion, eg:
+#   $ export USB_DEVICES="keyboard mouse webcam"
+#
+function _usb {
+	_arguments -C \
+		"-h[display help]" \
+		"1: :($USB_DEVICES)" \
+		"2: :(on off restart)" \
+		"*::arg:->args"
+}

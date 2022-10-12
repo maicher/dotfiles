@@ -1,0 +1,19 @@
+# DOT SKIP server
+#!/bin/sh
+
+# `webhooks_host` purpose is to print the url of the tunel created by `ngrok`.
+#
+# Eg:
+#   $ ngrok http 3000
+#   $ webhooks_host
+#   833e-45-11-63-170.ngrok.io
+#
+# If ngrok is not running the script exits with 1 code.
+#
+response=$(curl -s http://localhost:4040/api/tunnels)
+
+if [ ! $? -eq 0 ]; then
+	exit 1
+fi
+
+echo "$response" | json_pp | sed -nE "/public_url.+https:/p" | tr -d '",' | awk -F/ '{ print $3 }'

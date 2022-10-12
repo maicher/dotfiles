@@ -1,0 +1,70 @@
+#!/bin/sh
+
+showHelp () {
+cat << EOF
+
+NAME
+	kfind is a wrapper on top of find(1) with some custom behariour
+
+SYNOPSIS
+	kfind [DIR] [OPTION...]
+
+ARGUMENTS
+	DIR - name of the dir to be searched
+	      (ignored when -f options is provided)
+
+OPTIONS
+	-f, --files FILES  list of newline separated file (or dir) names
+	                   (when used, the DIR argument is ignored)
+	-r, --regex        regex by which filter the files
+	-s, --shuflle      display the results in a random order
+
+EXAMPLES
+	todo
+
+EOF
+}
+
+# Init options.
+files=''
+regex=''
+sort=''
+
+options=$(getopt -l "help,files:,regex:,shuffle" -o "hf:r:s" -a -- "$@")
+eval set -- "$options"
+
+while true; do
+	case $1 in
+		-h|--help) showHelp; exit 0 ;;
+		-f|--files) shift; files="$1" ;;
+		-r|--regex) shift; regex="$1" ;;
+		-s|--shuffle) sort="-R" ;;
+		--) shift; break;;
+	esac
+	shift
+done
+
+# Init from arguments (unless -f was provided).
+if [ -z "$files" ]; then
+	files="$@"
+fi
+
+# Validate arguments.
+if [[ -z $files ]]; then
+	echo "No arguments"
+	exit
+fi
+
+results=''
+while IFS= read -r file; do
+	if [[ -d "$file" ]]; then
+		results+=$(find "$file/." -type f -print0 | xargs -0 realpath)
+		results+=$'\n'
+	elif [[ -f $file ]]; then
+		results+="$file"
+		results+=$'\n'
+	fi
+done <<< "$files"
+
+# Filter by regex and sort.
+echo "$results" | grep -iE "$regex" | sort $sort

@@ -1,0 +1,62 @@
+# DOT SKIP server
+#!/bin/sh
+
+showHelp () {
+cat << EOF
+
+SYNOPSIS
+	bt_settings                   list current settings
+	bt_settings COMMAND SWITCH    change given setting
+
+ARGUMENTS
+	COMMAND    one of the available commands:
+	           power discoverable pairable discovering
+
+	SWITCH     one of the following: on off
+
+EXAMPLES
+	Show current settings:
+
+		$ bt_settings
+		Powered: on
+		Discoverable: off
+		Pairable: off
+		Discovering: off
+
+	Change a given setting:
+
+		$ bt_settings power off
+
+EOF
+}
+
+if [[ $1 == "-h" ]]; then
+	showHelp
+	exit
+fi
+
+dwms_refresh
+
+command=$1
+switch=$2
+
+if [ -z "$command" ]; then
+	info=$(bluetoothctl show | sed -nE '/Powered:|Pairable:|Discoverable:|Discovering:/p' | \
+		tr -d "\t" | \
+		sed -e 's/yes/on/' -e 's/no/off/')
+
+	echo "$info"
+	echo ""
+	echo "Type bt_settings -h for more info"
+	exit 1
+fi
+
+if [ -z "$switch" ]; then
+	echo "No switch"
+	echo ""
+	echo "Type bt_settings -h for more info"
+	exit 1
+fi
+
+bluetoothctl $command $switch
+dwms_refresh

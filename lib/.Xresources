@@ -1,0 +1,4 @@
+# DOT SKIP server
+# Transparency for st.
+*.alpha: 0.9
+*.antialias: 1

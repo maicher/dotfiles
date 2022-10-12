@@ -1,0 +1,16 @@
+# DOT SKIP server
+#!/bin/sh
+
+c=$(pgrep -x dwm | wc -l)
+
+if [ $c -eq 1 ]; then
+	pkill dwm
+else
+	if [ -z $1 ]; then
+		echo "More than one DWM process is running"
+		echo "Specify in which tty the DWM to close, eg:"
+		echo stopx tty2
+	else
+		pkill dwm -t $1
+	fi
+fi

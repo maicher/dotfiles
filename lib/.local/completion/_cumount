@@ -1,0 +1,9 @@
+#compdef _cumount cumount
+
+function _cumount {
+	drives=$(lsblk --list | awk '$7 ~ /^\/run\/media/ { print "/dev/"$1 }')
+
+	_arguments -C \
+		"1: :($drives)" \
+		"*::arg:->args"
+}

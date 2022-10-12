@@ -1,0 +1,9 @@
+# DOT SKIP server
+#compdef _bt_settings bt_settings
+
+function _bt_settings {
+	_arguments -C \
+		"1: :(power discoverable pairable discovering)" \
+		"2: :(on off)" \
+		"*::arg:->args"
+}

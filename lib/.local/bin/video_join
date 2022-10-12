@@ -1,0 +1,109 @@
+#!/bin/sh
+
+showHelp () {
+cat << EOF
+
+NAME
+	video_join reads list of videos from file and joins them into one video.
+
+	Use video_parts to generate the list or create the file by hand by pasting
+	newline-separated full paths to the videos.
+
+	It handle spaces in filenames correctly but fails when the file name contains
+	special chars like "'$%&. Don't use this special characters in file names.
+
+SYNOPSIS
+	video_join -f FILES [OPTION...]
+
+OPTIONS
+	-h, --help              display this help and exit
+	-j, --jobs JOBS         (default: 1) number of parallel jobs
+	-f, --files FILES       list of newline separated file names with parts
+	-t, --trash             move source and temp files to trash after processng
+	-v, --verbose           show what the script is doing
+	-d, --debug             dump debug info into ./video_join_debug.txt file
+
+EOF
+}
+
+function log () {
+	if [[ $verbose == "-verbose" ]]; then
+		echo "$1"
+	fi
+}
+
+# Init options.
+jobs=1
+files=''
+trash=0
+verbose='-hide_banner -loglevel error'
+debug=0
+
+options=$(getopt -l "help,jobs:,files:,trash,debug,verbose" -o "hj:f:tdv" -a -- "$@")
+eval set -- "$options"
+
+while true; do
+	case $1 in
+		-h|--help) showHelp; exit 0 ;;
+		-j|--jobs) shift; jobs="$1" ;;
+		-f|--files) shift; files="$1" ;;
+		-t|--trash) trash=1 ;;
+		-d|--debug) debug=1 ;;
+		-v|--verbose) verbose='' ;;
+		--) shift; break;;
+	esac
+	shift
+done
+
+# Extract full paths.
+files=$(printf "$files" | tr '\n' '\0' | xargs -0 realpath)
+
+# Build list of jobs
+list=""
+trash_list=""
+
+while IFS= read -r file; do
+	if [ ! -f "$file" ]; then
+		echo 'No file'
+		exit 1
+	fi
+	parts=$(cat "$file")
+
+	target=$(echo "$file" | sed 's/_parts.txt//')
+	name=$(printf "$target" | sed 's/\.[^.]*$//')
+	ext=$(printf "$target" | sed 's/^.*\.//')
+	if [ -z "$name" ]; then
+		echo "Error extracting file name"
+		exit 1
+	fi
+
+	tempfile="___$(printf $RANDOM)_tmp.txt"
+	echo "$parts" | sed 's/ /\\ /g' | awk '{ print "file", $0 }' > $tempfile
+
+	list+=$(printf "ffmpeg $verbose -y -f concat -safe 0 -i %s -codec copy '%s_.%s'" $tempfile "$name" "$ext")
+	list+=$'\n'
+
+	trash_list+=$(printf "$file")
+	trash_list+=$'\n'
+	trash_list+=$(printf "$parts")
+	trash_list+=$'\n'
+	trash_list+=$(printf "$tempfile")
+	trash_list+=$'\n'
+
+done <<< "$files"
+
+# Dump debug info
+if [ $debug -eq 1 ]; then
+	echo "List:" > ./video_join_debug.txt
+	echo "$list" >> ./video_join_debug.txt
+	echo "Trash:" >> ./video_join_debug.txt
+	echo "$trash_list" >> ./video_join_debug.txt
+fi
+
+# Run
+printf "$list" | parallel --jobs $jobs
+
+# Move source and temp files to trash
+if [ $trash -eq 1 ]; then
+	trash -t -f "$trash_list"
+fi

@@ -1,0 +1,9 @@
+#compdef _build build
+
+function _build {
+	tags_in_files=$(find lib -type f | xargs sed -n -E "/DOT SKIP/p" | awk '{print $4}' | sort | uniq | xargs echo)
+
+	_arguments -C \
+		"1: :($tags_in_files)" \
+		"*::arg:->args"
+}

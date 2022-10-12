@@ -1,0 +1,5 @@
+# DOT SKIP server
+#!/bin/sh
+
+# Increase keyboard speed.
+xset r rate 250 50

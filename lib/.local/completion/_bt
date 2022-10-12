@@ -1,0 +1,15 @@
+# DOT SKIP server
+#compdef _bt bt
+
+# zsh autocompletion for bt script.
+#
+# Set the BT_DEVICES env for better autocompletion, eg:
+#   $ export USB_DEVICES="MDR JBL"
+#
+function _bt {
+	_arguments -C \
+		"-h[display help]" \
+		"1: :($BT_DEVICES)" \
+		"2: :(connect disconnect pair trust untrust remove)" \
+		"*::arg:->args"
+}

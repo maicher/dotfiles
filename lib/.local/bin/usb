@@ -1,0 +1,102 @@
+#!/bin/sh
+
+showHelp () {
+cat << EOF
+
+SYNOPSIS
+	usb                    list available devices
+	usb DEVICE COMMAND     change state of a given device
+
+ARGUMENTS
+	DEVICE     part of the name of the device
+	COMMAND    one of the available commands:
+	           on off restart
+
+EXAMPLES
+	Show available devices:
+
+		$ usb
+		Maxxter Wireless Optical Mouse ACT-MUSW-002
+		Kinesis Corporation Advantage2 Keyboard
+		SM950 Microphon SM950 Microphone
+		Realtek Semiconductor Corp. Thronmax StreamGo Webcam
+		Cambridge Silicon Radio, Ltd Bluetooth Dongle (HCI mode)
+
+	Restart a device (pass a phrase to grep by).
+	Below examples are equvalent:
+
+		$ bt Kinesis restart
+		$ bt kinesis restart
+		$ bt keyboard restart
+
+EOF
+}
+
+if [[ $1 == "-h" ]]; then
+	showHelp
+	exit
+fi
+
+device_name=$1
+command=$2
+
+devices=$(lsusb | grep -iv "hub$" | cut -d ' ' -f6-)
+devices_human=$(echo "$devices" | cut -d ' ' -f2-)
+
+if [ -z "$device_name" ]; then
+	echo "$devices_human"
+	echo ""
+	echo "Type usb -h for more info"
+	exit 1
+fi
+
+if [ -z $command ]; then
+	echo "No command"
+	echo 'on off restart'
+	exit 1
+fi
+
+selected_device=$(echo "$devices" | grep -i $device_name)
+
+if [ $? -eq 1 ]; then
+	echo 'Device not found, available devices:'
+	echo "$devices_human"
+	exit 1
+fi
+echo "Selected device: $selected_device"
+
+lookup=$(echo "$selected_device" | cut -d ' ' -f1 | awk -F ':' '{printf "idVendor=%s.+idProduct=%s", $1, $2 }')
+echo "Search phrase: $lookup"
+
+device_address=$(journalctl --dmesg -o short-unix --no-hostname --no-pager | grep -E "$lookup" | awk '{print $4}' | tr -d ':' | sed 1q)
+
+if [ -z "$device_address" ]; then
+	echo "Device address not found"
+	exit 1
+fi
+echo "Device address: $device_address"
+
+# TODO: check bind/unbind files perms
+case $command in
+	on)
+		echo "$device_address" > /sys/bus/usb/drivers/usb/bind
+		;;
+	off)
+		echo "$device_address" > /sys/bus/usb/drivers/usb/unbind
+		;;
+	restart)
+		echo "$device_address" > /sys/bus/usb/drivers/usb/unbind
+		sleep 1
+		echo "$device_address" > /sys/bus/usb/drivers/usb/bind
+		;;
+	*)
+		echo "Unknown command"
+		exit 1
+esac
+
+if [ $? -eq 1 ]; then
+	echo ""
+	echo "If you're getting the permission denied error, here's a possible workaround:"
+	echo "    $ su -c \"crontab -e\""
+	echo "    $ @reboot chmod /sys/bus/usb/drivers/usb/bind /sys/bus/usb/drivers/usb/unding"
+fi
