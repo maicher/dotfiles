@@ -1,18 +1,20 @@
 # DOT SKIP server
 #!/bin/sh
 
+props="power discoverable pairable discovering"
+
 showHelp () {
 cat << EOF
 
 SYNOPSIS
-	bt_settings                   list current settings
-	bt_settings COMMAND SWITCH    change given setting
+	bt_settings                   print current settings
+	bt_settings PROP COMMAND      change given setting
 
 ARGUMENTS
-	COMMAND    one of the available commands:
-	           power discoverable pairable discovering
+	PROP       one of the available properties:
+	           $props
 
-	SWITCH     one of the following: on off
+	COMMAND    one of the following: on off
 
 EXAMPLES
 	Show current settings:
@@ -37,26 +39,44 @@ fi
 
 dwms_refresh
 
-command=$1
-switch=$2
+prop=$1
+command=$2
 
-if [ -z "$command" ]; then
+if [ -z "$prop" ]; then
 	info=$(bluetoothctl show | sed -nE '/Powered:|Pairable:|Discoverable:|Discovering:/p' | \
 		tr -d "\t" | \
 		sed -e 's/yes/on/' -e 's/no/off/')
 
 	echo "$info"
+	exit
+fi
+
+echo " "$props" " | grep -q " $prop "
+if [ $? -eq 1 ]; then
+	echo "Invalid property, available properties:"
+	echo $props
 	echo ""
 	echo "Type bt_settings -h for more info"
 	exit 1
 fi
 
-if [ -z "$switch" ]; then
-	echo "No switch"
+if [ -z "$command" ]; then
+	echo "No command, available commands:"
+	echo "on off"
 	echo ""
 	echo "Type bt_settings -h for more info"
 	exit 1
 fi
 
-bluetoothctl $command $switch
+echo " on off " | grep -q " $command "
+if [ $? -eq 1 ]; then
+	echo "Invalid commands, available commands:"
+	echo "on off"
+	echo ""
+	echo "Type bt_settings -h for more info"
+	exit 1
+fi
+
+
+bluetoothctl $prop $command
 dwms_refresh

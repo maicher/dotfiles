@@ -19,15 +19,19 @@ end
 function move_to_trash()
   local final_path = get_final_path()
 
-   mp.osd_message("Moving to trash")
+   mp.osd_message("Moving to trash...")
    os.execute("trash -t -f '"..final_path.."'")
+   mp.osd_message("Moved to trash")
+   mp.commandv('playlist-next')
 end
 
 function delete()
   local final_path = get_final_path()
 
-   mp.osd_message("Deleting")
+   mp.osd_message("Deleting...")
    os.execute("rm '"..final_path.."'")
+   mp.osd_message("Deleted")
+   mp.commandv('playlist-next')
 end
 
 function set_marker()

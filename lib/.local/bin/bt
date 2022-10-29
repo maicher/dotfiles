@@ -1,17 +1,19 @@
 # DOT SKIP server
 #!/bin/sh
 
+commands="connect disconnect pair trust untrust remove"
+
 showHelp () {
 cat << EOF
 
 SYNOPSIS
-	bt                    list available devices
+	bt                    print available devices
 	bt DEVICE COMMAND     change state of a given device
 
 ARGUMENTS
-	DEVICE     part of the name of the device
+	DEVICE     part of the device's name (to grep by)
 	COMMAND    one of the available commands:
-	           connect disconnect pair trust untrust remove
+	           $commands
 
 EXAMPLES
 	Show available devices:
@@ -43,14 +45,21 @@ devices=$(bluetoothctl devices)
 
 if [ -z "$device_name" ]; then
 	echo "$devices"
-	echo ""
-	echo "Type bt -h for more info"
 	exit 1
 fi
 
 if [ -z $command ]; then
 	echo "No command, available commands:"
-	echo "connect disconnect pair trust untrust remove"
+	echo $commands
+	echo ""
+	echo "Type bt -h for more info"
+	exit 1
+fi
+
+echo " "$commands" " | grep -q " $command "
+if [ $? -eq 1 ]; then
+	echo "Invalid command, available commands:"
+	echo $commands
 	echo ""
 	echo "Type bt -h for more info"
 	exit 1
@@ -58,13 +67,11 @@ fi
 
 selected_device=$(echo "$devices" | grep -i $device_name | awk '{ print $2 }')
 
-if [ $? -eq 1 ]; then
+if [ -z $selected_device ]; then
 	echo 'Device not found, available devices:'
 	echo "$devices"
 	exit 1
 fi
-
-echo $selected_device
 
 bluetoothctl $command $selected_device
 dwms_refresh
