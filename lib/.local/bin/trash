@@ -7,7 +7,7 @@ cat << EOF
 
 NAME
 	Move a file to the trash.
-	Move mulfiple files to the trash.
+	Move multiple files to the trash.
 	Empty the trash.
 	Print trash into.
 
