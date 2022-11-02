@@ -8,7 +8,7 @@ SYNOPSIS
 	usb DEVICE COMMAND     change state of a given device
 
 ARGUMENTS
-	DEVICE     part of the name of the device
+	DEVICE     part of the name device's name (to grep by)
 	COMMAND    one of the available commands:
 	           on off restart
 
@@ -45,13 +45,11 @@ devices_human=$(echo "$devices" | cut -d ' ' -f2-)
 
 if [ -z "$device_name" ]; then
 	echo "$devices_human"
-	echo ""
-	echo "Type usb -h for more info"
-	exit 1
+	exit
 fi
 
 if [ -z $command ]; then
-	echo "No command"
+	echo "No command, available commands:"
 	echo 'on off restart'
 	exit 1
 fi
