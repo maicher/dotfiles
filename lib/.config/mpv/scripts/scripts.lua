@@ -57,8 +57,22 @@ function set_marker_with_start_at_zero()
   set_marker()
 end
 
+function open_in_new_mpv()
+  local final_path = get_final_path()
+  mp.osd_message("Opening "..final_path)
+
+  os.execute("mpv '"..final_path.."' &")
+end
+
+function show_full_path()
+  local final_path = get_final_path()
+  mp.osd_message(final_path)
+end
+
 mp.add_key_binding("ctrl+d", "move_to_trash", move_to_trash)
 mp.add_key_binding("ctrl+D", "delete", delete)
 mp.add_key_binding("ctrl+m", "set_marker", set_marker)
 mp.add_key_binding("ctrl+M", "set_marker_with_overwrite", set_marker_with_overwrite)
 mp.add_key_binding("ctrl+n", "set_marker_with_start_at_zero", set_marker_with_start_at_zero)
+mp.add_key_binding("ctrl+o", "open_in_new_mpv", open_in_new_mpv)
+mp.add_key_binding("ctrl+ENTER", "show_full_path", show_full_path)
