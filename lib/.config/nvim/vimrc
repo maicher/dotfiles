@@ -103,12 +103,8 @@ map <leader>b :BufOnly<CR>
 " Go to next spelling error
 map <C-s> ]s
 
-map <leader>f z.
 map <C-j> :cn<CR>
 map <C-k> :cp<CR>
-
-" Double-Esc to completely clear the search buffer
-nnoremap <silent> <Esc><Esc> :let @/ = ""<CR>
 
 nmap <CR> o<Esc>k
 
@@ -120,7 +116,7 @@ map <C-f> :GFiles<CR>
 map <C-g> :Rg<CR>
 map <leader>/ :BLines<CR>
 map <C-b> :Buffers<CR>
-map ; :wa<CR>
+map \ :wa<CR>
 
 " Splits
 map <leader>j <C-W><C-j>
