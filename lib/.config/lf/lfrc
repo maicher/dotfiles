@@ -291,7 +291,6 @@ cmd open-sxiv &{{
 
 cmd open-mpv &{{
 	set -f
-	players_count=${PLAYERS_COUNT:=1}
 
 	if [ -v 2 ]; then
 		shuffle="-s"
@@ -319,10 +318,7 @@ cmd open-mpv &{{
 	count=$(echo "$files" | wc -l)
 	lf -remote "send $id echo Found $count files"
 
-	for i in $(seq $players_count); do
-		echo "$files" | sort -R | mpv --playlist=- &
-	done
-
+	echo "$files" | mpv --playlist=- &
 	dwms_refresh
 }}
 

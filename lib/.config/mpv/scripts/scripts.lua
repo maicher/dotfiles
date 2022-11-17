@@ -64,6 +64,24 @@ function open_in_new_mpv()
   os.execute("mpv '"..final_path.."' &")
 end
 
+function open_playlist_in_new_mpv()
+  local playlist = mp.get_property_native('playlist')
+  local current_path = get_final_path()
+  local list = ""
+  local pos = 0
+
+  for i, v in ipairs(playlist) do
+    if v.filename == current_path then
+      os = i - 1
+    end
+
+    list = list.."\n"..v.filename
+  end
+
+  mp.osd_message("Opening playlist with "..#playlist.." files on position "..pos)
+  os.execute("echo '"..list.."' | mpv --playlist-start="..pos.." --playlist=- &")
+end
+
 function show_full_path()
   local final_path = get_final_path()
   mp.osd_message(final_path)
@@ -75,4 +93,5 @@ mp.add_key_binding("ctrl+m", "set_marker", set_marker)
 mp.add_key_binding("ctrl+M", "set_marker_with_overwrite", set_marker_with_overwrite)
 mp.add_key_binding("ctrl+n", "set_marker_with_start_at_zero", set_marker_with_start_at_zero)
 mp.add_key_binding("ctrl+o", "open_in_new_mpv", open_in_new_mpv)
+mp.add_key_binding("ctrl+O", "open_playlist_in_new_mpv", open_playlist_in_new_mpv)
 mp.add_key_binding("ctrl+ENTER", "show_full_path", show_full_path)
