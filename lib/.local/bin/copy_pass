@@ -1,0 +1,10 @@
+# DOT SKIP server
+#!/bin/sh
+
+selected=$(gopass ls -s -f websites | dmenu)
+
+if [ -z $selected ]; then
+	exit 1
+fi
+
+gopass show -c "websites/"$selected

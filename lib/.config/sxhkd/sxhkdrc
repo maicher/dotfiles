@@ -31,10 +31,13 @@ F{5,6}
 
 # Bluetooth
 F{7,8}
-	bt_settings power {off,on}; dwms_refresh
+	bt_settings power {off,on}
 
 F9
 	st dev_logs &; sleep 1; st dev_notes &; sleep 1; st dev_dotfiles
+
+F10
+	thunderbird
 
 # Terminal
 alt + t
@@ -42,6 +45,13 @@ alt + t
 
 Print
 	flameshot gui
+
+# Passwords manager
+super + g
+	copy_pass
+
+super + G
+	st gopass new
 
 # Browsers
 super + {B,F,C}

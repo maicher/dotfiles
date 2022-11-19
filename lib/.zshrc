@@ -13,6 +13,8 @@ alias \
 	cutt="cut -d$'\t'" \
 	copy="xclip -i -selection clipboard" \
 
+alias so="source $HOME/.rvm/scripts/rvm"
+
 alias ipt='sudo /sbin/iptables'
 alias iptlist='sudo /sbin/iptables -L -n -v --line-numbers'
 alias iptlistin='sudo /sbin/iptables -L INPUT -n -v --line-numbers'
