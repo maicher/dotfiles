@@ -53,6 +53,9 @@ super + g
 super + G
 	st gopass new
 
+super + D
+	rm /dev/shm/dwms; dwms_refresh
+
 # Browsers
 super + {B,F,C}
 	{brave,firefox,google-chrome}
