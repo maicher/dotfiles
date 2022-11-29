@@ -40,29 +40,57 @@ F10
 	thunderbird
 
 # Terminal
-alt + t
+super + t
 	st tmux
-
-Print
-	flameshot gui
 
 # Passwords manager
 super + g
-	copy_pass
-
+	dmenu_pass -w "$DMENU_PASS" -o "$DWM_TEXT" && dwms_refresh
 super + G
+	dmenu_pass -r "$DMENU_PASS" -o "$DWM_TEXT" && dwms_refresh
+super + L
+	dmenu_pass -r "$DMENU_PASS" --login
+super + D
+	dmenu_pass -w "$DMENU_PASS" -o "$DWM_TEXT" --cleanup && dwms_refresh
+super + n
 	st gopass new
 
-super + D
-	rm /dev/shm/dwms; dwms_refresh
+# Custom snippets
+super + s
+	dmenu_pick $DMENU_SNIPPETS
+super + S
+	st vim $DMENU_SNIPPETS
+
+# Bookmarks
+super + u
+	dmenu_pick $DMENU_URLS
+super + U
+	st vim $DMENU_URLS
+
+# Bookmarks
+super + e
+	dmenu_pick $DMENU_URLS
+super + E
+	st vim $DMENU_URLS
+
+# Bookmarks
+super + x
+	dmenu_pick $DMENU_URLS2
+super + X
+	st vim $DMENU_URLS2
 
 # Browsers
-super + {B,F,C}
+super + {B,w,C}
 	{brave,firefox,google-chrome}
 
-# Office
-super + {e,E,M,G}
-	{soffice -calc,soffice -calc,thunderbird,gimp}
+# LibreOffice calc
+super + c
+	soffice -calc
 
+# Screenshots
+Print
+	flameshot gui
+
+# Boot a dev project
 super + p
 	dev

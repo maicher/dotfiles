@@ -3,8 +3,8 @@
 
 # zsh autocompletion for fvsep script.
 #
-# Set the CUSTOMERS env for better autocompletion, eg:
-#   $ export CUSTOMERS="A B C"
+# Set the FVSEP_CUSTOMERS env for better autocompletion, eg:
+#   $ export FVSEP_CUSTOMERS="A B C"
 #
 function _fvsep {
 	files=$(find . -maxdepth 1 -name "*.ods" -print0)
@@ -22,5 +22,5 @@ function _fvsep {
 		"-s[add given phrase to the end of the name of created result files]" \
 		"--suffix[add given phrase to the end of the name of created result files]" \
 		"1: :($files)" \
-		"*: :(_ $CUSTOMERS)"
+		"*: :(_ $FVSEP_CUSTOMERS)"
 }

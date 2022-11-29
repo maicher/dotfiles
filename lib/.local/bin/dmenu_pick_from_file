@@ -1,0 +1,26 @@
+# DOT SKIP server
+#!/bin/sh
+
+# dmenu_pick_from_file displays a dmenu with entries from a given file and type
+# the selected line to an active input using xdotool.
+# Can be used eg as bookmarks.
+
+location="$1"
+
+if [ -z $1 ]; then
+	echo "No path to a file"
+	exit 1
+fi
+
+if [ ! -f $1 ]; then
+	echo "File does not exist"
+	exit 2
+fi
+
+text=$(cat "$location" | dmenu -l 10 -i -nb '#2e3440' -nf '#7b8396' -sb '#526884' -sf '#eee')
+
+if [ -z $text ]; then
+	exit 1
+fi
+
+xdotool type --clearmodifiers --delay 2 "$text"

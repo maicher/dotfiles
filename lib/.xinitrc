@@ -39,7 +39,7 @@ sxhkd & &> /tmp/x.$USER.log
 xcompmgr &
 
 # Status bar for DWM
-dwms -x & &> /tmp/x.$USER.log
+dwms -x -text "$DWM_TEXT" & &> /tmp/x.$USER.log
 
 # Boot DWM.
 # If DWM exits 0, restart.

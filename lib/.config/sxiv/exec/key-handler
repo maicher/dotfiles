@@ -16,9 +16,9 @@
 case "$1" in
 	"C-c") sed '1q' | tr '\n' '\0' | xargs -0 -I{} xclip -selection clipboard -target image/png "{}" ;;
 	"C-g") tr '\n' '\0' | xargs -0 gimp & ;;
-	"C-l") tr '\n' '\0' | xargs -0 realpath | xargs -0 image_rotate --left --jobs 8 --files ;;
-	"C-r") tr '\n' '\0' | xargs -0 realpath | xargs -0 image_rotate --right --jobs 8 --files ;;
-	"C-R") tr '\n' '\0' | xargs -0 realpath | xargs -0 image_rotate --rotate --jobs 8 --files ;;
+	"C-l") tr '\n' '\0' | xargs -0 realpath | xargs -0 image_rotate --left --jobs $IMAGE_JOBS --files ;;
+	"C-r") tr '\n' '\0' | xargs -0 realpath | xargs -0 image_rotate --right --jobs $IMAGE_JOBS --files ;;
+	"C-R") tr '\n' '\0' | xargs -0 realpath | xargs -0 image_rotate --rotate --jobs $IMAGE_JOBS --files ;;
 	"C-d") tr '\n' '\0' | xargs -0 realpath | xargs -0 trash --timestamp --files ;;
 	"C-D") tr '\n' '\0' | xargs -0 rm ;;
 	"C-m") tr '\n' '\0' | xargs -0 realpath | xargs -0 -I{} lf -remote "send toggle {}" ;;

@@ -13,13 +13,27 @@ export TERMINAL="st"
 export OPENER="mimeopen"
 
 export XDG_CONFIG_HOME="$HOME/.config"
-export USER_TMPDIR="/dev/shm/tmp_$(whoami)"
-export MYVIMRC="$HOME/.config/nvim/vimrc"
+export MYVIMRC="$XDG_CONFIG_HOME/nvim/vimrc"
 export VIMINIT="source $MYVIMRC"
 
+export USER_TMPDIR="/dev/shm/tmp_$(whoami)" # /dev/shm means in RAM
+export DMENU_SNIPPETS="$HOME/.local/dmenu_snippets"
+export DMENU_URLS="$HOME/.local/dmenu_urls"
+export DMENU_URLS2="$HOME/.local/dmenu_urls2"
+export DMENU_PASS="$USER_TMPDIR/dmenu_pass"
+export DWM_TEXT="$USER_TMPDIR/dwm_text"
+export IMAGE_JOBS=8
+export VIDEO_JOBS=8
+export SXIV_MINIATURES_DIR="$USER_TMPDIR/sxiv"
+export FVSEP_CUSTOMERS="A B C"      # used by fvsep completions
+export USB_DEVICES="keyboard mouse" # used by usb completions
+export BT_DEVICES="MDR JBL"         # used by bt completions
 export POMODORO_SECONDS=2000
 
+# Create custom tmp dirs
 mkdir -p $USER_TMPDIR
+chmod 700 "$USER_TMPDIR"
+mkdir -p $SXIV_MINIATURES_DIR
 
 export TMUX_MOD_KEY='='
 # DOT SKIP kinesis

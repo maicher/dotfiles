@@ -1,0 +1,100 @@
+# DOT SKIP server
+#!/bin/sh
+
+showHelp () {
+cat << EOF
+
+NAME
+	dmenu_pass displays a dmenu with entries from Gopass
+	and auto type selected pass into the currently active input using xdotool.
+
+SYNOPSIS
+	type_pass [OPTION...]
+
+OPTIONS
+	-h, --help         display this help and exit
+	-w  --write FILE   write selected entry to a file, so that it can be further
+	                   used by the read option
+	-r  --read FILE    do not display the dmenu, read the selection from file instead
+	-l  --login        type login instead of pass
+	-o  --otp FILE     if an entry contains OTP url, try to fetch if and write
+	                   it to the FILE
+	-c  --cleanup      remove the files and exit
+
+EOF
+}
+
+# Init options.
+write_file=""
+read_file=""
+otp_file=""
+login=0
+cleanup=0
+
+# Parse cmd args
+options=$(getopt -l "help,write_file:,read_file:otp_file:,login,cleanup" -o "hw:r:o:lc" -a -- "$@")
+eval set -- "$options"
+
+while true; do
+	case $1 in
+		-h|--help) showHelp; exit 0 ;;
+		-r|--read) shift; read_file=$1 ;;
+		-w|--write) shift; write_file=$1 ;;
+		-o|--otp) shift; otp_file=$1 ;;
+		-l|--login) login=1 ;;
+		-c|--cleanup) cleanup=1 ;;
+		--) shift; break;;
+	esac
+	shift
+done
+
+if [ $cleanup -eq 1 ]; then
+	[ -f "$read_file" ] && rm "$read_file"
+	[ -f "$write_file" ] && rm "$write_file"
+	[ -f "$otp_file" ] && rm "$otp_file"
+	exit 0
+fi
+
+if [ ! -z "$read_file" ]; then
+	# Select previously used entry
+	if [ ! -f "$read_file" ]; then
+		echo "File does not exist"
+		exit 2
+	fi
+	selected=$(cat "$read_file")
+else
+	# Select entry using dmenu
+	selected=$(gopass ls -s -f websites | dmenu -nb '#2e3440' -nf '#7b8396' -sb '#526884' -sf '#eee')
+fi
+
+if [ -z $selected ]; then
+	exit 1
+fi
+
+# Fetch entry stored in gopass
+cont=$(gopass show websites/$selected)
+
+# Remember the selection for future use
+if [ ! -z "$write_file" ]; then
+	echo $selected > "$write_file"
+fi
+
+# Select either login of pass from the fetched content
+if [ $login -eq 1 ]; then
+	text=$(echo "$cont" | awk '/username:/ {print $2}')
+else
+	text=$(echo "$cont" | sed 1q)
+fi
+
+# Type the login or pass into the active input
+xdotool type --clearmodifiers --delay 2 $text
+
+# OTP
+if [ ! -z "$otp_file" ]; then
+	echo "$cont" | grep otpauth --silent
+
+	# If OTP is available, fetch it and write to a file
+	if [ $? -eq 0 ]; then
+		gopass otp -o websites/$selected > "$otp_file"
+	fi
+fi

@@ -170,10 +170,10 @@ cmd video-find-extract-join !{{
 
 	markers=$(echo "$files" | sed 's/_markers.txt//')
 	echo "Splitting"
-	video_extract -tp -j 8 -f "$markers"
+	video_extract -tp -j $VIDEO_JOBS -f "$markers"
 	echo "Joining"
 	parts=$(echo "$files" | sed 's/_markers.txt/_parts.txt/')
-	video_join -t -j 8 -f "$parts"
+	video_join -t -j $VIDEO_JOBS -f "$parts"
 	echo "Done"
 }}
 map \\vE video-find-extract-join
@@ -182,7 +182,7 @@ cmd video-extract !{{
 	set -f
 	files=$(kfind -r "_markers\.txt$" -f "$fx")
 	files=$(echo "$files" | sed 's/_markers.txt//')
-	video_extract -p -j 8 -f "$files"
+	video_extract -p -j $VIDEO_JOBS -f "$files"
 }}
 map \\ve video-extract
 
@@ -197,7 +197,7 @@ cmd video-extract-to-dir !{{
 	mkdir "$1"
 	files=$(kfind -r "_markers\.txt$" -f "$fx")
 	files=$(echo "$files" | sed 's/_markers.txt//')
-	video_extract -t -j 8 -o "$1" -f "$files"
+	video_extract -t -j $VIDEO_JOBS -o "$1" -f "$files"
 }}
 map \\vd push :video-extract-to-dir<space>
 
@@ -236,8 +236,8 @@ cmd image_compress !{{
 	files=$(kfind -r "\.(jpeg|jpg|png|gif|webp)$" -f "$fx")
 	image_compress --quality $1 --jobs $2 --verbose --files "$files"
 }}
-map \\ic8 image_compress 80 8
-map \\ic9 image_compress 90 8
+map \\ic8 image_compress 80 $IMAGE_JOBS
+map \\ic9 image_compress 90 $IMAGE_JOBS
 
 cmd image2 !{{
 	set -f
@@ -245,14 +245,11 @@ cmd image2 !{{
 
 	image2 --format $1 --jobs $2 "$files"
 }}
-map \\icj image2 jpg 8
-map \\icw image2 webp 8
+map \\icj image2 jpg $IMAGE_JOBS
+map \\icw image2 webp $IMAGE_JOBS
 
 cmd open-sxiv &{{
 	set -f
-
-	# store miniatures in /dev/shm dir, which means in RAM
-	export XDG_CACHE_HOME=/dev/shm
 
 	if [ -v 2 ]; then
 		shuffle="-s"
@@ -279,6 +276,9 @@ cmd open-sxiv &{{
 
 	count=$(echo "$files" | wc -l)
 	lf -remote "send $id echo Found $count files"
+
+	# Store miniatures in this dir
+	export XDG_CACHE_HOME="$SXIV_MINIATURES_DIR"
 
 	if [ $count -eq 1 ]; then
 		sxiv "$files"
