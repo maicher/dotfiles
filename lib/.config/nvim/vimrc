@@ -131,6 +131,7 @@ map <leader>H <C-W>v
 
 " Commands inserting text
 map tt :put =strftime('__%Y-%m-%d %H:%M (%a)__')<CR>
+map tb :norm obinding.pry<CR>B
 
 " vim-airline
 let g:airline_powerline_fonts = 1
