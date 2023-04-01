@@ -64,7 +64,7 @@ if [ ! -z "$read_file" ]; then
 	selected=$(cat "$read_file")
 else
 	# Select entry using dmenu
-	selected=$(gopass ls -s -f websites | dmenu -nb '#2e3440' -nf '#7b8396' -sb '#526884' -sf '#eee')
+	selected=$(gopass ls -s -f | dmenu -nb '#2e3440' -nf '#7b8396' -sb '#526884' -sf '#eee')
 fi
 
 if [ -z $selected ]; then
@@ -72,7 +72,7 @@ if [ -z $selected ]; then
 fi
 
 # Fetch entry stored in gopass
-cont=$(gopass show websites/$selected)
+cont=$(gopass show $selected)
 
 # Remember the selection for future use
 if [ ! -z "$write_file" ]; then
@@ -95,6 +95,6 @@ if [ ! -z "$otp_file" ]; then
 
 	# If OTP is available, fetch it and write to a file
 	if [ $? -eq 0 ]; then
-		gopass otp -o websites/$selected > "$otp_file"
+		gopass otp -o $selected > "$otp_file"
 	fi
 fi

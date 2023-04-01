@@ -1,3 +1,4 @@
+# DOT SKIP server
 #!/bin/sh
 
 commands="connect disconnect pair trust untrust remove"

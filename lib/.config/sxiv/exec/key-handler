@@ -12,6 +12,8 @@
 #   C-d   move to trash     (all marked images will be moved to trash)
 #   C-D   remove            (all marked images will be removed)
 #   C-m   toggle file in lf (all marked images will be toggled)
+#   C-u   move file one dir up (all marked images will be moved)
+#   C-h   move file here (all marked images will be moved)
 #
 case "$1" in
 	"C-c") sed '1q' | tr '\n' '\0' | xargs -0 -I{} xclip -selection clipboard -target image/png "{}" ;;
@@ -22,4 +24,6 @@ case "$1" in
 	"C-d") tr '\n' '\0' | xargs -0 realpath | xargs -0 trash --timestamp --files ;;
 	"C-D") tr '\n' '\0' | xargs -0 rm ;;
 	"C-m") tr '\n' '\0' | xargs -0 realpath | xargs -0 -I{} lf -remote "send toggle {}" ;;
-esac
+	"C-u") tr '\n' '\0' | xargs -0 -I{} mv "{}" "$(dirname {})/../" ;;
+	"C-h") tr '\n' '\0' | xargs -0 -I{} mv "{}" "$(dirname {})/" ;;
+	esac

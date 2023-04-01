@@ -1,7 +1,7 @@
 # DOT SKIP server
 #!/bin/sh
 
-props="power discoverable pairable discovering"
+props="power discoverable pairable discovering scan"
 
 showHelp () {
 cat << EOF
@@ -80,3 +80,4 @@ fi
 
 bluetoothctl $prop $command
 dwms_refresh
+exit

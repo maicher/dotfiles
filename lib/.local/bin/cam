@@ -1,0 +1,5 @@
+# DOT SKIP server
+#!/bin/sh
+
+v4l2-ctl -c brightness=$1
+v4l2-ctl -c saturation=80

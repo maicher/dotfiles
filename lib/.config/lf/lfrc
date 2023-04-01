@@ -145,12 +145,15 @@ cmd video-stabilize &{{
 }}
 map \\vs video-stabilize
 
-cmd video-compress &{{
-	filename=$(basename -- "$f")
-	extension="${filename##*.}"
-	target="${filename%.*}_c.mp4"
-	ffmpeg -i "$f" -y -vcodec libx264 -tune film "$target"
-	lf -remote "send $id load"
+cmd video-compress !{{
+	echo "$fx" | while IFS= read -r file
+	do
+		filename=$(basename -- "$file")
+		extension="${filename##*.}"
+		target="${filename%.*}_c.mp4"
+		ffmpeg -i "$file" -y -vcodec libx264 -tune film "$target"
+		lf -remote "send $id load"
+	done
 }}
 map \\vc video-compress
 
@@ -234,7 +237,8 @@ cmd destructive-video-join-from-file !{{
 cmd image_compress !{{
 	set -f
 	files=$(kfind -r "\.(jpeg|jpg|png|gif|webp)$" -f "$fx")
-	image_compress --quality $1 --jobs $2 --verbose --files "$files"
+	# todo handle jobs arg
+	image_compress --quality $1 --jobs 4 --verbose --files "$files"
 }}
 map \\ic8 image_compress 80 $IMAGE_JOBS
 map \\ic9 image_compress 90 $IMAGE_JOBS
@@ -243,7 +247,8 @@ cmd image2 !{{
 	set -f
 	files=$(kfind -f "$fx")
 
-	image2 --format $1 --jobs $2 "$files"
+	# todo handle jobs arg
+	image2 --format $1 --jobs 4 "$files"
 }}
 map \\icj image2 jpg $IMAGE_JOBS
 map \\icw image2 webp $IMAGE_JOBS
@@ -339,8 +344,8 @@ cmd audacious-enquque &{{
 	set -f
 	echo "$fx" | sed 's/\ /\\ /g' | xargs audacious -$1
 }}
-map \\aa audacious-enquque e
-map \\aA audacious-enquque E
+map <enter>a audacious-enquque e
+map <enter>A audacious-enquque E
 
 # MISC
 
@@ -365,3 +370,9 @@ map <enter>o $mimeopen --ask "$f"
 
 # Open using file opener and save as default for the given file type
 map <enter>O $mimeopen -d "$f"
+
+map A rename # at the very end
+map c push A<c-u> # new rename
+map I push A<c-a> # at the very beginning
+map i push A<a-b><a-b><a-f> # before extension
+map a push A<a-b> # after extension

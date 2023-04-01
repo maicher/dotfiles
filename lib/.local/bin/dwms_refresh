@@ -5,3 +5,4 @@
 # more info: github.com/maicher/dwms
 #
 pkill -USR1 dwms$
+pkill -USR1 kmstatus$
