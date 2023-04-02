@@ -1,38 +1,105 @@
-call plug#begin('~/.config/nvim/plugged')
-	" Theme
-	Plug 'vim-airline/vim-airline'
-	Plug 'joshdick/onedark.vim'
+lua << EOF
 
-	" Browsing
-	Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
-	Plug 'junegunn/fzf.vim'
-	Plug 'airblade/vim-rooter'
-	Plug 'preservim/nerdtree'
-	Plug 'ryanoasis/vim-devicons'
-	Plug 'ludovicchabant/vim-gutentags'
-	Plug 'nvim-lua/plenary.nvim'
-	Plug 'ThePrimeagen/harpoon'
+-- Packer is used as a vim package manager.
+-- To install, follow guides on: https://github.com/wbthomason/packer.nvim
 
-	" Git
-	Plug 'airblade/vim-gitgutter'
-	Plug 'tpope/vim-fugitive'
+vim.cmd [[packadd packer.nvim]]
+return require('packer').startup(function(use)
+  use 'wbthomason/packer.nvim'
 
-	" Coding
-	Plug 'sheerun/vim-polyglot'
-	Plug 'jiangmiao/auto-pairs'
-	Plug 'tpope/vim-endwise'        " add 'end' in Ruby
-	Plug 'alvan/vim-closetag'
-	Plug 'editorconfig/editorconfig-vim'
+  -- Theme
+  use 'vim-airline/vim-airline'
+  use 'joshdick/onedark.vim'
 
-	" DOT SKIP server
-	Plug 'neoclide/coc.nvim', {'do': 'yarn install --frozen-lockfile'}
-	Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
-	" DOT END
+  -- Browsing
+  use 'junegunn/fzf'
+  use 'junegunn/fzf.vim'
+  use 'airblade/vim-rooter'
+  use 'preservim/nerdtree'
+  use 'ryanoasis/vim-devicons'
+  use 'ludovicchabant/vim-gutentags'
+  use 'nvim-lua/plenary.nvim'
+  use 'ThePrimeagen/harpoon'
 
-	Plug 'bronson/vim-trailing-whitespace'
-	Plug 'mbbill/undotree'          " undo history visualizer
-	Plug 'vim-scripts/YankRing.vim' " history of previous yanks, changes and deletes
-call plug#end()
+  -- Git
+  use 'airblade/vim-gitgutter'
+  use 'tpope/vim-fugitive'
+
+  -- Coding
+  use 'sheerun/vim-polyglot'
+  use 'jiangmiao/auto-pairs'
+  use 'tpope/vim-endwise'        -- add 'end' in Ruby
+  use 'alvan/vim-closetag'
+  use 'editorconfig/editorconfig-vim'
+
+-- DOT SKIP server
+--  use 'neoclide/coc.nvim' --, {'do': 'yarn install --frozen-lockfile'}
+--  use 'fatih/vim-go' --, { 'do': ':GoUpdateBinaries' }
+use {
+  'VonHeikemen/lsp-zero.nvim',
+  branch = 'v2.x',
+  requires = {
+    -- LSP Support
+    {'neovim/nvim-lspconfig'},             -- Required
+    {                                      -- Optional
+      'williamboman/mason.nvim',
+      run = function()
+        pcall(vim.cmd, 'MasonUpdate')
+      end,
+    },
+    {'williamboman/mason-lspconfig.nvim'}, -- Optional
+
+    -- Autocompletion
+    {'hrsh7th/nvim-cmp'},     -- Required
+    {'hrsh7th/cmp-nvim-lsp'}, -- Required
+    {'L3MON4D3/LuaSnip'},     -- Required
+    {'hrsh7th/cmp-buffer'},
+  }
+}
+-- DOT END
+
+  use 'bronson/vim-trailing-whitespace'
+  use 'mbbill/undotree'          -- undo history visualizer
+  use 'vim-scripts/YankRing.vim' -- history of previous yanks, changes and deletes
+
+
+local lsp = require('lsp-zero')
+lsp.preset("recommended")
+
+lsp.ensure_installed({
+'tsserver',
+'eslint',
+'lua_ls',
+'solargraph',
+'gopls',
+})
+
+local cmp = require('cmp')
+
+cmp.setup({
+  sources = {
+    {name = 'path'},
+    {name = 'nvim_lsp'},
+	{name = 'buffer'},
+  },
+})
+
+local cmp_select = {behavior = cmp.SelectBehavior.Select}
+local cmp_mappings = lsp.defaults.cmp_mappings({
+  ['<C-j>'] = cmp.mapping.select_next_item(cmp_select),
+  ['<C-k>'] = cmp.mapping.select_prev_item(cmp_select),
+  ['<C-l>'] = cmp.mapping.confirm({ select = true }),
+  ['<Tab>'] = cmp.mapping.confirm({ select = true }),
+})
+
+lsp.setup_nvim_cmp({
+  mapping = cmp_mappings
+})
+
+lsp.setup()
+
+end)
+EOF
 
 let mapleader="\<Space>"
 syntax on
@@ -213,35 +280,6 @@ nmap <leader>u :UndotreeToggle<CR>
 map <leader>p :YRShow<CR>
 let g:yankring_paste_using_g = 0
 let g:yankring_history_dir = $USER_TMPDIR
-
-" coc.nvim
-inoremap <silent><expr><C-j> coc#pum#visible() ? coc#pum#next(1) : <SID>check_back_space() ? coc#pum#next(1) : coc#refresh()
-inoremap <expr><C-k> coc#pum#visible() ? coc#pum#prev(1) : "\<C-h>"
-inoremap <silent><expr> <TAB> coc#pum#visible() ? coc#pum#confirm() : "\<TAB>"
-inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm() : "\<CR>"
-
-function! s:check_back_space() abort
-  let col = col('.') - 1
-  return !col || getline('.')[col - 1]  =~# '\s'
-endfunction
-
-" Remap keys for gotos
-nmap <silent> gd <Plug>(coc-definition)
-nmap <silent> gy <Plug>(coc-type-definition)
-nmap <silent> gi <Plug>(coc-implementation)
-nmap <silent> gu <Plug>(coc-references)
-nmap <silent> gr <Plug>(coc-references)
-
-" Use K to show documentation in preview window.
-nnoremap <silent> K :call ShowDocumentation()<CR>
-
-function! ShowDocumentation()
-  if CocAction('hasProvider', 'hover')
-    call CocActionAsync('doHover')
-  else
-    call feedkeys('K', 'in')
-  endif
-endfunction
 
 " disable vim-go :GoDef short cut (gd), this is handled by LanguageClient [LC]
 let g:go_def_mapping_enabled = 0
