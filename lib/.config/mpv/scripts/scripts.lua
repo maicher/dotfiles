@@ -72,7 +72,7 @@ function open_playlist_in_new_mpv()
 
   for i, v in ipairs(playlist) do
     if v.filename == current_path then
-      os = i - 1
+      pos = i - 1
     end
 
     list = list.."\n"..v.filename

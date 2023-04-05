@@ -13,7 +13,7 @@ export TERMINAL="st"
 export OPENER="mimeopen"
 
 export XDG_CONFIG_HOME="$HOME/.config"
-export MYVIMRC="$XDG_CONFIG_HOME/nvim/vimrc"
+export MYVIMRC="$XDG_CONFIG_HOME/nvim/init.lua"
 export VIMINIT="source $MYVIMRC"
 
 export USER_TMPDIR="/dev/shm/tmp_$(whoami)" # /dev/shm means in RAM
