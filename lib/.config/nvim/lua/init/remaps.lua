@@ -24,13 +24,34 @@ k.set("n", "<leader>q", ":q<CR>")
 k.set("n", "<C-q>", ":q<CR>")
 k.set("n", "<leader>Q", ":qa<CR>")
 
+-- Move highlighted lines up/down
+k.set("v", "J", ":m '>+1<CR>gv=gv'")
+k.set("v", "K", ":m '>-2<CR>gv=gv'")
+
+-- Keep cursor in the middle
+k.set("n", "J", "mzJ`z")
+k.set("n", "<C-d>", "<C-d>zz")
+k.set("n", "<C-u>", "<C-u>zz")
+k.set("n", "n", "nzzzv")
+k.set("n", "N", "Nzzzv")
+
+-- Paste without loosing the currently yanked stuff
+k.set("x", "<leader>p", "\"_dP")
+
+-- Substitute the file on the cursor
+k.set("n", "<leader>s", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]])
+
+-- Add/remove exec perms to the currently open file
+k.set("n", "<leader>x", "<cmd>!chmod +x %<CR>")
+k.set("n", "<leader>X", "<cmd>!chmod -x %<CR>")
+
 -- Insert blank line below the cursor
 k.set("n", "<CR>", "o<Esc>k")
 
 -- Save all buffers
 k.set("n", "\\", ":wa<CR>")
 
--- Close all buffers except the current one.
+-- Close all buffers except the current one
 vim.cmd([[command! BufOnly execute '%bdelete|edit #|normal `"''"`']])
 k.set("n", "<leader>b", ":BufOnly<CR>")
 
