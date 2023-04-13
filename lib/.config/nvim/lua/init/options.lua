@@ -47,4 +47,3 @@ vim.api.nvim_create_autocmd("BufEnter", {
   command = "set syntax=javascript",
   group = "ft"
 })
-
