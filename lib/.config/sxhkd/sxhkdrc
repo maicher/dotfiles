@@ -9,8 +9,6 @@ XF86Audio{Lower,Raise}Volume
 # Microphone
 F1
 	pamixer --source $(pamixer_mic_source) -t; dwms_refresh
-
-# Volume mic.
 F{2,3}
 	pamixer --source $(pamixer_mic_source) -{d,i} 1; dwms_refresh
 
@@ -19,15 +17,6 @@ XF86MonBrightness{Up,Down}
 	xbacklight -{inc,dec} 10
 XF86Display
 	xrandr --auto
-
-# Player
-XF86Audio{Play,Prev,Next}
-	audacious {--play-pause,--rew,--fwd}
-F{5,6}
-	xdotool search --classname audacious | xargs -Ixx xdotool key --window 'xx' {Left,Right}
-
-{KP_Left,KP_Begin,KP_Right,KP_Delete,KP_Enter}
-	xdotool search --class mpv | xargs -Ixx xdotool key --window 'xx' {j,k,n,J,K}
 
 # Bluetooth
 F{7,8}
@@ -55,7 +44,7 @@ super + D
 super + n
 	st gopass new
 
-# Custom snippets
+# Snippets
 super + s
 	dmenu_pick $DMENU_SNIPPETS
 super + S
@@ -66,14 +55,10 @@ super + u
 	dmenu_pick $DMENU_URLS
 super + U
 	st vim $DMENU_URLS
-
-# Bookmarks
 super + e
 	dmenu_pick $DMENU_URLS
 super + E
 	st vim $DMENU_URLS
-
-# Bookmarks
 super + x
 	dmenu_pick $DMENU_URLS2
 super + X

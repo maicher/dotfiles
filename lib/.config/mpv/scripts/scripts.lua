@@ -16,7 +16,7 @@ local function get_final_path()
    return final_path
 end
 
-function move_to_trash()
+local function move_to_trash()
   local final_path = get_final_path()
 
    mp.osd_message("Moving to trash...")
@@ -25,7 +25,7 @@ function move_to_trash()
    mp.commandv('playlist-next')
 end
 
-function delete()
+local function delete()
   local final_path = get_final_path()
 
    mp.osd_message("Deleting...")
@@ -34,7 +34,7 @@ function delete()
    mp.commandv('playlist-next')
 end
 
-function set_marker()
+local function set_marker()
   local timestamp = mp.get_property_native("playback-time")
   local final_path = get_final_path()
 
@@ -42,7 +42,7 @@ function set_marker()
   mp.osd_message("Marker set "..timestamp)
 end
 
-function set_marker_with_overwrite()
+local function set_marker_with_overwrite()
   local timestamp = mp.get_property_native("playback-time")
   local final_path = get_final_path()
 
@@ -50,21 +50,21 @@ function set_marker_with_overwrite()
   mp.osd_message("Marker set (with overwrite)"..timestamp)
 end
 
-function set_marker_with_start_at_zero()
+local function set_marker_with_start_at_zero()
   local final_path = get_final_path()
 
   os.execute("echo 0.0 > '"..final_path.."_markers.txt'")
   set_marker()
 end
 
-function open_in_new_mpv()
+local function open_in_new_mpv()
   local final_path = get_final_path()
   mp.osd_message("Opening "..final_path)
 
   os.execute("mpv '"..final_path.."' &")
 end
 
-function open_playlist_in_new_mpv()
+local function open_playlist_in_new_mpv()
   local playlist = mp.get_property_native('playlist')
   local current_path = get_final_path()
   local list = ""
@@ -82,7 +82,7 @@ function open_playlist_in_new_mpv()
   os.execute("echo '"..list.."' | mpv --playlist-start="..pos.." --playlist=- &")
 end
 
-function show_full_path()
+local function show_full_path()
   local final_path = get_final_path()
   mp.osd_message(final_path)
 end
