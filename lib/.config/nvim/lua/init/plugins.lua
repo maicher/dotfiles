@@ -80,7 +80,7 @@ return require("packer").startup(function(use)
       { name = "path" },
       { name = "nvim_lsp" },
       { name = "nvim_lua" },
-      { name = "buffer", keyword_length = 5 },
+      { name = "buffer", keyword_length = 4 },
     },
     experimental = {
       ghost_text = true,
