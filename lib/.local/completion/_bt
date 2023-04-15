@@ -1,15 +1,37 @@
 # DOT SKIP server
 #compdef _bt bt
 
-# zsh autocompletion for bt script.
+# zsh autocompletion for the bt script.
 #
 # Set the BT_DEVICES env for better autocompletion, eg:
-#   $ export USB_DEVICES="MDR JBL"
+#   $ export BT_DEVICES="MDR JBL"
 #
 function _bt {
+	local line state
+
 	_arguments -C \
 		"-h[display help]" \
-		"1: :($BT_DEVICES)" \
-		"2: :(connect disconnect pair trust untrust remove)" \
+		"1: :->cmds" \
 		"*::arg:->args"
+
+	case "$state" in
+		cmds)
+			_values "dolt_table command" \
+			"connect" \
+			"disconnect" \
+			"remove" \
+			"info" \
+			"off" \
+			"on" \
+			"restart" \
+			"scan"
+		;;
+		args)
+			if [[ $line[1] =~ ^(info|connect|disconnect|remove)$ ]]; then
+				_arguments -C \
+					"1: :($BT_DEVICES)"
+			fi
+		;;
+	esac
+
 }

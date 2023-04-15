@@ -1,33 +1,35 @@
 # DOT SKIP server
 #!/bin/sh
 
-commands="connect disconnect pair trust untrust remove"
-
 showHelp () {
 cat << EOF
 
 SYNOPSIS
-	bt                    print available devices
-	bt DEVICE COMMAND     change state of a given device
+	bt                    print known devices
+	bt on                 turn the bt controller on
+	bt off                turn the bt controller off
+	bt restart            restart the bluetooth deamon
+	bt scan               scan for pairable devices
+	bt COMMAND DEVICE
 
 ARGUMENTS
 	DEVICE     part of the device's name (to grep by)
 	COMMAND    one of the available commands:
-	           $commands
+	           info connect disconnect remove
 
 EXAMPLES
 	Show available devices:
 
-		$ bt
-		Device 5C:FB:7C:78:6B:75 JBL Flip 3 SE
-		Device 04:5D:4B:DF:2C:39 MDR-1000X
+	  $ bt
+	  Device 5C:FB:7C:78:6B:75 JBL Flip 3 SE
+	  Device 04:5D:4B:DF:2C:39 MDR-1000X
 
 	Connect to a device (pass a phrase to grep by).
 	Below examples are equvalent:
 
-		$ bt MDR connect
-		$ bt 04:5D connect
-		$ bt 1000X connect
+	  $ bt connect MDR
+	  $ bt connect 04:5D
+	  $ bt connect 1000X
 
 EOF
 }
@@ -38,40 +40,85 @@ if [[ $1 == "-h" ]]; then
 fi
 
 dwms_refresh
-device_name=$1
-command=$2
+command=$1
+device_name=$2
 
 devices=$(bluetoothctl devices)
 
-if [ -z "$device_name" ]; then
-	echo "$devices"
-	exit
-fi
+case $command in
+	on)
+		bluetoothctl power on
+	;;
+	off)
+		bluetoothctl power off
+	;;
+	restart)
+		systemctl restart bluetooth
+	;;
+	scan)
+		bluetoothctl show | grep -q "Powered: no"
+		if [ $? -eq 0 ]; then
+			echo "Powering up..."
+			bluetoothctl power on
+			dwms_refresh
+		fi
 
-if [ -z $command ]; then
-	echo "No command, available commands:"
-	echo $commands
-	echo ""
-	echo "Type bt -h for more info"
-	exit 1
-fi
+		echo "Scanning... (press any key to stop)"
+		bluetoothctl pairable on
+		bluetoothctl scan on &
+		while [ true ]; do
+			read -t 3 -n 1
+			if [ $? = 0 ] ; then
+				echo "stop"
+				pid=$(ps | awk '/bluetoothctl/{print $1}')
+				if [ ! -e $pid ]; then
+					kill $pid
+					sleep 1
+				fi
 
-echo " "$commands" " | grep -q " $command "
-if [ $? -eq 1 ]; then
-	echo "Invalid command, available commands:"
-	echo $commands
-	echo ""
-	echo "Type bt -h for more info"
-	exit 1
-fi
+				bluetoothctl scan off
+				bluetoothctl pairable off
+				exit
+			fi
+		done
+	;;
+	info|connect|disconnect|remove)
+		if [ -z $device_name ]; then
+			echo "Missing device name"
+			exit 1
+		fi
 
-selected_device=$(echo "$devices" | grep -i $device_name | awk '{ print $2 }')
+		selected_device=$(echo "$devices" | grep -i $device_name | awk '{ print $2 }')
+		if [ -z $selected_device ]; then
+			echo 'Device not found'
+			echo "$devices"
+			exit 1
+		fi
 
-if [ -z $selected_device ]; then
-	echo 'Device not found, available devices:'
-	echo "$devices"
-	exit 1
-fi
+		if [ $command = "connect" ]; then
+			bluetoothctl info $selected_device | grep -q "Trusted: no"
+			if [ $? -eq 0 ]; then
+				echo "Trusting..."
+				bluetoothctl trust $selected_device
+			fi
 
-bluetoothctl $command $selected_device
+			bluetoothctl info $selected_device | grep -q "Paired: no"
+			if [ $? -eq 0 ]; then
+				echo "Pairing..."
+				bluetoothctl pair $selected_device
+			fi
+		fi
+
+		bluetoothctl $command $selected_device
+	;;
+	"")
+		echo "$devices"
+		exit
+	;;
+	*)
+		echo "Unknown command"
+		exit 1
+	;;
+esac
+
 dwms_refresh
