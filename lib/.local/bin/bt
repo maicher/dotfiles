@@ -10,7 +10,7 @@ SYNOPSIS
 	bt off                turn the bt controller off
 	bt restart            restart the bluetooth deamon
 	bt scan               scan for pairable devices
-	bt COMMAND DEVICE
+	bt COMMAND DEVICE     interact with given device
 
 ARGUMENTS
 	DEVICE     part of the device's name (to grep by)

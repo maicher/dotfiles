@@ -1,4 +1,4 @@
 # DOT SKIP server
 #!/bin/sh
 
-pamixer --list-sources | grep Microphone | cut -d ' ' -f 1
+pamixer --list-sources | awk '/Microphone/ {print $1}'
