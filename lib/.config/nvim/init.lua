@@ -1,4 +1,3 @@
-require("init.colorscheme")
 require("init.macros")
 require("init.options")
 require("init.plugins")

@@ -7,8 +7,11 @@ return require("packer").startup(function(use)
   use "wbthomason/packer.nvim"
 
   -- Theme
-  use "vim-airline/vim-airline"
-  use "joshdick/onedark.vim"
+  use {
+    'nvim-lualine/lualine.nvim',
+    requires = { 'nvim-tree/nvim-web-devicons', opt = true }
+  }
+  use "navarasu/onedark.nvim"
 
   -- Browsing
   use "junegunn/fzf"
@@ -33,6 +36,8 @@ return require("packer").startup(function(use)
   use "mattn/vim-goimports"
 
 -- DOT SKIP server
+  use "nvim-treesitter/nvim-treesitter"
+  use "nvim-treesitter/playground"
   use({
     "VonHeikemen/lsp-zero.nvim",
     branch = "v2.x",
@@ -61,6 +66,7 @@ return require("packer").startup(function(use)
   use "bronson/vim-trailing-whitespace"
   use "mbbill/undotree"          -- undo history visualizer
   use "vim-scripts/YankRing.vim" -- history of previous yanks, changes and deletes
+
 
   local lsp = require("lsp-zero")
   lsp.preset("recommended")
