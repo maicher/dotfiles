@@ -233,7 +233,6 @@ cmd destructive-video-join-from-file !{{
 # CUSTOM COMMANDS
 # Image manipulations (prefix key: \i)
 
-# Image JPG compressing
 cmd image_compress !{{
 	set -f
 	files=$(kfind -r "\.(jpeg|jpg|png|gif|webp)$" -f "$fx")
@@ -252,6 +251,14 @@ cmd image2 !{{
 }}
 map \\icj image2 jpg $IMAGE_JOBS
 map \\icw image2 webp $IMAGE_JOBS
+
+cmd image_resize !{{
+	set -f
+	files=$(kfind -r "\.(jpeg|jpg)$" -f "$fx")
+	# todo handle jobs arg
+	image_compress --quality 90 --height 1024 --jobs 4 --verbose --files "$files"
+}}
+map \\ir image_resize
 
 cmd open-sxiv &{{
 	set -f

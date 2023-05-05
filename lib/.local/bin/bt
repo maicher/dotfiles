@@ -64,7 +64,6 @@ case $command in
 		fi
 
 		echo "Scanning... (press any key to stop)"
-		bluetoothctl pairable on
 		bluetoothctl scan on &
 		while [ true ]; do
 			read -t 3 -n 1
@@ -77,12 +76,11 @@ case $command in
 				fi
 
 				bluetoothctl scan off
-				bluetoothctl pairable off
 				exit
 			fi
 		done
 	;;
-	info|connect|disconnect|remove)
+	info|pair|connect|trust|disconnect|remove)
 		if [ -z $device_name ]; then
 			echo "Missing device name"
 			exit 1
@@ -102,11 +100,13 @@ case $command in
 				bluetoothctl trust $selected_device
 			fi
 
-			bluetoothctl info $selected_device | grep -q "Paired: no"
-			if [ $? -eq 0 ]; then
-				echo "Pairing..."
-				bluetoothctl pair $selected_device
-			fi
+			# bluetoothctl info $selected_device | grep -q "Paired: no"
+			# if [ $? -eq 0 ]; then
+			# 	echo "Unable to connect. Device is not paired."
+			# 	echo "Enable pairing in the device and then run:"
+			# 	echo "bt pair DEVICE"
+			# 	exit 1
+			# fi
 		fi
 
 		bluetoothctl $command $selected_device

@@ -21,13 +21,15 @@ function _bt {
 			"disconnect" \
 			"remove" \
 			"info" \
+			"pair" \
+			"trust" \
 			"off" \
 			"on" \
 			"restart" \
 			"scan"
 		;;
 		args)
-			if [[ $line[1] =~ ^(info|connect|disconnect|remove)$ ]]; then
+			if [[ $line[1] =~ ^(info|pair|connect|disconnect|remove)$ ]]; then
 				_arguments -C \
 					"1: :($BT_DEVICES)"
 			fi

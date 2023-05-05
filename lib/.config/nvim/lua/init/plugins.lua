@@ -17,27 +17,27 @@ return require("packer").startup(function(use)
   use "junegunn/fzf"
   use "junegunn/fzf.vim"
   use "airblade/vim-rooter"
-  use "preservim/nerdtree"
-  use "ryanoasis/vim-devicons"
+  use "nvim-tree/nvim-tree.lua"
   use "ludovicchabant/vim-gutentags"
-  use "nvim-lua/plenary.nvim"
-  use "ThePrimeagen/harpoon"
+  use({
+    "ThePrimeagen/harpoon",
+    requires = "nvim-lua/plenary.nvim",
+  })
 
   -- Git
   use "airblade/vim-gitgutter"
   use "tpope/vim-fugitive"
 
   -- Coding
-  use "sheerun/vim-polyglot"
-  use "jiangmiao/auto-pairs"
-  use "tpope/vim-endwise"        -- adds "end" in Ruby
-  use "alvan/vim-closetag"
   use "editorconfig/editorconfig-vim"
   use "mattn/vim-goimports"
 
 -- DOT SKIP server
   use "nvim-treesitter/nvim-treesitter"
   use "nvim-treesitter/playground"
+  use "nvim-treesitter/nvim-treesitter-textobjects"
+  use "RRethy/nvim-treesitter-endwise"
+
   use({
     "VonHeikemen/lsp-zero.nvim",
     branch = "v2.x",
@@ -66,40 +66,4 @@ return require("packer").startup(function(use)
   use "bronson/vim-trailing-whitespace"
   use "mbbill/undotree"          -- undo history visualizer
   use "vim-scripts/YankRing.vim" -- history of previous yanks, changes and deletes
-
-
-  local lsp = require("lsp-zero")
-  lsp.preset("recommended")
-
-  lsp.ensure_installed({
-    "tsserver",
-    "eslint",
-    "lua_ls",
-    "solargraph",
-    "gopls",
-  })
-
-  local cmp = require("cmp")
-
-  cmp.setup({
-    sources = {
-      { name = "path" },
-      { name = "nvim_lsp" },
-      { name = "nvim_lua" },
-      { name = "buffer", keyword_length = 4 },
-    },
-    experimental = {
-      ghost_text = true,
-    }
-  })
-
-  lsp.setup_nvim_cmp({
-    mapping = lsp.defaults.cmp_mappings({
-      ["<C-j>"] = cmp.mapping.select_next_item({ behavior = cmp.SelectBehavior.Select }),
-      ["<C-k>"] = cmp.mapping.select_prev_item({ behavior = cmp.SelectBehavior.Select }),
-      ["<Tab>"] = cmp.mapping.confirm({ select = true }),
-    })
-  })
-
-  lsp.setup()
 end)

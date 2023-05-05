@@ -26,4 +26,4 @@ case "$1" in
 	"C-m") tr '\n' '\0' | xargs -0 realpath | xargs -0 -I{} lf -remote "send toggle {}" ;;
 	"C-u") tr '\n' '\0' | xargs -0 -I{} mv "{}" "$(dirname {})/../" ;;
 	"C-h") tr '\n' '\0' | xargs -0 -I{} mv "{}" "$(dirname {})/" ;;
-	esac
+esac
