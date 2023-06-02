@@ -119,6 +119,13 @@ cmd copy-file-path ${{
 }}
 map \\fc copy-file-path
 
+# Copy the path of a file(s)
+cmd copy-file-basename ${{
+	set -f
+	basename "$f" | tr -d \\n | xclip -i -selection clipbopard
+}}
+map \\b copy-file-basename
+
 
 # CUSTOM COMMANDS
 # Video manipulations (prefix key: \v)
@@ -301,6 +308,34 @@ cmd open-sxiv &{{
 	dwms_refresh
 }}
 
+cmd open-sxiv-by-extension &{{
+	set -f
+	extension="$1"
+
+	lf -remote "send $id echo Searching by extension: $extension"
+
+	regex="$(printf '\.%s$' $extension)"
+	files=$(kfind -r "$regex" -f "$fx")
+	if [ -z "$files" ]; then
+		lf -remote "send $id echo No files found"
+		exit
+	fi
+
+	count=$(echo "$files" | wc -l)
+	lf -remote "send $id echo Found $count files"
+
+	# Store miniatures in this dir
+	export XDG_CACHE_HOME="$SXIV_MINIATURES_DIR"
+
+	if [ $count -eq 1 ]; then
+		sxiv "$files"
+	else
+		echo "$files" | sxiv -t -
+	fi
+
+	dwms_refresh
+}}
+
 cmd open-mpv &{{
 	set -f
 
@@ -362,6 +397,8 @@ map x !$f
 # Open in sxiv
 map <enter><enter> open-sxiv
 map <enter>s push :open-sxiv<space>rand<space>
+map <enter>j open-sxiv-by-extension "jpg"
+map <enter>p open-sxiv-by-extension "png"
 
 # Open in mpv
 map <enter>mm open-mpv
@@ -378,8 +415,20 @@ map <enter>o $mimeopen --ask "$f"
 # Open using file opener and save as default for the given file type
 map <enter>O $mimeopen -d "$f"
 
-map A rename # at the very end
-map c push A<c-u> # new rename
-map I push A<c-a> # at the very beginning
-map i push A<a-b><a-b><a-f> # before extension
+map A rename # rename (put cursor at the end of the current name)
+map C push A<c-u> # rename (clear the current name)
+map I push A<c-a> # rename (put cursor at the beginning of the current name)
+map i push A<a-b><a-b><a-f> # rename (put cursor before the ext)
 map a push A<a-b> # after extension
+
+cmd kmbott !{{ kmbot -t -f "$fx" }}
+cmd kmbotp !{{ kmbot -p -f "$fx" }}
+
+cmd trashtxt !{{
+	set -f
+	files=$(kfind -f "$fx" -r ".txt$")
+	count=$(echo "$files" | wc -l)
+	echo "Will trash $count files. Press enter to continue."
+	read ans
+	trash -f "$files" -t
+}}

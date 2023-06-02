@@ -46,23 +46,15 @@ super + n
 
 # Snippets
 super + s
-	dmenu_pick $DMENU_SNIPPETS
+	dmenu_pick_from_file $DMENU_SNIPPETS
 super + S
 	st vim $DMENU_SNIPPETS
 
 # Bookmarks
 super + u
-	dmenu_pick $DMENU_URLS
+	dmenu_pick_from_file $DMENU_URLS
 super + U
 	st vim $DMENU_URLS
-super + e
-	dmenu_pick $DMENU_URLS
-super + E
-	st vim $DMENU_URLS
-super + x
-	dmenu_pick $DMENU_URLS2
-super + X
-	st vim $DMENU_URLS2
 
 # Browsers
 super + {B,w,C}

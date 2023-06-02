@@ -24,6 +24,6 @@ if [ -z $text ]; then
 fi
 
 # Drop part after '#' sign
-text=${A%%#*}
+# text=${A%%#*}
 
 xdotool type --clearmodifiers --delay 2 "$text"

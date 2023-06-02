@@ -1,0 +1,84 @@
+#!/bin/sh
+
+showHelp () {
+cat << EOF
+
+NAME
+	tag
+
+SYNOPSIS
+	tag --name NAME --source FILE [--all]
+
+OPTIONS
+	-n, --name NAME    prefix line with given NAME:
+	-s, --source FILE  a path to a file with tags
+	-a, --all          loop through all tags from source file instean displaying dmenu
+	-h, --help
+
+DESCRIPTON
+	1. Displays dmenu with list of tags from source FILE
+	   so that user can select or type own tags
+	2. Displays sxiv with list of jpg file from current directory
+	   so that user can pick the images to tag
+	3. Tag each of the selected images by appending tags into the <filename>-meta.txt
+
+EOF
+}
+
+# Init options.
+name=""
+source=""
+all=false
+
+options=$(getopt -l "help,name:,source:,all" -o "hn:s:a" -a -- "$@")
+eval set -- "$options"
+
+while true; do
+	case $1 in
+		-h|--help) showHelp; exit 0 ;;
+		-n|--name) shift; name="$1" ;;
+		-s|--source) shift; source="$1" ;;
+		-a|--all) all=true ;;
+		--) shift; break;;
+	esac
+	shift
+done
+
+# Validate arguments.
+if [[ -z $name ]]; then
+	echo "--name option is required"
+	exit
+fi
+
+# Validate arguments.
+if [[ -z $source ]]; then
+	echo "--source option is required"
+	exit
+fi
+
+if [ ! -f "$source" ]; then
+	echo "Source file '$source' does not exist"
+	exit 1
+fi
+
+if [[ $all = true ]]; then
+	echo all
+	tags=$(cat "$source")
+else
+	echo not all
+	tags=$(cat "$source" | dmenu -p "Select tags:" -l 10 -i -nb '#2e3440' -nf '#7b8396' -sb '#526884' -sf '#eee')
+	if [ -z "$tags" ]; then
+		echo "No option was selected" >&2
+		exit 1
+	fi
+fi
+
+echo "$tags" | while read tags
+do
+	echo "Selected tags:" $tags
+	ls *.jpg | sxiv -ot - | while read filename
+	do
+		echo "$name: $tags" >> "$filename-meta.txt"
+	done
+done
+

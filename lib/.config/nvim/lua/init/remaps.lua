@@ -3,10 +3,6 @@ local k = vim.keymap
 -- SPACE as the leader key
 vim.g.mapleader = " "
 
--- Quickfixlist nav
-k.set("n", "<C-j>", ":cn<CR>")
-k.set("n", "<C-k>", ":cp<CR>")
-
 -- Splits nav
 k.set("n", "<leader>j", "<C-W><C-j>")
 k.set("n", "<leader>k", "<C-W><C-k>")
@@ -32,14 +28,15 @@ k.set("v", "K", ":m '>-2<CR>gv=gv'")
 k.set("n", "J", "mzJ`z")
 k.set("n", "<C-d>", "<C-d>zz")
 k.set("n", "<C-u>", "<C-u>zz")
-k.set("n", "n", "nzzzv")
-k.set("n", "N", "Nzzzv")
+k.set("n", "n", "nzz")
+k.set("n", "N", "Nzz")
 
 -- Paste without loosing the currently yanked stuff
 k.set("x", "<leader>p", "\"_dP")
 
 -- Substitute the file on the cursor
-k.set("n", "<leader>s", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]])
+k.set("n", "<leader>s", [[:%s/\<<C-r><C-w>\>//gI<Left><Left><Left>]])
+k.set("n", "<leader>S", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]])
 
 -- Add/remove exec perms to the currently open file
 k.set("n", "<leader>x", "<cmd>!chmod +x %<CR>")
@@ -64,3 +61,16 @@ k.set("n", "tb", ":norm obinding.pry<CR>B")
 k.set("n", "t5", ":norm i<%  %><CR>hhi")
 k.set("n", "t%", ":norm i<%=  %><CR>hhi")
 k.set("n", "tp", ":norm ofmt.Printf(\"%+v\\n\", )<CR>i")
+k.set("n", "tl", ":norm ofmt.Println()<CR>i")
+
+-- Remap the [ and ] to <Tab> and '
+-- vim.keymap.set("n", "<Tab>d", vim.diagnostic.goto_prev)
+-- vim.keymap.set("n", "'d", vim.diagnostic.goto_next)
+
+-- Spell
+-- vim.keymap.set("n", "<Tab>s", "[s")
+-- vim.keymap.set("n", "'s", "[s")
+
+-- Quickfixlist nav
+k.set("n", "<C-k>", ":cprev<CR>")
+k.set("n", "<C-j>", ":cnext<CR>")

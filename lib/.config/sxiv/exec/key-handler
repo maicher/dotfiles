@@ -23,7 +23,11 @@ case "$1" in
 	"C-R") tr '\n' '\0' | xargs -0 realpath | xargs -0 image_rotate --rotate --jobs $IMAGE_JOBS --files ;;
 	"C-d") tr '\n' '\0' | xargs -0 realpath | xargs -0 trash --timestamp --files ;;
 	"C-D") tr '\n' '\0' | xargs -0 rm ;;
-	"C-m") tr '\n' '\0' | xargs -0 realpath | xargs -0 -I{} lf -remote "send toggle {}" ;;
+	"C-m") tr '\n' '\0' | xargs -0 realpath | xargs -I{} lf -remote "send toggle {}" ;;
 	"C-u") tr '\n' '\0' | xargs -0 -I{} mv "{}" "$(dirname {})/../" ;;
 	"C-h") tr '\n' '\0' | xargs -0 -I{} mv "{}" "$(dirname {})/" ;;
+
+	"C-p") sed -e 's/png$/txt/' -e 1q | xargs sed 1q | xclip -selection clipboard ;;
+	"C-n") sed -e 's/png$/txt/' -e 1q | xargs sed -n -e 's/Negative prompt: //p' | xclip -selection clipboard ;;
+	"C-s") sed -e 's/png$/txt/' -e 1q | xargs sed -n -e '/Steps:/p' | sed 's/,/\n/g' | xargs -I{} notify-send -t 30000 "{}"
 esac
