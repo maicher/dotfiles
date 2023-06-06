@@ -3,31 +3,47 @@
 
 # This file needs to have x perms.
 #
-# Press C-x followed by:
-#   C-c   copy to clipboard (only the first marked image will be copied)
-#   C-g   open in Gimp      (all marked images will be opened)
-#   C-l   rotate left       (all marked images will be rotated (in 8 parallel threads))
-#   C-r   rotate right      (as above)
-#   C-R   rotate 180        (as above)
-#   C-d   move to trash     (all marked images will be moved to trash)
-#   C-D   remove            (all marked images will be removed)
-#   C-m   toggle file in lf (all marked images will be toggled)
-#   C-u   move file one dir up (all marked images will be moved)
-#   C-h   move file here (all marked images will be moved)
+# To trigger a given action, press C-x (control and x) and then press the C-key.
+# Where "key" is one of the listed below (c, g, l, etc).
 #
 case "$1" in
+	# copy to clipboard; only the first marked image will be copied
 	"C-c") sed '1q' | tr '\n' '\0' | xargs -0 -I{} xclip -selection clipboard -target image/png "{}" ;;
+
+	# open in Gimp; all marked images will be opened
 	"C-g") tr '\n' '\0' | xargs -0 gimp & ;;
+
+	# rotate left; all marked images will be rotated (in few parallel threads, the IMAGE_JOBS
+	#              environmental variable defines the number of threads, it's set in .zprofile file)
 	"C-l") tr '\n' '\0' | xargs -0 realpath | xargs -0 image_rotate --left --jobs $IMAGE_JOBS --files ;;
+
+	# rotate right; as above
 	"C-r") tr '\n' '\0' | xargs -0 realpath | xargs -0 image_rotate --right --jobs $IMAGE_JOBS --files ;;
+
+	# rotate 180; as above
 	"C-R") tr '\n' '\0' | xargs -0 realpath | xargs -0 image_rotate --rotate --jobs $IMAGE_JOBS --files ;;
+
+	# move to trash; all marked images will be moved to trash
 	"C-d") tr '\n' '\0' | xargs -0 realpath | xargs -0 trash --timestamp --files ;;
+
+	# remove; all marked images will be removed)
 	"C-D") tr '\n' '\0' | xargs -0 rm ;;
+
+	# toggle file in the lf file manager; all marked images will be toggled
 	"C-m") tr '\n' '\0' | xargs -0 realpath | xargs -I{} lf -remote "send toggle {}" ;;
+
+	# move one dir up; each marked image will be moved one directory up in it's path
 	"C-u") tr '\n' '\0' | xargs -0 -I{} mv "{}" "$(dirname {})/../" ;;
+
+	# move here; all marked images will be moved to the directory from where the sxiv was opened
 	"C-h") tr '\n' '\0' | xargs -0 -I{} mv "{}" "$(dirname {})/" ;;
 
+	# copy prompt
 	"C-p") sed -e 's/png$/txt/' -e 1q | xargs sed 1q | xclip -selection clipboard ;;
+
+	# copy negative prompt
 	"C-n") sed -e 's/png$/txt/' -e 1q | xargs sed -n -e 's/Negative prompt: //p' | xclip -selection clipboard ;;
+
+	# display other parameters
 	"C-s") sed -e 's/png$/txt/' -e 1q | xargs sed -n -e '/Steps:/p' | sed 's/,/\n/g' | xargs -I{} notify-send -t 30000 "{}"
 esac
