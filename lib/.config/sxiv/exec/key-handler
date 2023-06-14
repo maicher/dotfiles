@@ -45,5 +45,8 @@ case "$1" in
 	"C-n") sed -e 's/png$/txt/' -e 1q | xargs sed -n -e 's/Negative prompt: //p' | xclip -selection clipboard ;;
 
 	# display other parameters
-	"C-s") sed -e 's/png$/txt/' -e 1q | xargs sed -n -e '/Steps:/p' | sed 's/,/\n/g' | xargs -I{} notify-send -t 30000 "{}"
+	"C-s") sed -e 's/png$/txt/' -e 1q | xargs sed -n -e '/Steps:/p' | sed 's/,/\n/g' | xargs -I{} notify-send -t 30000 "{}" ;;
+
+	# edit the meta file
+	"C-e") sed -e 's/$/-meta.txt/' -e 1q | xargs st vim ;;
 esac

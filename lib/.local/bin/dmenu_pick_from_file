@@ -2,7 +2,7 @@
 #!/bin/sh
 
 # dmenu_pick_from_file displays a dmenu with entries from a given file and type
-# the selected line to an active input using xdotool.
+# then types the selected line to an active input using xdotool.
 # Can be used eg as bookmarks.
 
 location="$1"

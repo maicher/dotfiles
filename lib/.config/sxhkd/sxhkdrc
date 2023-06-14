@@ -33,16 +33,20 @@ super + t
 	st tmux
 
 # Passwords manager
+# Gopass launched through a wrapper, to pick a password from dmenu
 super + g
 	dmenu_pass -w "$DMENU_PASS" -o "$DWM_TEXT" && dwms_refresh
+# Add a new pass, by launching gopass wizard
 super + G
+	st gopass new
+# Retype last used pass
+super + r
 	dmenu_pass -r "$DMENU_PASS" -o "$DWM_TEXT" && dwms_refresh
-super + L
+# Retype login
+super + R
 	dmenu_pass -r "$DMENU_PASS" --login
 super + D
 	dmenu_pass -w "$DMENU_PASS" -o "$DWM_TEXT" --cleanup && dwms_refresh
-super + n
-	st gopass new
 
 # Snippets
 super + s

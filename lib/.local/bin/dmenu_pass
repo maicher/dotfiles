@@ -17,8 +17,8 @@ OPTIONS
 	                   used by the read option
 	-r  --read FILE    do not display the dmenu, read the selection from file instead
 	-l  --login        type login instead of pass
-	-o  --otp FILE     if an entry contains OTP url, try to fetch if and write
-	                   it to the FILE
+	-o  --otp FILE     if an entry contains the OTP url, try to fetch it and write
+	                   to the FILE
 	-c  --cleanup      remove the files and exit
 
 EOF
