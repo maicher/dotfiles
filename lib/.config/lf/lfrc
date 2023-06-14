@@ -437,3 +437,12 @@ cmd trashtxt !{{
 	read ans
 	trash -f "$files" -t
 }}
+cmd prefix !{{
+	set -f
+	files=$(kfind -f "$fx")
+	count=$(echo "$files" | wc -l)
+	echo "Will add prefix to $count files. Press enter to continue."
+	read ans
+	prefix -f "$files"
+}}
+
