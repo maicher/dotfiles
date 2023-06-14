@@ -426,8 +426,9 @@ map I push A<c-a> # rename (put cursor at the beginning of the current name)
 map i push A<a-b><a-b><a-f> # rename (put cursor before the ext)
 map a push A<a-b> # after extension
 
-cmd kmbott !{{ kmbot -t -f "$fx" }}
-cmd kmbotp !{{ kmbot -p -f "$fx" }}
+cmd kmbott !{{ set -f; kmbot -t -f "$fx" }}
+cmd kmbotp !{{ set -f; kmbot -p -f "$fx" }}
+cmd kmbotw800 !{{ set -f; kmbot -w 800 -f "$fx" }}
 
 cmd trashtxt !{{
 	set -f
@@ -437,6 +438,7 @@ cmd trashtxt !{{
 	read ans
 	trash -f "$files" -t
 }}
+
 cmd prefix !{{
 	set -f
 	files=$(kfind -f "$fx")
@@ -446,3 +448,10 @@ cmd prefix !{{
 	prefix -f "$files"
 }}
 
+cmd otp !{{
+	set -f
+	zbarimg "$f"
+
+	echo "Now edit a gopass entry and append the otp line (starting from otpauth://...)"
+	echo "Then run: gopass otp <entry>"
+}}
