@@ -131,6 +131,7 @@ map \\b copy-file-basename
 # Video manipulations (prefix key: \v)
 
 cmd video-rotate !{{
+	set -f
 	filename=$(basename -- "$f")
 	extension="${filename##*.}"
 	filename="${filename%.*}_r.$extension"
@@ -141,6 +142,7 @@ map \\vl video-rotate 2
 map \\vr video-rotate 1
 
 cmd video-stabilize &{{
+	set -f
 	filename=$(basename -- "$f")
 	extension="${filename##*.}"
 	fn="${filename%.*}_s.mp4"
@@ -153,6 +155,7 @@ cmd video-stabilize &{{
 map \\vs video-stabilize
 
 cmd video-compress !{{
+	set -f
 	echo "$fx" | while IFS= read -r file
 	do
 		filename=$(basename -- "$file")
@@ -165,6 +168,7 @@ cmd video-compress !{{
 map \\vc video-compress
 
 cmd video-scaledown &{{
+	set -f
 	filename=$(basename -- "$f")
 	extension="${filename##*.}"
 	filename="${filename%.*}_$1x$2.$extension"
@@ -371,6 +375,7 @@ cmd open-mpv &{{
 
 # Display exif orientation
 cmd orientation-show &{{
+	set -f
 	lf -remote "send $id echo $(exiv2 -K Exif.Image.Orientation $f)"
 }}
 map \\ios orientation-show

@@ -115,12 +115,16 @@ cdtrash () {
 }
 
 cleanup () {
-	sudo journalctl --vacuum-time=10d
-# DOT SKIP server
+	sudo journalctl --vacuum-size=512M
+
+	# DOT SKIP server
 	sudo paccache -rk 1
 	yay -Yc
 	yay -Scc
-# DOT END
+	dwms_refresh
+	docker system prune --all --volumes
+	dwms_refresh
+	# DOT END
 }
 
 # Conveniently mount given device.
