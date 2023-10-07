@@ -50,24 +50,7 @@ EXAMPLES
 
 COMPLETIONS
 
-
 EOF
-}
-
-create_copy () {
-	file="$1"
-	out_file="$2"
-	tmp_dir="__tmp_$$"
-
-	mkdir $tmp_dir
-	cp "$file" "$tmp_dir/$file"
-	cd $tmp_dir
-	unzip -o "$file" > /dev/null
-	sed -i -e 's/ORYGINAŁ/KOPIA/g' -e 's/ORIGINAL/COPY/g' content.xml
-	zip -f "$file" content.xml > /dev/null
-	cd ..
-	mv "$tmp_dir/$file" "$out_file"
-	rm -rf $tmp_dir
 }
 
 # Init options.
@@ -90,41 +73,46 @@ while true; do
 done
 
 # Validate arguments.
-if [ -z "$1" ]; then
+odsfile="$1"
+
+if [ -z "$odsfile" ]; then
 	showHelp
 	exit 1
 fi
 
-echo "$1" | grep -qE "\.ods$"
+echo "$odsfile" | grep -qE "\.ods$"
 if [ $? -eq 1 ]; then
 	echo "The first argument has to have an ods extension" >&2
 	exit 1
 fi
 
-if [ ! -f "$1" ]; then
+if [ ! -f "$odsfile" ]; then
 	echo "Given file does not exist" >&2
 	exit 1
 fi
 
 # Init arguments.
-file_ods="$1"
-file_pdf=$(echo "$file_ods" | sed 's/.ods$/.pdf/')
+pdffile=$(echo "$odsfile" | sed 's/.ods$/.pdf/')
 
 # START
 
 # Create copies if requested
 if [ $create_copies -eq 1 ]; then
-	{
-		name="__tmp_ods_$$.ods"
-		create_copy "$1" "$name"
-		args=$(echo "$@" | sed "s/$1/$name/")
-		fvsep $args -s _c -p "$prefix"
-		rm $name
-	} &
+	filewithreplacements=$(odswap "$odsfile")
+	if [[ ! $? -eq 0 ]]; then
+		echo "Error creating file with replacements"
+		exit 1
+	fi
+	args=$(echo "$@" | sed "s|$odsfile|$filewithreplacements|")
+	fvsep $args -s _c -p "$prefix"
 fi
 
 # Produce a pdf.
-libreoffice --convert-to pdf "$file_ods" > /dev/null
+libreoffice --convert-to pdf --outdir $(dirname "$odsfile") "$odsfile"
+if [[ ! $? -eq 0 ]]; then
+	echo "Error converting to pdf"
+	exit 1
+fi
 
 if [ -z "$2" ]; then
 	exit
@@ -146,7 +134,7 @@ do
 	fi
 
 	filename="$prefix$i_$page$suffix.pdf"
-	pdfseparate -f $i -l $i "$file_pdf" "$filename"
+	pdfseparate -f $i -l $i "$pdffile" "$filename"
 done
 
-rm "$file_pdf"
+rm "$pdffile"

@@ -1,0 +1,88 @@
+# DOT SKIP server
+#!/bin/sh
+
+showHelp () {
+cat << EOF
+
+NAME
+	odswap
+
+SYNOPSIS
+	fvsep FILENAME [OPTIONS]
+
+ARGUMENTS
+	FILENAME  name of the file to be processed
+
+OPTIONS
+	-h, --help            display this help and exit
+EOF
+}
+
+options=$(getopt -l "help" -o "hs:" -a -- "$@")
+eval set -- "$options"
+
+while true; do
+	case $1 in
+		-h|--help) showHelp; exit 0 ;;
+		--) shift; break;;
+	esac
+	shift
+done
+
+# Validate arguments.
+if [ -z "$1" ]; then
+	showHelp
+	exit 1
+fi
+
+echo "$1" | grep -qE "\.ods$"
+if [ $? -eq 1 ]; then
+	echo "The first argument has to have an ods extension" >&2
+	exit 1
+fi
+
+if [ ! -f "$1" ]; then
+	echo "Given file does not exist" >&2
+	exit 1
+fi
+
+# START
+odsfile="$1"
+
+tmpdir="$(mktemp -d)"
+if [[ ! $? -eq 0 ]]; then
+	echo "Error creating temp dir"
+	exit 1
+fi
+
+cp "$odsfile" "$tmpdir/"
+if [[ ! $? -eq 0 ]]; then
+	echo "Error copying ods file"
+	exit 1
+fi
+
+cd "$tmpdir"
+if [[ ! $? -eq 0 ]]; then
+	echo "Error changing directory"
+	exit 1
+fi
+
+unzip -o "$odsfile" > /dev/null
+if [[ ! $? -eq 0 ]]; then
+	echo "Error unzipping ods file"
+	exit 1
+fi
+
+sed -i -e 's/ORYGINAŁ/KOPIA/g' -e 's/ORIGINAL/COPY/g' content.xml
+if [[ ! $? -eq 0 ]]; then
+	echo "Error replacing phrases in content.xml"
+	exit 1
+fi
+
+zip -f "$odsfile" content.xml > /dev/null
+if [[ ! $? -eq 0 ]]; then
+	echo "Error replacing content.xml in the ods file"
+	exit 1
+fi
+
+echo "$tmpdir/$odsfile"
