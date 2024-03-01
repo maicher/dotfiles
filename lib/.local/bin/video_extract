@@ -31,7 +31,7 @@ OPTIONS
 	-p, --parts         generate a txt file with listed parts
 	-t, --trash         move source marker file to trash after processing
 	-v, --verbose       show what the script is doing
-	-d, --debug         dump debug info into ./ksplit_debug.txt file
+	-d, --debug         dump debug info into ./video_extract_debug.txt file
 
 EOF
 }
@@ -120,7 +120,7 @@ done <<< "$files"
 
 # Dump debug info
 if [ $debug -eq 1 ]; then
-	echo "$list" > ./video_exrtact_debug.txt
+	echo "$list" > ./video_extract_debug.txt
 fi
 
 # Run

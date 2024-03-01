@@ -20,7 +20,7 @@ local function move_to_trash()
   local final_path = get_final_path()
 
    mp.osd_message("Moving to trash...")
-   os.execute("trash -t -f '"..final_path.."'")
+   os.execute("kmtrash -t -f '"..final_path.."'")
    mp.osd_message("Moved to trash")
    mp.commandv('playlist-next')
 end
