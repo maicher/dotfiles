@@ -12,8 +12,8 @@ NAME
 	Print trash into.
 
 SYNOPSIS
-	trash FILENAME [OPTION...]
-	trash -f FILENAME [OPTION...]
+	kmtrash FILENAME [OPTION...]
+	kmtrash -f FILENAME [OPTION...]
 
 ARGUMENTS
 	FILENAME - name of the file to be moved to trash
@@ -27,29 +27,30 @@ OPTIONS
 	-e, --empty        empty the trash
 	-v, --verbose      show what the script is doing
 	-d, --debug        dump debug info into ./trash_debug.txt file
+	-b, --batch NUM    move also NUM consecutive files to trash
 
 EXAMPLES
 	Mmove a file to the trash:
 
-		trash filename.txt
+		kmtrash filename.txt
 
 	Move many files to the trash:
 
-		trash -f 'filename1.txt
+		kmtrash -f 'filename1.txt
 		file name 2.txt
 		file! with special chars"\'.txt'
 
 	Empty the trash:
 
-		trash -e
+		kmtrash -e
 
 	Empty the trash and then move a file to the trash:
 
-		trash -e filename.txt
+		kmtrash -e filename.txt
 
 	Print trash info:
 
-		trash -i
+		kmtrash -i
 
 EOF
 }
@@ -58,12 +59,13 @@ EOF
 export show_path=0
 export info=0
 export files=''
+export batch=''
 export timestamp=0
 export empty=0
 export verbose=''
 export debug=0
 
-options=$(getopt -l "help,path,info,files:,timestamp,empty,debug,verbose" -o "hpif:tedv" -a -- "$@")
+options=$(getopt -l "help,path,info,files:,batch:,timestamp,empty,debug,verbose" -o "hpif:b:tedv" -a -- "$@")
 eval set -- "$options"
 
 while true; do
@@ -71,6 +73,7 @@ while true; do
 		-h|--help) showHelp; exit 0 ;;
 		-i|--info) export info=1 ;;
 		-f|--files) shift; export files="$1" ;;
+		-b|--batch) shift; export batch="$1" ;;
 		-t|--timestamp) export timestamp=1 ;;
 		-e|--empty) export empty=1 ;;
 		-d|--debug) export debug=1 ;;
@@ -88,7 +91,7 @@ fi
 # Build relative paths.
 files=$(printf "$files" | tr '\n' '\0' | xargs -0 -I{} realpath "{}" --relative-to="$PWD")
 
-trash_path=$(trashpath)
+trash_path=$(kmtrashpath)
 
 # Show trash stats
 if [ $info -eq 1 ]; then
@@ -118,5 +121,17 @@ if [ $debug -eq 1 ]; then
 	echo "Trash: $trash_path" >> ./trash_debug.txt
 fi
 
-# Move to trash using rsync
-rsync -a $verbose --remove-source-files --files-from=<(printf "$files") . "$trash_path"
+results=''
+if [[ ! -z "$batch" ]]; then
+	while IFS= read -r file; do
+		if [[ -f "$file" ]]; then
+			dir=$(dirname $file)
+			b=$(basename $file)
+			additional_files="$(find "$dir/." -type f -print0 -maxdepth 1 | xargs -0 realpath | sort | awk '/'$b'$/{x=NR+'$batch'}(NR<=x){print}')"
+			trash -t -f "$additional_files"
+		fi
+	done <<< "$files"
+else
+	# Move to trash using rsync
+	rsync -a $verbose --remove-source-files --files-from=<(printf "$files") . "$trash_path"
+fi

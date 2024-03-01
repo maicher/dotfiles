@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# trashpath walks up the current path trying to locate the .trash dir.
+# kmtrashpath walks up the current path trying to locate the .trash dir.
 # If .trash dir is not found, it prints the $HOME/.trash, which is the default
 # trash path.
 
