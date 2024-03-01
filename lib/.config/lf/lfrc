@@ -83,13 +83,13 @@ cmd zip ${{
 map \\fz push :zip<space>
 
 # Move file to trash
-cmd trash &{{
+cmd kmtrash &{{
 	set -f
-	trash -tf "$fx"
+	kmtrash -tf "$fx"
 	lf -remote "send $id load"
 }}
-map <delete> trash
-map \\fd trash
+map <delete> kmtrash
+map \\fd kmtrash
 
 # Convert documents to PDF
 cmd pdf !libreoffice --convert-to pdf "$f"
@@ -115,7 +115,7 @@ map \\m push :mkdir<space>
 # Copy the path of a file(s)
 cmd copy-file-path ${{
 	set -f
-	echo "$fx" | xclip -i -selection clipbopard
+	echo "$fx" | tr -d "\n" | xclip -i -selection clipbopard
 }}
 map \\fc copy-file-path
 
@@ -130,6 +130,19 @@ map \\b copy-file-basename
 # CUSTOM COMMANDS
 # Video manipulations (prefix key: \v)
 
+cmd video-frames-split !{{
+	set -f
+	video_frames_split -j 6 --name "$1" -f "$fx"
+}}
+map \\vfs push :video-frames-split
+
+cmd video-frames-join !{{
+	set -f
+	video_frames_join -j 6 -f "$fx"
+}}
+map \\vfj push :video-frames-join
+
+map \\vr video-rotate 1
 cmd video-rotate !{{
 	set -f
 	filename=$(basename -- "$f")
@@ -141,16 +154,9 @@ cmd video-rotate !{{
 map \\vl video-rotate 2
 map \\vr video-rotate 1
 
-cmd video-stabilize &{{
+cmd video-stabilize !{{
 	set -f
-	filename=$(basename -- "$f")
-	extension="${filename##*.}"
-	fn="${filename%.*}_s.mp4"
-	vec="${filename}_transform_vectors.trf"
-	ffmpeg -i $f -vf vidstabdetect=stepsize=32:shakiness=10:accuracy=15:result=$vec -f null -
-	ffmpeg -i $f -y -vf vidstabtransform=input=$vec:zoom=0:smoothing=10,unsharp=5:5:0.8:3:3:0.4 -vcodec libx264 -tune film $fn
-	rm $vec
-	lf -remote "send $id load"
+	video_stabilize -j 2 -f "$fx"
 }}
 map \\vs video-stabilize
 
@@ -261,6 +267,7 @@ cmd image2 !{{
 	image2 --format $1 --jobs 4 "$files"
 }}
 map \\icj image2 jpg $IMAGE_JOBS
+map \\icp image2 png $IMAGE_JOBS
 map \\icw image2 webp $IMAGE_JOBS
 
 cmd image_resize !{{
@@ -270,6 +277,20 @@ cmd image_resize !{{
 	image_compress --quality 90 --height 1024 --jobs 4 --verbose --files "$files"
 }}
 map \\ir image_resize
+
+cmd gimp_merge !{{
+	set -f
+
+	# todo validate xcf ext
+	list='gimp -i '
+	while IFS= read -r file; do
+		target=$(echo "$file" | sed 's/xcf/png/')
+		list+="-b '(merge-layers-export-to-png \""$file"\" \""$target"\")' "
+	done <<< "$fx"
+	list+="-b '(gimp-quit 0)'"
+
+	eval "$list"
+}}
 
 cmd open-sxiv &{{
 	set -f
@@ -425,28 +446,6 @@ map C push A<c-u> # rename (clear the current name)
 map I push A<c-a> # rename (put cursor at the beginning of the current name)
 map i push A<a-b><a-b><a-f> # rename (put cursor before the ext)
 map a push A<a-b> # after extension
-
-cmd kmbott !{{ set -f; kmbot -t -f "$fx" }}
-cmd kmbotp !{{ set -f; kmbot -p -f "$fx" }}
-cmd kmbotw800 !{{ set -f; kmbot -w 800 -f "$fx" }}
-
-cmd trashtxt !{{
-	set -f
-	files=$(kfind -f "$fx" -r ".txt$")
-	count=$(echo "$files" | wc -l)
-	echo "Will trash $count files. Press enter to continue."
-	read ans
-	trash -f "$files" -t
-}}
-
-cmd prefix !{{
-	set -f
-	files=$(kfind -f "$fx")
-	count=$(echo "$files" | wc -l)
-	echo "Will add prefix to $count files. Press enter to continue."
-	read ans
-	prefix -f "$files"
-}}
 
 cmd otp !{{
 	set -f
