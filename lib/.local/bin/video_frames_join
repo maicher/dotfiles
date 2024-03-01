@@ -1,0 +1,108 @@
+#!/bin/sh
+
+showHelp () {
+cat << EOF
+
+NAME
+	video_frames_join
+
+SYNOPSIS
+	video_frames_join [FILENAME] -f FILES [OPTION...]
+
+ARGUMENTS
+	FILENAME - name of the source dir
+	           (ignored when -f option is provided)
+
+OPTIONS
+	-h, --help              display this help and exit
+	-j, --jobs JOBS     (default: 1) number of parallel jobs
+	-f, --files FILES   list of newline separated source file names
+	                    (when used, the FILENAME argument is ignored)
+	-F, --framerate STR     framerate
+	                        (if left empty, framerate is read from framerate.txt)
+	-d, --dir DIR           (default \$VIDEO_FRAMES_DIR) destination dir
+
+EOF
+}
+
+function log () {
+	if [[ $verbose == "-verbose" ]]; then
+		echo "$1"
+	fi
+}
+
+# Init options.
+jobs=1
+dir="$VIDEO_FRAMES_DIR"
+files=''
+framerate=''
+
+options=$(getopt -l "help,jobs:,files:,framerate:,dir:" -o "hj:f:F:d:" -a -- "$@")
+eval set -- "$options"
+
+while true; do
+	case $1 in
+		-h|--help) showHelp; exit 0 ;;
+		-j|--jobs) shift; jobs="$1" ;;
+		-f|--files) shift; files="$1" ;;
+		-F|--framerate) shift; framerate="$1" ;;
+		-d|--dir) shift; dir="$1" ;;
+		--) shift; break;;
+	esac
+	shift
+done
+
+# Init from arguments (unless -f was provided).
+if [ -z "$files" ]; then
+	files="$@"
+fi
+
+if [ -z "$dir" ]; then
+	echo "Video frames dir not set. Set the \$VIDEO_FRAMES_DIR or provide the -d option."
+	exit 1
+fi
+
+# Extract full paths.
+files=$(printf "$files" | tr '\n' '\0' | xargs -0 realpath)
+
+list=""
+
+while IFS= read -r file; do
+	if [ ! -d "$file" ]; then
+		echo "Not a dir $file"
+		exit 1
+	fi
+
+	filename=$(basename -- "$file")
+	origfilename=$(echo "$filename" | sed 's/_proc_.\+//')
+	dirname=$(dirname -- "$file")
+
+	if [ -z "$framerate" ]; then
+		framerate=$(cat "$dirname/$origfilename/framerate.txt")
+	fi
+
+	echo $framerate
+
+
+	resultfilepath="$dirname/$(date +%F)_$filename"
+	audiopath="$dirname/$origfilename/audio.mp4"
+
+	list+=$(printf "ffmpeg -framerate '%s' -pattern_type glob -i '%s/*.png' '%s.mp4'" "$framerate" "$file" "$resultfilepath")
+
+	if [ -f "$audiopath" ];then
+		list+=' && '
+		list+=$(printf "ffmpeg -i '%s.mp4' -i '%s' -c copy '%s_.mp4'" "$resultfilepath" "$audiopath" "$resultfilepath")
+		list+=' && '
+		list+=$(printf "rm %s.mp4" "$resultfilepath")
+	fi
+
+	list+=$'\n'
+
+done <<< "$files"
+
+echo "==="
+echo "list:"
+echo "$list"
+
+# Run
+printf "$list" | parallel --jobs $jobs

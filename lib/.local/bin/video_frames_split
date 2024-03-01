@@ -1,0 +1,121 @@
+#!/bin/sh
+
+showHelp () {
+cat << EOF
+
+NAME
+	video_frames_split
+
+SYNOPSIS
+	video_frames_split [FILENAME] -f FILES [OPTION...]
+
+ARGUMENTS
+	FILENAME - name of the source file
+	           (ignored when -f option is provided)
+
+OPTIONS
+	-h, --help          display this help and exit
+	-j, --jobs JOBS     (default: 1) number of parallel jobs
+	-f, --files FILES   list of newline separated source file names
+	                    (when used, the FILENAME argument is ignored)
+	-d, --dir DIR       (default \$VIDEO_FRAMES_DIR) destination dir
+	-n, --name NAME     name of the dir
+	-t, --trash         move source files to trash after processng
+
+EOF
+}
+
+function log () {
+	if [[ $verbose == "-verbose" ]]; then
+		echo "$1"
+	fi
+}
+
+# Init options.
+jobs=1
+name=''
+dir="$VIDEO_FRAMES_DIR"
+files=''
+trash=0
+
+options=$(getopt -l "help,jobs:,files:,dir:,name:,trash" -o "hj:f:d:n:t" -a -- "$@")
+eval set -- "$options"
+
+while true; do
+	case $1 in
+		-h|--help) showHelp; exit 0 ;;
+		-j|--jobs) shift; jobs="$1" ;;
+		-f|--files) shift; files="$1" ;;
+		-d|--dir) shift; dir="$1" ;;
+		-n|--name) shift; name="$1" ;;
+		-t|--trash) trash=1 ;;
+		--) shift; break;;
+	esac
+	shift
+done
+
+# Init from arguments (unless -f was provided).
+if [ -z "$files" ]; then
+	files="$@"
+fi
+
+if [ -z "$dir" ]; then
+	echo "Video frames dir not set. Set the \$VIDEO_FRAMES_DIR or provide the -d option."
+	exit 1
+fi
+
+if [ -z "$name" ]; then
+	echo "-n option is required"
+	exit 1
+fi
+
+# Extract full paths.
+files=$(printf "$files" | tr '\n' '\0' | xargs -0 realpath)
+
+list=""
+trash_list=""
+targetdirname=$(echo "$dir/$name" | tr -d "[:space:]")
+
+i=1
+while IFS= read -r file; do
+	if [ ! -f "$file" ]; then
+		echo "No file $file"
+		exit 1
+	fi
+
+	trash_list+="$file"
+	trash_list+=$'\n'
+
+	path=$(printf "%s_%02d_orig" "$targetdirname" $i)
+
+	mkdir -p "$path"
+
+	# Extract frames
+	list+=$(printf "ffmpeg -y -i '%s' '%s/%s'" "$file" "$path" '%%05d.png')
+	list+=$'\n'
+
+	# Extract audio
+	list+="ffmpeg -y -i \"$file\" -map 0:a -c copy \"$path/audio.mp4\""
+	list+=$'\n'
+
+	# Extract framerate
+	list+="ffprobe -select_streams v:0 -show_entries stream=r_frame_rate -of default=noprint_wrappers=1:nokey=1 \"$file\" > \"$path/framerate.txt\""
+	list+=$'\n'
+
+	((i++))
+done <<< "$files"
+
+echo "==="
+echo "list:"
+echo "$list"
+
+echo "trashlist:"
+echo "$trash_list"
+
+# Run
+printf "$list" | parallel --jobs $jobs
+
+# Move to trash
+if [ $trash -eq 1 ]; then
+	trash -t -f "$trash_list"
+fi

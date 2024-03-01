@@ -24,6 +24,7 @@ export DWM_TEXT="$USER_TMPDIR/dwm_text"
 export IMAGE_JOBS=8
 export VIDEO_JOBS=8
 export SXIV_MINIATURES_DIR="$USER_TMPDIR/sxiv"
+export VIDEO_FRAMES_DIR="$USER_TMPDIR/frames"
 export FVSEP_CUSTOMERS="A B C"      # used by fvsep completions
 export USB_DEVICES="keyboard mouse" # used by usb completions
 export BT_DEVICES="MDR JBL"         # used by bt completions
