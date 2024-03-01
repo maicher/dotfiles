@@ -13,6 +13,9 @@ case "$1" in
 	# open in Gimp; all marked images will be opened
 	"C-g") tr '\n' '\0' | xargs -0 gimp & ;;
 
+	# open in Gimp; all marked images will be opened
+	"C-G") tr '\n' '\0' | xargs -0 image_edit ;;
+
 	# rotate left; all marked images will be rotated (in few parallel threads, the IMAGE_JOBS
 	#              environmental variable defines the number of threads, it's set in .zprofile file)
 	"C-l") tr '\n' '\0' | xargs -0 realpath | xargs -0 image_rotate --left --jobs $IMAGE_JOBS --files ;;
@@ -24,13 +27,19 @@ case "$1" in
 	"C-R") tr '\n' '\0' | xargs -0 realpath | xargs -0 image_rotate --rotate --jobs $IMAGE_JOBS --files ;;
 
 	# move to trash; all marked images will be moved to trash
-	"C-d") tr '\n' '\0' | xargs -0 realpath | xargs -0 trash --timestamp --files ;;
+	"C-d") tr '\n' '\0' | xargs -0 realpath | xargs -0 kmtrash --timestamp --files ;;
 
 	# remove; all marked images will be removed)
 	"C-D") tr '\n' '\0' | xargs -0 rm ;;
 
+	# move 10 consecutive tiles to trash
+	"C-b") tr '\n' '\0' | xargs -0 realpath | xargs -0 kmtrash --timestamp --batch 10 --files  ;;
+
+	# move 100 consecutive tiles to trash
+	"C-B") tr '\n' '\0' | xargs -0 realpath | xargs -0 kmtrash --timestamp --batch 100 --files  ;;
+
 	# toggle file in the lf file manager; all marked images will be toggled
-	"C-m") tr '\n' '\0' | xargs -0 realpath | xargs -I{} lf -remote "send toggle {}" ;;
+	"C-m") tr '\n' '\0' | xargs -0 realpath | xargs -I{} lf -remote "send toggle '{}'" ;;
 
 	# move one dir up; each marked image will be moved one directory up in it's path
 	"C-u") tr '\n' '\0' | xargs -0 -I{} mv "{}" "$(dirname {})/../" ;;
@@ -38,15 +47,6 @@ case "$1" in
 	# move here; all marked images will be moved to the directory from where the sxiv was opened
 	"C-h") tr '\n' '\0' | xargs -0 -I{} mv "{}" "$(dirname {})/" ;;
 
-	# copy prompt
-	"C-p") sed -e 's/png$/txt/' -e 1q | xargs sed 1q | xclip -selection clipboard ;;
-
-	# copy negative prompt
-	"C-n") sed -e 's/png$/txt/' -e 1q | xargs sed -n -e 's/Negative prompt: //p' | xclip -selection clipboard ;;
-
-	# display other parameters
-	"C-s") sed -e 's/png$/txt/' -e 1q | xargs sed -n -e '/Steps:/p' | sed 's/,/\n/g' | xargs -I{} notify-send -t 30000 "{}" ;;
-
-	# edit the meta file
-	"C-e") sed -e 's/$/-meta.txt/' -e 1q | xargs st vim ;;
+	# display file info
+	"C-i") tr '\n' '\0' | xargs -0 file | xargs -I{} notify-send "{}" ;;
 esac

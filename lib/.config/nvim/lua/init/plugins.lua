@@ -34,7 +34,6 @@ return require("packer").startup(function(use)
 
 -- DOT SKIP server
   use "nvim-treesitter/nvim-treesitter"
-  use "nvim-treesitter/playground"
   use "nvim-treesitter/nvim-treesitter-textobjects"
   use "RRethy/nvim-treesitter-endwise"
 
