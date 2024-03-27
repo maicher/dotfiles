@@ -87,7 +87,8 @@ else
 fi
 
 # Type the login or pass into the active input
-xdotool type --clearmodifiers --delay 2 $text
+
+xdotool type --clearmodifiers --delay 25 $text
 
 # OTP
 if [ ! -z "$otp_file" ]; then
