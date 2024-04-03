@@ -39,7 +39,7 @@ if [[ $1 == "-h" ]]; then
 	exit
 fi
 
-dwms_refresh
+kmstatus -r
 command=$1
 device_name=$2
 
@@ -60,7 +60,7 @@ case $command in
 		if [ $? -eq 0 ]; then
 			echo "Powering up..."
 			bluetoothctl power on
-			dwms_refresh
+			kmstatus -r
 		fi
 
 		echo "Scanning... (press any key to stop)"
@@ -121,4 +121,4 @@ case $command in
 	;;
 esac
 
-dwms_refresh
+kmstatus -r

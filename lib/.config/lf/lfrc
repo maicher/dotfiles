@@ -280,16 +280,12 @@ map \\ir image_resize
 
 cmd gimp_merge !{{
 	set -f
+	gimp_merge --jobs 16 --files "$fx"
+}}
 
-	# todo validate xcf ext
-	list='gimp -i '
-	while IFS= read -r file; do
-		target=$(echo "$file" | sed 's/xcf/png/')
-		list+="-b '(merge-layers-export-to-png \""$file"\" \""$target"\")' "
-	done <<< "$fx"
-	list+="-b '(gimp-quit 0)'"
-
-	eval "$list"
+cmd gimp_extract_mask !{{
+	set -f
+	gimp_extract_mask --jobs 16 --files "$fx"
 }}
 
 cmd open-sxiv &{{
@@ -330,7 +326,7 @@ cmd open-sxiv &{{
 		echo "$files" | sxiv -t -
 	fi
 
-	dwms_refresh
+	kmstatus -r
 }}
 
 cmd open-sxiv-by-extension &{{
@@ -358,7 +354,7 @@ cmd open-sxiv-by-extension &{{
 		echo "$files" | sxiv -t -
 	fi
 
-	dwms_refresh
+	kmstatus -r
 }}
 
 cmd open-mpv &{{
@@ -391,7 +387,7 @@ cmd open-mpv &{{
 	lf -remote "send $id echo Found $count files"
 
 	echo "$files" | mpv --playlist=- &
-	dwms_refresh
+	kmstatus -r
 }}
 
 # Display exif orientation

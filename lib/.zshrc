@@ -12,6 +12,7 @@ alias \
 	cuts="cut -d ' '" \
 	cutt="cut -d$'\t'" \
 	copy="xclip -i -selection clipboard" \
+	trd="tr -d '\",'" \
 
 alias so="source $HOME/.rvm/scripts/rvm"
 
@@ -121,9 +122,9 @@ cleanup () {
 	sudo paccache -rk 1
 	yay -Yc
 	yay -Scc
-	dwms_refresh
+	kmstatus --refresh
 	docker system prune --all --volumes
-	dwms_refresh
+	kmstatus --refresh
 	# DOT END
 }
 
@@ -134,7 +135,7 @@ cmount () {
 	else
 		mounted_info=$(udisksctl mount -b $1)
 		if [ $? -eq 0 ]; then
-			dwms_refresh
+			kmstatus --refresh
 			cd "$(echo $mounted_info | cut -d ' ' -f4-)"
 			lf
 		else
@@ -160,7 +161,7 @@ cumount () {
 	udisksctl unmount -b $mounting_point
 
 	if [ $? -eq 0 ]; then
-		dwms_refresh
+		kmstatus --refresh
 	else
 		cd "$pwd_buf"
 	fi

@@ -2,15 +2,15 @@
 
 # Speakers
 XF86AudioMute
-	pamixer -t; dwms_refresh
+	pamixer -t; kmstatus -r
 XF86Audio{Lower,Raise}Volume
-	pamixer -{d,i} 2; dwms_refresh
+	pamixer -{d,i} 2; kmstatus -r
 
 # Microphone
 F1
-	pamixer --source $(pamixer_mic_source) -t; dwms_refresh
+	pamixer --source $(pamixer_mic_source) -t; kmstatus -r
 F{2,3}
-	pamixer --source $(pamixer_mic_source) -{d,i} 1; dwms_refresh
+	pamixer --source $(pamixer_mic_source) -{d,i} 1; kmstatus -r
 
 # Screen
 XF86MonBrightness{Up,Down}
@@ -35,18 +35,18 @@ super + t
 # Passwords manager
 # Gopass launched through a wrapper, to pick a password from dmenu
 super + g
-	dmenu_pass -w "$DMENU_PASS" -o "$DWM_TEXT" && dwms_refresh
+	dmenu_pass -w "$DMENU_PASS" -o "$DWM_TEXT" && kmstatus -t $(cat "$DWM_TEXT")
 # Add a new pass, by launching gopass wizard
 super + G
 	st gopass new
 # Retype last used pass
 super + @r
-	sleep '0.2'; dmenu_pass -r "$DMENU_PASS" -o "$DWM_TEXT" && dwms_refresh
+	sleep '0.2'; dmenu_pass -r "$DMENU_PASS" -o "$DWM_TEXT" && kmstatus -t $(cat "$DWM_TEXT")
 # Retype login
 super + @R
 	sleep '0.2'; dmenu_pass -r "$DMENU_PASS" --login
 super + D
-	dmenu_pass -w "$DMENU_PASS" -o "$DWM_TEXT" --cleanup && dwms_refresh
+	dmenu_pass -w "$DMENU_PASS" -o "$DWM_TEXT" --cleanup && kmstatus -u
 
 # Snippets
 super + s

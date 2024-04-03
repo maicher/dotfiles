@@ -38,8 +38,11 @@ sxhkd & &> /tmp/x.$USER.log
 # Transparency (eg for terminal)
 xcompmgr &
 
+# Mute microphone
+pamixer --source $(pamixer_mic_source) -m
+
 # Status bar for DWM
-dwms -x -text "$DWM_TEXT" & &> /tmp/x.$USER.log
+kmstatus -x & &> /tmp/x.$USER.log
 
 # Boot DWM.
 # If DWM exits 0, restart.

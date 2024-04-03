@@ -12,7 +12,7 @@ SYNOPSIS
 OPTIONS
 	-n, --name NAME    prefix line with given NAME:
 	-s, --source FILE  a path to a file with tags
-	-a, --all          loop through all tags from source file instean displaying dmenu
+	-a, --all          loop through all tags from source file instead displaying the dmenu
 	-h, --help
 
 DESCRIPTON
@@ -20,7 +20,7 @@ DESCRIPTON
 	   so that user can select or type own tags
 	2. Displays sxiv with list of jpg file from current directory
 	   so that user can pick the images to tag
-	3. Tag each of the selected images by appending tags into the <filename>-meta.txt
+	3. Tag each of the selected images by appending tags into the <filename_without_ext>.txt
 
 EOF
 }
@@ -78,7 +78,9 @@ do
 	echo "Selected tags:" $tags
 	ls *.jpg | sxiv -ot - | while read filename
 	do
-		echo "$name: $tags" >> "$filename-meta.txt"
+		extension="${filename##*.}"
+		filename="${filename%.*}.txt"
+		echo "$name: $tags" >> "$filename"
 	done
 done
 

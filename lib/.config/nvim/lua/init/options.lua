@@ -43,7 +43,17 @@ vim.api.nvim_create_autocmd("BufEnter", {
   group = "ft"
 })
 vim.api.nvim_create_autocmd("BufEnter", {
+  pattern = "*html.tmpl",
+  command = "set syntax=html",
+  group = "ft"
+})
+vim.api.nvim_create_autocmd("BufEnter", {
   pattern = "*vue",
   command = "set syntax=javascript",
+  group = "ft"
+})
+vim.api.nvim_create_autocmd("BufEnter", {
+  pattern = "*slim",
+  command = "set syntax=haml",
   group = "ft"
 })

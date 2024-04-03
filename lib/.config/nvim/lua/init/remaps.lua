@@ -62,6 +62,7 @@ k.set("n", "t5", ":norm i<%  %><CR>hhi")
 k.set("n", "t%", ":norm i<%=  %><CR>hhi")
 k.set("n", "tp", ":norm ofmt.Printf(\"%+v\\n\", )<CR>i")
 k.set("n", "tl", ":norm ofmt.Println()<CR>i")
+k.set("n", "tj", ":norm i{{ .T. }}<CR>hhi")
 
 -- Remap the [ and ] to <Tab> and '
 -- vim.keymap.set("n", "<Tab>d", vim.diagnostic.goto_prev)
