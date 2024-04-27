@@ -18,69 +18,92 @@ Just browse the files and copy what you need.
 
 ## Vim
 
-https://github.com/wbthomason/packer.nvim
+I use [Neovim](https://neovim.io/) with [Packer](https://github.com/wbthomason/packer.nvim) plugin manager.
+
+To install packer, run:
 
 	git clone --depth 1 https://github.com/wbthomason/packer.nvim ~/.local/share/nvim/site/pack/packer/start/packer.nvim
 
+You can take a look at the Vim plugins I currently use [here](lib/.config/nvim/lua/init/plugins.lua).
+
 Useful maintenance commands:
 
-    :PackerSynch
-    :TSUpdate
-    :Mason
+	:PackerSynch
+	:TSUpdate
+	:Mason
 
-## Keys
+## Windows manager
 
-Following keys are mapped (prefixed with super):
+I use a [personal fork](https://github.com/maicher/dwm) of [DWM](https://dwm.suckless.org/) with some additional patches applied.
 
-	a dwm
-	A dwm
-	b dwm
-	B sxhkd Brave
-	c sxhkd LibreOffice calc
-	C sxhkd Chrome
-	d dwm
-	D sxhkd pass cleanup
-	e sxhkd dmenu urls
-	E sxhkd dmenu urls
-	f dwm
-	F dwm
-	g sxhkd pass pick
-	G sxhkd pass retype
-	h dwm
+DWM is useful as it auto arranges windows on your screen so that you don't have to drag them around using mouse.
+
+## File manager
+
+I use [lf](https://github.com/gokcehan/lf) file manager which is fast and also serves as an entry point for running scripts.
+
+As it runs in terminal I use it also over ssh on servers.
+
+## Hotkeys
+
+For system wide hotkeys I use the [sxhkd](https://github.com/baskerville/sxhkd) which has
+a convenient way of configuring the bindings.
+
+Below is the list of mapping I use.
+In both dwm and sxiv the prefix key is `super`, which gives:
+
+	key description                     managed by
+	--- ----------------------------    ----
+	0-9 view windows with given tag     dwm
+	a   view windows with `a` tag       dwm
+	A   add `a` tag to focused window   dwm
+	b   toggle dwm's bar                dwm
+	B   launch Brave                    sxhkd
+	c   launch LibreOffice cal          sxhkd
+	C   launch Chrome                   sxhkd
+	d   decrease numer of windows in master area  dwm
+	D   clear otp                       sxhkd
+	e
+	E
+	f   set floating layout             dwm
+	F   set floating master             dwm
+	g   show passwords dmenu            sxhkd
+	G   add new password to gopass      sxhkd
+	h   focus prev window               dwm
 	H
-	i dwm
+	i   increase number of windows in master area  dwm
 	I
-	j dwm
+	j   decrease master area size       dwm
 	J
-	k dwm
+	k   increase master area size       dwm
 	K
-	l dwm
+	l   focus next window               dwm
 	L
-	m dwm
-	M dwm
-	n sxhkd pass new
+	m   set monocle layout              dwm
+	M   set centered master layout      dwm
+	n
 	N
 	o
 	O
-	q dwm
-	Q dwm
-	p sxhkd proj
+	q   close focused window            dwm
+	Q   restart dwm                     dwm
+	p   show projects dmenu
 	P
-	r
-	R
-	s sxhkd dmenu snippets
-	S sxhkd dmenu snippets
-	t sxhkd tmux terminal
-	T dwm
-	u sxhkd dmenu urls
-	U sxhkd dmenu urls
+	r   retype password                 sxhkd
+	R   retype login                    sxhkd
+	s   show snippets dmenu             sxhkd
+	S   edit snippets                   sxhkd
+	t   launch tmux with terminal       sxhkd
+	T   set tiled layout                dwm
+	u   show URL snippets dmenu         sxhkd
+	U   edit URL snippets               sxhkd
 	v
 	V
-	w sxhkd web browser Firefox
+	w   launch Firefox                  sxhkd
 	W
-	x sxhkd dmenu urls
-	X sxhkd dmenu urls
+	x
+	X
 	y
 	Y
-	z dwm
-	Z dwm
+	z   view windows with z tag         dwm
+	Z   add z tag to focused window     dwm
