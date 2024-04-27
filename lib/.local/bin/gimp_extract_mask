@@ -1,0 +1,98 @@
+#!/bin/sh
+
+showHelp () {
+cat << EOF
+
+NAME
+	gimp_extract_mask extracts the first layer's mask from the xcf image
+	  and saves it as a png image
+
+SYNOPSIS
+	gimp_extract_mask [FILENAME] [OPTION...]
+
+ARGUMENTS
+	FILENAME - name of the file to be processed
+	           (ignored when -f options is provided)
+
+OPTIONS
+	-j, --jobs JOBS         (default: 1)
+	-f, --files FILES       list of newline separated file name
+	                        (when used, the FILENAME argument is ignored)
+	-v, --verbose           what the script is doing
+	-d, --debug             dump debug info into ./debug.txt file
+
+EOF
+}
+
+# Init options.
+jobs=0
+files=''
+verbose=''
+debug=0
+
+kmstatus -t "Initializing gimp_extract_mask..."
+
+options=$(getopt -l "help,jobs:,files:,verbose,debug" -o "hj:cf:vd" -a -- "$@")
+eval set -- "$options"
+
+while true; do
+	case $1 in
+		-h|--help) showHelp; exit 0 ;;
+		-j|--jobs) shift; jobs=$1 ;;
+		-f|--files) shift; files="$1" ;;
+		-d|--debug) debug=1 ;;
+		-v|--verbose) verbose='-verbose' ;;
+		--) shift; break;;
+	esac
+	shift
+done
+
+# Init from arguments (unless -f was provided).
+if [ -z "$files" ]; then
+	files="$@"
+fi
+
+if [[ -z $files ]]; then
+	exit
+fi
+
+# Find also in dirs.
+files=$(kfind -r ".xcf$" -f "$fx" | tr '\n' '\0' | xargs -0 realpath)
+
+# Build list of jobs
+i=0
+counter=0
+list='gimp -i '
+
+while IFS= read -r file; do
+	target=$(echo "$file" | sed 's/.xcf/_mask.png/')
+	list+="-b '(script-fu-extract-mask-to-png-cli \""$file"\" \""$target"\")' "
+
+	if [[ $counter -eq 10 ]]; then
+		list+="-b '(gimp-quit 0)'"
+		list+=$'\n'
+
+		list+="kmstatus -t $i"
+		list+=$'\n'
+
+		list+='gimp -i $i'
+
+		counter=0
+	fi
+
+	((i++))
+	((counter++))
+done <<< "$files"
+
+list+="-b '(gimp-quit 0)'"
+list+=$'\n'
+
+# Dump debug info
+if [ $debug -eq 1 ]; then
+	echo "$list" > ./gimp_merge_debug.txt
+fi
+
+# Run
+echo "$list" | parallel --jobs $jobs
+
+kmstatus -u
