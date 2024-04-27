@@ -4,33 +4,35 @@ showHelp () {
 cat << EOF
 
 NAME
-	image_resize changes jpeg images dimensions
+	image_compress changes jpeg images compression in parallel jobs
 
 SYNOPSIS
-	image_resize [FILENAME] [OPTION...]
-
-ARGUMENTS
-	FILENAME - name of the file to be converted
-	           (ignored when -f options is provided)
+	image_compress [OPTION...] [FILENAME]
 
 OPTIONS
-	-h, --help              display this help and exit
-	-j, --jobs JOBS         (default: 1) number of parallel jobs
-	-q, --quality QUALITY   (default: 90) target jpeg quality
-	-H, --height HEIGHT     (optional) resize to given height
-	-f, --files FILES       list of newline separated file name
-	                        (when used, the FILENAME argument is ignored)
-	-v, --verbose           what the script is doing
+	-f, --files FILES       newline-separated list of filenames to be converted
+	                        (when used, the FILENAME argument is ignored);
+	                        the newline is used as a separator to allow a list of files
+	                        to be passed directly from the lf's fx variable
+	-q, --quality QUALITY   target jpeg quality (default: 90)
+	-H, --height HEIGHT     (optional) also resize the image to given height
+	-v, --verbose           show what the script is doing
 	-d, --debug             dump debug info into ./debug.txt file
+	-j, --jobs JOBS         number of jobs to run in parallel (default: 1)
+	-h, --help              display this help and exit
+
+ARGUMENTS
+	FILENAME        name of the file to be converted
+	                (ignored when -f option is provided)
 
 EXAMPLES
 	Process single file:
 
 		image_compress filename.jpg -q 80
 
-	Process multiple files:
+	Process multiple files in 2 parallel jobs:
 
-		image_compress -j 90 -j 4 -f 'filename1.jpg
+		image_compress -q 90 -j 2 -f 'filename1.jpg
 		file name2.jpg
 		filename3.jpg'
 
@@ -71,12 +73,13 @@ if [[ -z $files ]]; then
 	exit 0
 fi
 
-# Run
-list=$(echo "$files" | sed -e 's/"/\\"/g' -e 's/\$/\\$/g' | tr '\n' '\0' | xargs -0 -I{} echo "mogrify $verbose $geometry -quality $quality \"{}\"")
+# Prepare conversion commands
+list=$(printf '%s\0' "$files" | sed -e 's/"/\\"/g' -e 's/\$/\\$/g' | tr '\n' '\0' | xargs -0 -I{} echo "mogrify $verbose $geometry -quality $quality \"{}\"")
 
 # Dump debug info
 if [ $debug -eq 1 ]; then
-	echo "$list" > ./image_compress_debug.txt
+	echo "$list" > ./debug.txt
 fi
 
+# Execute conversion commands in parallel
 echo "$list" | parallel --jobs $jobs

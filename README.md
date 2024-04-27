@@ -42,7 +42,7 @@ DWM is useful as it auto arranges windows on your screen so that you don't have 
 
 I use [lf](https://github.com/gokcehan/lf) file manager which is fast and also serves as an entry point for running scripts.
 
-As it runs in terminal I use it also over ssh on servers.
+As it runs in terminal I use it also over SSH on servers.
 
 ## Hotkeys
 

@@ -4,34 +4,38 @@ showHelp () {
 cat << EOF
 
 NAME
-	image2 converts images to different formats
+	image2 converts images to different formats in parallel jobs
 
 SYNOPSIS
-	image2 FILENAME... [OPTION...]
-
-ARGUMENTS
-	FILENAME - newline separated list of filenames
+	image2 [OPTION...] FILENAME...
 
 OPTIONS
-	-f, --format FORMAT  (default: jpg) jpg, webp
-	-j, --jobs JOBS      (default: 1)
-	-h, --help           display this help
+	-f, --format FORMAT  output format (default: jpg)
+	-j, --jobs JOBS      number of jobs to run in parallel (default: 1)
+	-h, --help           display this help and exit
+
+ARGUMENTS
+	FILENAME  Newline-separated list of filenames to be converted.
+	          The newline is used as a separator to allow a list of files
+	          to be passed directly from the lf's fx variable.
 
 EXAMPLES
-	Pass the file names as a newline-separated and single-quoted list.
-	Below example converts 3 files to jpg:
+	Pass the file names as a newline-separated and single-quoted list as on the
+	examle below.
+	Below example converts 3 files to jpg with 2 parallel jobs:
 
-	$ image2 jpg -j 90 -j 4 'filename1.psd
+	$ image2 -f jpg -j 2 'filename1.psd
 	file name2.png
 	filename3.jpg'
 
 EOF
 }
 
-# Init defaults.
+# Default options
 format=jpg
 jobs=1
 
+# Parse command-line options
 options=$(getopt -l "help,format:,jobs:" -o "hf:j:" -a -- "$@")
 eval set -- "$options"
 
@@ -45,9 +49,15 @@ while true; do
 	shift
 done
 
-images="$@"
+# Ensure that file arguments exist
+if [ $# -eq 0 ]; then
+    echo "No files provided."
+    showHelp
+    exit 1
+fi
 
-# Run
-list=$(echo "$images" | sed '/^$/d' | tr '\n' '\0' | xargs -0 -I{} echo "convert -verbose \"{}\" \"{}.$format\"")
+# Prepare conversion commands
+list=$(printf '%s\0' "$@" | tr '\n' '\0' | xargs -0 -I{} echo "convert -verbose \"{}\" \"{}.$format\"")
 
+# Execute conversion commands in parallel
 echo "$list" | parallel --jobs $jobs

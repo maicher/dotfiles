@@ -4,31 +4,34 @@ showHelp () {
 cat << EOF
 
 NAME
-	image_rotate rotates images
+	image_rotate rotates images in parallel jobs
 
 SYNOPSIS
-	image_rotate [FILENAME] [OPTION...]
-
-ARGUMENTS
-	FILENAME - name of the file to be converted
-	           (ignored when -f options is provided)
+	image_rotate [OPTION...] [FILENAME]
 
 OPTIONS
-	-l, --left              (default) rotate 90 left
+	-f, --files FILES       newline-separated list of filenames to be converted
+	                        (when used, the FILENAME argument is ignored);
+	                        the newline is used as a separator to allow a list of files
+	                        to be passed directly from the lf's fx variable
+	-l, --left              rotate 90 left (default)
 	-r, --right             rotate 90 right
 	-R, --rotate            rotate 180
-	-j, --jobs JOBS         (default: 1)
-	-f, --files FILES       list of newline separated file name
-	                        (when used, the FILENAME argument is ignored)
-	-v, --verbose           what the script is doing
+	-v, --verbose           show what the script is doing
 	-d, --debug             dump debug info into ./debug.txt file
+	-j, --jobs JOBS         number of jobs to run in parallel (default: 1)
+	-h, --help              display this help and exit
+
+ARGUMENTS
+	FILENAME        name of the file to be converted
+	                (ignored when -f option is provided)
 
 EXAMPLES
 	Rotate a single file right:
 
 		image_rotate filename.jpg -r
 
-	Process multiple files (in 2 threads):
+	Process multiple files in 2 parallel jobs:
 
 		image_rotate -r -j 2 -f 'filename1.jpg
 		file name2.jpg
@@ -93,8 +96,8 @@ done <<< "$files"
 
 # Dump debug info
 if [ $debug -eq 1 ]; then
-	echo "$list" > ./image_rotate_debug.txt
+	echo "$list" > ./debug.txt
 fi
 
-# Run
+# Execute conversion commands in parallel
 echo "$list" | parallel --jobs $jobs
