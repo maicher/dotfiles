@@ -1,4 +1,4 @@
-# DOT SKIP server
 #!/bin/sh
+# DOT SKIP server
 
 pkill -usr1 -x sxhkd

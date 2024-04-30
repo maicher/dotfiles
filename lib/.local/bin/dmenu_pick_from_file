@@ -1,5 +1,5 @@
-# DOT SKIP server
 #!/bin/sh
+# DOT SKIP server
 
 # dmenu_pick_from_file displays a dmenu with entries from a given file and type
 # then types the selected line to an active input using xdotool.

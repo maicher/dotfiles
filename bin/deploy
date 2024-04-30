@@ -25,7 +25,7 @@ fi
 # Copy modified files to target destination.
 cprint NC "Deploying to "
 cprint YELLOW $destination
-result=$(rsync -zaPv --no-perms tmp/build/ "$destination" --min-size=1 --prune-empty-dirs --checksum 2>&1)
+result=$(rsync -zaPv --no-perms tmp/build/ "$destination" --min-size=15 --prune-empty-dirs --checksum 2>&1)
 if [ ! $? -eq 0 ]; then
 	cprint RED " error\n"
 	echo "$result"
