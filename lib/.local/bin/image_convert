@@ -11,14 +11,17 @@ SYNOPSIS
 	image_convert [OPTION...] FILENAME...
 
 OPTIONS
-	-f, --format FORMAT  output format (default: jpg)
+	-F, --format FORMAT  output format (default: jpg)
+	-f, --files FILES    newline-separated list of filenames to be converted
+	                     (when used, the FILENAME argument is ignored);
+	                     the newline is used as a separator to allow a list of files
+	                     to be passed directly from the lf's fx variable
 	-j, --jobs JOBS      number of jobs to run in parallel (default: 1)
 	-h, --help           display this help and exit
 
 ARGUMENTS
-	FILENAME  Newline-separated list of filenames to be converted.
-	          The newline is used as a separator to allow a list of files
-	          to be passed directly from the lf's fx variable.
+	FILENAME        name of the file to be converted
+	                (ignored when -f option is provided)
 
 EXAMPLES
 	Pass the file names as a newline-separated and single-quoted list as on the
@@ -37,28 +40,31 @@ format=jpg
 jobs=1
 
 # Parse command-line options
-options=$(getopt -l "help,format:,jobs:" -o "hf:j:" -a -- "$@")
+options=$(getopt -l "help,format:,files:,jobs:" -o "hF:f:j:" -a -- "$@")
 eval set -- "$options"
 
 while true; do
 	case $1 in
 		-h|--help) showHelp; exit 0 ;;
-		-f|--format) shift; format=$1 ;;
+		-F|--format) shift; format=$1 ;;
+		-f|--files) shift; files="$1" ;;
 		-j|--jobs) shift; jobs=$1 ;;
 		--) shift; break;;
 	esac
 	shift
 done
 
-# Ensure that file arguments exist
-if [ $# -eq 0 ]; then
-    echo "No files provided."
-    showHelp
-    exit 1
+# Init from arguments (unless -f was provided).
+if [ -z "$files" ]; then
+	files="$@"
+fi
+
+if [[ -z $files ]]; then
+	exit 0
 fi
 
 # Prepare conversion commands
-list=$(printf '%s\0' "$@" | tr '\n' '\0' | xargs -0 -I{} echo "convert -verbose \"{}\" \"{}.$format\"")
+list=$(printf '%s\0' "$files" | tr '\n' '\0' | xargs -0 -I{} echo "convert -verbose \"{}\" \"{}.$format\"")
 
 # Execute conversion commands in parallel
 echo "$list" | parallel --jobs $jobs

@@ -264,7 +264,7 @@ cmd image_convert !{{
 	files=$(kfind -f "$fx")
 
 	# todo handle jobs arg
-	image_convert --format $1 --jobs 4 "$files"
+	image_convert --format $1 --jobs 4 -f "$files"
 }}
 map \\icj image_convert jpg $IMAGE_JOBS
 map \\icp image_convert png $IMAGE_JOBS
