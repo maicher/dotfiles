@@ -4,10 +4,11 @@ showHelp () {
 cat << EOF
 
 NAME
-	image2 converts images to different formats in parallel jobs
+	image_convert converts images to different formats in parallel jobs
+	              it's a wrapper on top of ImageMagick(1) convert
 
 SYNOPSIS
-	image2 [OPTION...] FILENAME...
+	image_convert [OPTION...] FILENAME...
 
 OPTIONS
 	-f, --format FORMAT  output format (default: jpg)
@@ -24,7 +25,7 @@ EXAMPLES
 	examle below.
 	Below example converts 3 files to jpg with 2 parallel jobs:
 
-	$ image2 -f jpg -j 2 'filename1.psd
+	$ image_convert -f jpg -j 2 'filename1.psd
 	file name2.png
 	filename3.jpg'
 

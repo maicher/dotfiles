@@ -259,16 +259,16 @@ cmd image_compress !{{
 map \\ic8 image_compress 80 $IMAGE_JOBS
 map \\ic9 image_compress 90 $IMAGE_JOBS
 
-cmd image2 !{{
+cmd image_convert !{{
 	set -f
 	files=$(kfind -f "$fx")
 
 	# todo handle jobs arg
-	image2 --format $1 --jobs 4 "$files"
+	image_convert --format $1 --jobs 4 "$files"
 }}
-map \\icj image2 jpg $IMAGE_JOBS
-map \\icp image2 png $IMAGE_JOBS
-map \\icw image2 webp $IMAGE_JOBS
+map \\icj image_convert jpg $IMAGE_JOBS
+map \\icp image_convert png $IMAGE_JOBS
+map \\icw image_convert webp $IMAGE_JOBS
 
 cmd image_resize !{{
 	set -f
