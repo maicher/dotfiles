@@ -4,6 +4,7 @@ lsp.preset("recommended")
 lsp.ensure_installed({
   "tsserver",
   "eslint",
+  "cssls",
   "lua_ls",
   "solargraph",
   "gopls",

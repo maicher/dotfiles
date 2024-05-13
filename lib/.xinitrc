@@ -1,5 +1,5 @@
-# DOT SKIP server
 #!/bin/sh
+# DOT SKIP server
 
 xrdb ~/.Xresources
 

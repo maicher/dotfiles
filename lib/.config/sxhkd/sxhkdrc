@@ -61,8 +61,8 @@ super + U
 	st vim $DMENU_URLS
 
 # Browsers
-super + {B,w,C}
-	{brave,firefox,google-chrome-stable}
+super + {B,w,W,C}
+	{brave,firefox,firefox --private-window,google-chrome-stable}
 
 # LibreOffice calc
 super + c

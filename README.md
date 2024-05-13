@@ -16,7 +16,7 @@ Just browse the files and copy what you need.
 	* [lib/.local/completion/](lib/.local/completion/) - zsh completions for the above
 	* ...
 
-## Vim
+## Editor
 
 I use [Neovim](https://neovim.io/) with [Packer](https://github.com/wbthomason/packer.nvim) plugin manager.
 
@@ -31,12 +31,13 @@ Useful maintenance commands:
 	:PackerSynch
 	:TSUpdate
 	:Mason
+    :LspInfo
 
-## Windows manager
+## X windows manager
+
+Tiling window managers automatically organize open windows, so that you don't have to drag them around using mouse.
 
 I use a [personal fork](https://github.com/maicher/dwm) of [DWM](https://dwm.suckless.org/) with some additional patches applied.
-
-DWM is useful as it auto arranges windows on your screen so that you don't have to drag them around using mouse.
 
 ## File manager
 
@@ -100,7 +101,7 @@ In both dwm and sxiv the prefix key is `super`, which gives:
 	v
 	V
 	w   launch Firefox                  sxhkd
-	W
+	W   launch Firefox incognito        sxhkd
 	x
 	X
 	y
