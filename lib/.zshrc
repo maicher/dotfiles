@@ -15,6 +15,7 @@ alias \
 	trd="tr -d '\",'" \
 
 alias so="source $HOME/.rvm/scripts/rvm"
+alias sonpx="source /usr/share/nvm/init-nvm.sh $$ nvm use --lts"
 
 alias ipt='sudo /sbin/iptables'
 alias iptlist='sudo /sbin/iptables -L -n -v --line-numbers'
