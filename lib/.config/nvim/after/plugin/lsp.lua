@@ -17,7 +17,12 @@ cmp.setup({
     { name = "path" },
     { name = "nvim_lsp" },
     { name = "nvim_lua" },
-    { name = "buffer", keyword_length = 4 },
+    { name = "buffer", keyword_length = 3, option = {
+        get_bufnrs = function ()
+          return vim.api.nvim_list_bufs() -- Autocomplete from all buffers (not only the current)
+        end
+      }
+    },
   },
   experimental = {
     ghost_text = true,

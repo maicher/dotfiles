@@ -58,7 +58,7 @@ vim.api.nvim_create_autocmd("BufEnter", {
   group = "ft"
 })
 vim.api.nvim_create_autocmd("FileType", {
-  pattern = {"javascript", "typescript", "javascriptreact", "typescriptreact"},
+  pattern = {"javascript", "typescript", "javascriptreact", "typescriptreact", "lua"},
   callback = function()
     vim.opt_local.expandtab = true
     vim.opt_local.shiftwidth = 2
