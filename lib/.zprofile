@@ -4,6 +4,10 @@ export PATH="$PATH:$HOME/go/bin"
 export PATH="$PATH:/usr/local/go/bin"
 export PATH="$PATH:$HOME/.rvm/bin"
 
+# temporary
+export PATH="$PATH:$HOME/.gem/ruby/3.0.0/bin"
+# temporary
+
 # Completions for custom scripts
 export FPATH="$FPATH:$HOME/.local/completion/"
 

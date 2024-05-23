@@ -1,0 +1,20 @@
+{
+  "editor.minimap.enabled": false,
+  "vim.vimrc.path": "/home/kjm/.config/Code/User/.vimrc",
+  "prettier.configPath": "/home/kjm/.config/Code/User/.prettierrc",
+  "vim.vimrc.enable": true,
+  "workbench.colorTheme": "One Dark Theme",
+  "editor.lineNumbers": "relative",
+  "editor.formatOnSave": true,
+  "eslint.options": {
+    "configFile": ".eslintrc.json"
+  },
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ],
+  "prettier.requireConfig": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode"
+}
