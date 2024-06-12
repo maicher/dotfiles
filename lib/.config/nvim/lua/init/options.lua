@@ -36,32 +36,40 @@ o.spell = true
 o.spelllang = "en_us,pl"
 -- DOT END
 
-vim.api.nvim_create_augroup("ft", { clear = true })
+-- Create an autocmd group for filetype settings
+local ft_group = vim.api.nvim_create_augroup("ft", { clear = true })
+
+-- Set syntax for various file patterns
 vim.api.nvim_create_autocmd("BufEnter", {
   pattern = "*erubis",
   command = "set syntax=html",
-  group = "ft"
+  group = ft_group,
 })
+
 vim.api.nvim_create_autocmd("BufEnter", {
-  pattern = "*html.tmpl",
-  command = "set syntax=html",
-  group = "ft"
+  pattern = "*.tmpl",
+  command = "set filetype=html",
+  group = ft_group,
 })
+
 vim.api.nvim_create_autocmd("BufEnter", {
   pattern = "*vue",
   command = "set syntax=javascript",
-  group = "ft"
+  group = ft_group,
 })
+
 vim.api.nvim_create_autocmd("BufEnter", {
   pattern = "*slim",
   command = "set syntax=haml",
-  group = "ft"
+  group = ft_group,
 })
+
+-- Set specific options for certain file types
 vim.api.nvim_create_autocmd("FileType", {
   pattern = {"javascript", "typescript", "javascriptreact", "typescriptreact", "lua"},
   callback = function()
     vim.opt_local.expandtab = true
     vim.opt_local.shiftwidth = 2
     vim.opt_local.tabstop = 2
-  end
+  end,
 })

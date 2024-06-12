@@ -1,6 +1,24 @@
 -- DOT SKIP server
 require("nvim-treesitter.configs").setup({
-  ensure_installed = {  "bash", "c", "cmake", "gitignore", "go", "html", "javascript", "json", "lua", "query", "sql",  "vim", "vimdoc", "php",  "ruby", "toml", "vue" },
+  ensure_installed = {
+    "bash",
+    "c",
+    "cmake",
+    "gitignore",
+    "go",
+    "html",
+    "javascript",
+    "json",
+    "lua",
+    "php",
+    "query",
+    "ruby",
+    "sql",
+    "toml",
+    "vim",
+    "vimdoc",
+    "vue",
+  },
 
   -- Install parsers synchronously (only applied to `ensure_installed`)
   sync_install = false,
@@ -11,6 +29,11 @@ require("nvim-treesitter.configs").setup({
 
   highlight = {
     enable = true,
+
+    autotag = {
+      enable = true,
+      filetypes = { "html", "eruby", "tmpl" },
+    },
 
     -- NOTE: these are the names of the parsers and not the filetype. (for example if you want to
     -- disable highlighting for the `tex` filetype, you need to include `latex` in this list as this is
