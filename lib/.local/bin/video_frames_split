@@ -20,7 +20,6 @@ OPTIONS
 	                    (when used, the FILENAME argument is ignored)
 	-d, --dir DIR       (default \$VIDEO_FRAMES_DIR) destination dir
 	-n, --name NAME     name of the dir
-	-t, --trash         move source files to trash after processng
 
 EOF
 }
@@ -36,9 +35,8 @@ jobs=1
 name=''
 dir="$VIDEO_FRAMES_DIR"
 files=''
-trash=0
 
-options=$(getopt -l "help,jobs:,files:,dir:,name:,trash" -o "hj:f:d:n:t" -a -- "$@")
+options=$(getopt -l "help,jobs:,files:,dir:,name:" -o "hj:f:d:n:" -a -- "$@")
 eval set -- "$options"
 
 while true; do
@@ -48,7 +46,6 @@ while true; do
 		-f|--files) shift; files="$1" ;;
 		-d|--dir) shift; dir="$1" ;;
 		-n|--name) shift; name="$1" ;;
-		-t|--trash) trash=1 ;;
 		--) shift; break;;
 	esac
 	shift
@@ -73,7 +70,6 @@ fi
 files=$(printf "$files" | tr '\n' '\0' | xargs -0 realpath)
 
 list=""
-trash_list=""
 targetdirname=$(echo "$dir/$name" | tr -d "[:space:]")
 
 i=1
@@ -83,12 +79,12 @@ while IFS= read -r file; do
 		exit 1
 	fi
 
-	trash_list+="$file"
-	trash_list+=$'\n'
-
+	# Create dir for the frames
 	path=$(printf "%s_%02d_orig" "$targetdirname" $i)
-
 	mkdir -p "$path"
+
+	# Put info about original path in the created dir
+	echo "$file" > "$path/path.txt"
 
 	# Extract frames
 	list+=$(printf "ffmpeg -y -i '%s' '%s/%s'" "$file" "$path" '%%05d.png')
@@ -109,13 +105,5 @@ echo "==="
 echo "list:"
 echo "$list"
 
-echo "trashlist:"
-echo "$trash_list"
-
 # Run
 printf "$list" | parallel --jobs $jobs
-
-# Move to trash
-if [ $trash -eq 1 ]; then
-	trash -t -f "$trash_list"
-fi
