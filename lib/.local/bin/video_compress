@@ -1,0 +1,63 @@
+#!/bin/sh
+
+showHelp () {
+cat << EOF
+
+NAME
+	video_complress
+
+SYNOPSIS
+	video_complress [FILENAME] -f FILES [OPTION...]
+
+ARGUMENTS
+	FILENAME - name of the source dir
+	           (ignored when -f option is provided)
+
+OPTIONS
+	-h, --help              display this help and exit
+	-f, --files FILES   list of newline separated source file names
+	                    (when used, the FILENAME argument is ignored)
+EOF
+}
+
+function log () {
+	if [[ $verbose == "-verbose" ]]; then
+		echo "$1"
+	fi
+}
+
+# Init options.
+files=''
+framerate=''
+
+options=$(getopt -l "help,files:" -o "hf:" -a -- "$@")
+eval set -- "$options"
+
+while true; do
+	case $1 in
+		-h|--help) showHelp; exit 0 ;;
+		-f|--files) shift; files="$1" ;;
+		--) shift; break;;
+	esac
+	shift
+done
+
+# Init from arguments (unless -f was provided).
+if [ -z "$files" ]; then
+	files="$@"
+fi
+
+# Extract full paths.
+files=$(printf "$files" | tr '\n' '\0' | xargs -0 realpath)
+
+while IFS= read -r file; do
+	if [ ! -f "$file" ]; then
+		echo "Not a file $file"
+		exit 1
+	fi
+
+	filename=$(basename -- "$file")
+	extension="${filename##*.}"
+	target="${filename%.*}_c.mp4"
+	ffmpeg -i "$file" -y -vcodec libx264 -tune film "$target"
+done <<< "$files"

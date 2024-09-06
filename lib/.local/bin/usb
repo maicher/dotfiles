@@ -25,9 +25,9 @@ EXAMPLES
 	Restart a device (pass a phrase to grep by).
 	Below examples are equvalent:
 
-		$ bt Kinesis restart
-		$ bt kinesis restart
-		$ bt keyboard restart
+		$ usb Kinesis restart
+		$ usb kinesis restart
+		$ usb keyboard restart
 
 EOF
 }

@@ -52,6 +52,12 @@ vim.api.nvim_create_autocmd("BufEnter", {
   group = ft_group,
 })
 
+-- vim.api.nvim_create_autocmd("BufEnter", {
+--   pattern = "*.erb",
+--   command = "set filetype=html",
+--   group = ft_group,
+-- })
+
 vim.api.nvim_create_autocmd("BufEnter", {
   pattern = "*vue",
   command = "set syntax=javascript",

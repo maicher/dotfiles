@@ -1,0 +1,38 @@
+#!/bin/sh
+
+numsuffix() {
+  local number=$1
+  local suffix="th"
+
+  if (( number % 100 >= 11 && number % 100 <= 13 )); then
+    suffix="th"
+  else
+    case $(( number % 10 )) in
+      1) suffix="st" ;;
+      2) suffix="nd" ;;
+      3) suffix="rd" ;;
+      *) suffix="th" ;;
+    esac
+  fi
+
+  echo "${number}${suffix}"
+}
+
+if [ -z "$1" ]; then
+	echo "Paste an url ending with git diff, eg https://github.com/username/reponame/00000000..11111111"
+	exit 1
+fi
+url="$1"
+
+num="1"
+if [ ! -z "$2" ]; then
+	num="$2"
+fi
+
+diffsegment="${url##*/}"
+numwithsuffix=$(numsuffix $num)
+
+echo ":rocket: $(numsuffix $num) deploy of the day"
+echo "Changes: $url"
+echo "Release notes:"
+git --no-pager log $diffsegment --pretty=format:"* %s (%aN)" --date=short

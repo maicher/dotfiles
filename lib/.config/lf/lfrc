@@ -162,14 +162,7 @@ map \\vs video-stabilize
 
 cmd video-compress !{{
 	set -f
-	echo "$fx" | while IFS= read -r file
-	do
-		filename=$(basename -- "$file")
-		extension="${filename##*.}"
-		target="${filename%.*}_c.mp4"
-		ffmpeg -i "$file" -y -vcodec libx264 -tune film "$target"
-		lf -remote "send $id load"
-	done
+	video_compress -f "$fx"
 }}
 map \\vc video-compress
 

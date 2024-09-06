@@ -26,4 +26,4 @@ fi
 # Drop part after '#' sign
 # text=${A%%#*}
 
-xdotool type --clearmodifiers --delay 2 "$text"
+xdotool type --clearmodifiers --delay 15 "$text"

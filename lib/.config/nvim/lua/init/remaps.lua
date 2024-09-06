@@ -63,6 +63,7 @@ k.set("n", "t%", ":norm o<%=  %><CR>hhi")
 k.set("n", "tp", ":norm ofmt.Printf(\"%+v\\n\", )<CR>i")
 k.set("n", "tl", ":norm ofmt.Println()<CR>i")
 k.set("n", "tj", ":norm i{{ .T. }}<CR>hhi")
+k.set("n", "ti", ":norm i{{ .I18n. }}<CR>hhi")
 
 -- Remap the [ and ] to <Tab> and '
 -- vim.keymap.set("n", "<Tab>d", vim.diagnostic.goto_prev)
@@ -75,3 +76,47 @@ k.set("n", "tj", ":norm i{{ .T. }}<CR>hhi")
 -- Quickfixlist nav
 k.set("n", "<C-k>", ":cprev<CR>")
 k.set("n", "<C-j>", ":cnext<CR>")
+
+function ConvertToPascalCase()
+  -- Get the visual selection
+  local _, line1, col1, _ = unpack(vim.fn.getpos("'<"))
+  local _, line2, col2, _ = unpack(vim.fn.getpos("'>"))
+  
+  -- Extract the selected text
+  local lines = vim.fn.getline(line1, line2)
+  if #lines == 0 then return end
+
+  -- If the selection is within a single line
+  if #lines == 1 then
+    lines[1] = string.sub(lines[1], col1, col2)
+  else
+    lines[1] = string.sub(lines[1], col1)
+    lines[#lines] = string.sub(lines[#lines], 1, col2)
+  end
+
+  -- Concatenate lines and split into words
+  local text = table.concat(lines, ' ')
+  local words = vim.split(text, '%s+')
+
+  -- Convert words to PascalCase
+  for i, word in ipairs(words) do
+    words[i] = string.upper(string.sub(word, 1, 1)) .. string.lower(string.sub(word, 2))
+  end
+
+  local pascalCase = table.concat(words, '')
+
+  -- Substitute HereConvertedText with the actual function output
+  local finalText = "{{ .I18n." .. pascalCase .. " }}"
+
+  -- Replace the selected text with PascalCase and appended text
+  if line1 == line2 then
+    local currentLine = vim.fn.getline(line1)
+    local newLine = string.sub(currentLine, 1, col1 - 1) .. finalText .. string.sub(currentLine, col2 + 1)
+    vim.fn.setline(line1, newLine)
+  else
+    vim.fn.setline(line1, string.sub(vim.fn.getline(line1), 1, col1 - 1) .. finalText .. string.sub(vim.fn.getline(line2), col2 + 1))
+    for i = line1 + 1, line2 do
+      vim.fn.setline(i, "")
+    end
+  end
+end

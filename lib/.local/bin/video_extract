@@ -128,5 +128,5 @@ printf "$list" | parallel --jobs $jobs
 
 # Move to trash
 if [ $trash -eq 1 ]; then
-	trash -t -f "$trash_list"
+	kmtrash -t -f "$trash_list"
 fi
