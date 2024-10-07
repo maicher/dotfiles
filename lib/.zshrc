@@ -126,6 +126,27 @@ cleanup () {
 	kmstatus --refresh
 	docker system prune --all --volumes
 	kmstatus --refresh
+
+	logfiles=$(cat << EOF
+"$HOME/.local/state/nvim/lsp.log"
+"$HOME/.local/state/nvim/log"
+"$HOME/.local/state/nvim/mason.log"
+EOF
+)
+	echo "Removing nvim lsp logs:"
+	echo "$logfiles" | xargs wc -l
+
+	# Delete all except 100 last lines.
+	echo "$logfiles" | xargs -I{} sed -i -e :a -e '$q;N;101,$D;ba' "{}"
+	echo "$logfiles" | xargs wc -l
+
+	echo "Removing application log files:"
+	logfiles=$(find "$HOME/apps" -iname "*.log")
+	echo "$logfiles" | xargs wc -l
+
+	# Delete all except 100 last lines.
+	echo "$logfiles" | xargs -I{} sed -i -e :a -e '$q;N;101,$D;ba' "{}"
+	echo "$logfiles" | xargs wc -l
 	# DOT END
 }
 
