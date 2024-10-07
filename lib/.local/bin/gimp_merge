@@ -79,6 +79,7 @@ while IFS= read -r file; do
 		counter=0
 	fi
 
+	((i++))
 	((counter++))
 done <<< "$files"
 
