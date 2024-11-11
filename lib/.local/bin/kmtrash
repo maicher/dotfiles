@@ -128,7 +128,7 @@ if [[ ! -z "$batch" ]]; then
 			dir=$(dirname $file)
 			b=$(basename $file)
 			additional_files="$(find "$dir/." -type f -print0 -maxdepth 1 | xargs -0 realpath | sort | awk '/'$b'$/{x=NR+'$batch'}(NR<=x){print}')"
-			trash -t -f "$additional_files"
+			kmtrash -t -f "$additional_files"
 		fi
 	done <<< "$files"
 else
