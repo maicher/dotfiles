@@ -5,10 +5,10 @@ cat << EOF
 
 NAME
 	video_extract extracts video parts from the source file according to time
-	markers read from text file.
+	markers read from a text file.
 
-	File with markers should contain time duration pairs in the same format
-	as described in ffmpeg-utils(1).
+	File with markers should contain newline-separated time duration pairs
+	in the same format as described in ffmpeg-utils(1).
 	File with markers should have the same name as the source file suffixed
 	with "_markers.txt" phrase.
 

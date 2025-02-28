@@ -112,8 +112,13 @@ ZSH_AUTOSUGGEST_CLEAR_WIDGETS+=(bracketed-paste)
 # Load syntax highlighting; should be last.
 source /usr/share/zsh/plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh 2>/dev/null
 
+mismatch () {
+	dictionary="$2"
+	grep -Fxv -f "$dictionary" "$1"
+}
+
 cdtrash () {
-	cd $(trashpath)
+	cd $(kmtrashpath)
 }
 
 cleanup () {
