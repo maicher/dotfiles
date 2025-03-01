@@ -1,0 +1,10 @@
+#!/bin/ruby
+
+ext = ARGV[0]
+ext = 'png' if ext.nil?
+
+existing = `ls`.split.map { |i| i.split('.').first.to_i }
+
+(1..(existing.last)).each do |i|
+  puts format("%05d.#{ext}", i) if !existing.include?(i)
+end
