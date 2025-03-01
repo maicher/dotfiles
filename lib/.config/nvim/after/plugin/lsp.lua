@@ -1,8 +1,21 @@
 local lsp = require("lsp-zero")
 lsp.preset("recommended")
 
+-- Mason setup
+require("mason").setup()
+require("mason-lspconfig").setup({
+  ensure_installed = {
+    "typescript-language-server",
+    "eslint",
+    "cssls",
+    "lua_ls",
+    "solargraph",
+    "gopls",
+  },
+})
+
 lsp.ensure_installed({
-  "tsserver",
+  "ts_ls",
   "eslint",
   "cssls",
   "lua_ls",
