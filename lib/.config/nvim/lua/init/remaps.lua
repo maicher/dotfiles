@@ -81,7 +81,7 @@ function ConvertToPascalCase()
   -- Get the visual selection
   local _, line1, col1, _ = unpack(vim.fn.getpos("'<"))
   local _, line2, col2, _ = unpack(vim.fn.getpos("'>"))
-  
+
   -- Extract the selected text
   local lines = vim.fn.getline(line1, line2)
   if #lines == 0 then return end
@@ -120,3 +120,36 @@ function ConvertToPascalCase()
     end
   end
 end
+
+function Sum3LinesAbove()
+  local current_line = vim.fn.line('.')
+  local sum = 0
+
+  for i = 1, 3 do
+    local line_content = vim.fn.getline(current_line - i)
+    local num_str = string.match(line_content, '%d+%.?%d*')
+    if num_str then
+      sum = sum + tonumber(num_str)
+    end
+  end
+
+  vim.fn.setline(current_line, sum)
+end
+
+function SearchClass()
+  local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+  local class_name
+
+  for _, line in ipairs(lines) do
+    class_name = line:match("class%s+([%w_:]+)") or line:match("RSpec.describe%s+([%w_:]+)")
+    if class_name then break end
+  end
+
+  if class_name then
+    vim.cmd("silent! Rg " .. vim.fn.escape(class_name, " "))
+  else
+    print("No class or RSpec describe found in this file.")
+  end
+end
+
+vim.api.nvim_set_keymap('n', '<C-c>', ":lua SearchClass()<CR>", { noremap = true, silent = true })
