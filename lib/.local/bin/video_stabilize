@@ -52,7 +52,6 @@ fi
 
 # Extract full paths.
 files=$(printf "$files" | tr '\n' '\0' | xargs -0 realpath)
-
 list=""
 
 while IFS= read -r file; do

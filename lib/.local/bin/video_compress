@@ -4,10 +4,10 @@ showHelp () {
 cat << EOF
 
 NAME
-	video_complress
+	video_compress
 
 SYNOPSIS
-	video_complress [FILENAME] -f FILES [OPTION...]
+	video_compress [FILENAME] -f FILES [OPTION...]
 
 ARGUMENTS
 	FILENAME - name of the source dir
@@ -15,6 +15,7 @@ ARGUMENTS
 
 OPTIONS
 	-h, --help              display this help and exit
+	-j, --jobs JOBS     (default: 1) number of parallel jobs
 	-f, --files FILES   list of newline separated source file names
 	                    (when used, the FILENAME argument is ignored)
 EOF
@@ -27,15 +28,17 @@ function log () {
 }
 
 # Init options.
+jobs=1
 files=''
 framerate=''
 
-options=$(getopt -l "help,files:" -o "hf:" -a -- "$@")
+options=$(getopt -l "help,jobs:,files:" -o "hj:f:" -a -- "$@")
 eval set -- "$options"
 
 while true; do
 	case $1 in
 		-h|--help) showHelp; exit 0 ;;
+		-j|--jobs) shift; jobs="$1" ;;
 		-f|--files) shift; files="$1" ;;
 		--) shift; break;;
 	esac
@@ -49,6 +52,7 @@ fi
 
 # Extract full paths.
 files=$(printf "$files" | tr '\n' '\0' | xargs -0 realpath)
+list=""
 
 while IFS= read -r file; do
 	if [ ! -f "$file" ]; then
@@ -58,6 +62,15 @@ while IFS= read -r file; do
 
 	filename=$(basename -- "$file")
 	extension="${filename##*.}"
+
 	target="${filename%.*}_c.mp4"
-	ffmpeg -i "$file" -y -vcodec libx264 -tune film "$target"
+	list+=$(printf "ffmpeg -i '%s' -y -vcodec libx264 -tune film '%s'" "$file" "$target")
+	list+=$'\n'
 done <<< "$files"
+
+echo "==="
+echo "list:"
+echo "$list"
+
+# Run
+printf "$list" | parallel --jobs $jobs
