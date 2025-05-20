@@ -65,6 +65,11 @@ k.set("n", "tl", ":norm ofmt.Println()<CR>i")
 k.set("n", "tj", ":norm i{{ .T. }}<CR>hhi")
 k.set("n", "ti", ":norm i{{ .I18n. }}<CR>hhi")
 
+k.set('n', '<leader>y', function()
+  local line = vim.api.nvim_get_current_line()
+  vim.fn.system('xclip -selection clipboard', line)
+end, { desc = "Copy current line to clipboard" })
+
 -- Remap the [ and ] to <Tab> and '
 -- vim.keymap.set("n", "<Tab>d", vim.diagnostic.goto_prev)
 -- vim.keymap.set("n", "'d", vim.diagnostic.goto_next)
