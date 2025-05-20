@@ -1,3 +1,6 @@
 gui:
   showFileTree: false
   showIcons: true
+
+git:
+  autoForwardBranches: none
