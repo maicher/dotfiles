@@ -263,6 +263,13 @@ map \\icj image_convert jpg $IMAGE_JOBS
 map \\icp image_convert png $IMAGE_JOBS
 map \\icw image_convert webp $IMAGE_JOBS
 
+
+cmd pdf_convert_2_jpg !{{
+	set -f
+	gs -dNOPAUSE -dBATCH -sDEVICE=jpeg -r300 -sOutputFile="$f.jpg" "$f"
+}}
+map \\pcj pdf_convert_2_jpg
+
 cmd image_resize !{{
 	set -f
 	files=$(kfind -r "\.(jpeg|jpg)$" -f "$fx")
