@@ -263,12 +263,23 @@ map \\icj image_convert jpg $IMAGE_JOBS
 map \\icp image_convert png $IMAGE_JOBS
 map \\icw image_convert webp $IMAGE_JOBS
 
-
 cmd pdf_convert_2_jpg !{{
 	set -f
-	gs -dNOPAUSE -dBATCH -sDEVICE=jpeg -r300 -sOutputFile="$f.jpg" "$f"
+	for file in $fx; do
+		name="${file%.*}"
+		gs -dNOPAUSE -dBATCH -sDEVICE=jpeg -r300 -sOutputFile="${name}.pdf" "$file"
+	done
 }}
 map \\pcj pdf_convert_2_jpg
+
+cmd jpg_convert_2_pdf !{{
+	set -f
+	for file in $fx; do
+		name="${file%.*}"
+		gs -dBATCH -dNOPAUSE -sDEVICE=pdfwrite -sOutputFile="${name}.pdf" "$file"
+	done
+}}
+map \\icP jpg_convert_2_pdf
 
 cmd image_resize !{{
 	set -f

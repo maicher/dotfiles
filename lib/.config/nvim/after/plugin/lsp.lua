@@ -51,3 +51,12 @@ lsp.setup_nvim_cmp({
 })
 
 lsp.setup()
+
+lsp.setup()
+
+-- Add this after lsp.setup()
+local lspconfig = require("lspconfig")
+
+lspconfig.cssls.setup({
+  filetypes = { "css", "scss", "sass" }
+})

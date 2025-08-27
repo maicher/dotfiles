@@ -11,47 +11,47 @@ Just browse the files and copy what you need.
 * [bin/](bin/) - scripts for managing the dotfiles
 * [completion/](completion/) - zsh completions for the above
 * [lib/](lib/) - the actual dotfiles
-	* ...
-	* [lib/.local/bin/](lib/.local/bin/) - custom scripts
-	* [lib/.local/completion/](lib/.local/completion/) - zsh completions for the above
-	* ...
+    * ...
+    * [lib/.local/bin/](lib/.local/bin/) - custom scripts
+    * [lib/.local/completion/](lib/.local/completion/) - zsh completions for the above
+    * ...
 
 ## Editor
 
 I use [Neovim](https://neovim.io/) with [Packer](https://github.com/wbthomason/packer.nvim) plugin manager.
 
-To install packer, run:
+To install Packer, run:
 
-	git clone --depth 1 https://github.com/wbthomason/packer.nvim ~/.local/share/nvim/site/pack/packer/start/packer.nvim
+    git clone --depth 1 https://github.com/wbthomason/packer.nvim ~/.local/share/nvim/site/pack/packer/start/packer.nvim
 
 You can take a look at the Vim plugins I currently use [here](lib/.config/nvim/lua/init/plugins.lua).
 
 Useful maintenance commands:
 
-	:PackerSynch
-	:TSUpdate
-	:Mason
+    :PackerSync
+    :TSUpdate
+    :Mason
     :LspInfo
 
-## X windows manager
+## X Window Manager
 
-Tiling window managers automatically organize open windows, so that you don't have to drag them around using mouse.
+Tiling window managers automatically organize open windows so that you don't have to drag them around using a mouse.
 
 I use a [personal fork](https://github.com/maicher/dwm) of [DWM](https://dwm.suckless.org/) with some additional patches applied.
 
-## File manager
+## File Manager
 
-I use [lf](https://github.com/gokcehan/lf) file manager which is fast and also serves as an entry point for running scripts.
+I use [lf](https://github.com/gokcehan/lf) file manager, which is fast and also serves as an entry point for running scripts.
 
-As it runs in terminal I use it also over SSH on servers.
+As it runs in the terminal, I also use it over SSH on servers.
 
 ## Hotkeys
 
-For system wide hotkeys I use the [sxhkd](https://github.com/baskerville/sxhkd) which has
+For system-wide hotkeys I use [sxhkd](https://github.com/baskerville/sxhkd), which has
 a convenient way of configuring the bindings.
 
-Below is the list of mapping I use.
-In both dwm and sxiv the prefix key is `super`, which gives:
+Below is the list of mappings I use.
+In both DWM and sxiv the prefix key is `super`, which gives:
 
 	key description                     managed by
 	--- ----------------------------    ----
