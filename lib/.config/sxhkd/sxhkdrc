@@ -46,7 +46,7 @@ super + @r
 super + @R
 	sleep '0.2'; dmenu_pass -r "$DMENU_PASS" --login
 super + D
-	dmenu_pass -w "$DMENU_PASS" -o "$DWM_TEXT" --cleanup && kmstatus -u
+	dmenu_pass -w "$DMENU_PASS" -o "$DWM_TEXT" --cleanup && kmstatus -u && clear_all_modifiers
 
 # Snippets
 super + s
@@ -75,3 +75,6 @@ Print
 # Boot a dev project
 super + p
 	dev
+
+shift + Escape
+	xdotool key Caps_Lock && notify-send "Caps Lock toggled"

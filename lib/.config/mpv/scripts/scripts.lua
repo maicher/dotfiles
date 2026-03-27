@@ -16,6 +16,20 @@ local function get_final_path()
    return final_path
 end
 
+local function get_basename()
+    local final_path = get_final_path()
+    if not final_path then return nil end
+
+    -- extract filename (drop directory)
+    local name = final_path:match("([^/]+)$")
+    if not name then return nil end
+
+    -- remove extension: the last dot and everything after it
+    local base = name:match("(.+)%..+$") or name
+
+    return base
+end
+
 local function move_to_trash()
   local final_path = get_final_path()
 
@@ -94,6 +108,26 @@ local function lf_toggle()
   os.execute("lf -remote \"send toggle '"..final_path.."'\"")
 end
 
+local function copy_current_path()
+  local res = mp.command_native({
+    name = "subprocess",
+    args = { "xclip", "-i", "-selection", "clipboard" },
+    stdin_data = get_final_path(),
+    playback_only = false,
+  })
+
+  if res.status ~= 0 then
+    mp.osd_message("xclip failed: " .. (res.error_string or "?"), 2)
+  else
+    mp.osd_message("Copied path", 1.5)
+  end
+end
+
+local function video_frames_split()
+  mp.osd_message("Splitting video frames...")
+  os.execute("video_frames_split -j 6 --name '"..get_basename().."' '"..get_final_path().."' &")
+end
+
 mp.add_key_binding("ctrl+d", "move_to_trash", move_to_trash)
 mp.add_key_binding("ctrl+D", "delete", delete)
 mp.add_key_binding("ctrl+m", "set_marker", set_marker)
@@ -103,3 +137,5 @@ mp.add_key_binding("ctrl+o", "open_in_new_mpv", open_in_new_mpv)
 mp.add_key_binding("ctrl+O", "open_playlist_in_new_mpv", open_playlist_in_new_mpv)
 mp.add_key_binding("ctrl+ENTER", "show_full_path", show_full_path)
 mp.add_key_binding("ctrl+t", "lf_toggle", lf_toggle)
+mp.add_key_binding("ctrl+c", "copy_current_path", copy_current_path)
+mp.add_key_binding("ctrl+s", "video_frames_split", video_frames_split)

@@ -1,0 +1,11 @@
+#!/bin/sh
+# DOT SKIP server
+
+if xset q | grep "Caps Lock:\s*on" > /dev/null; then
+	notify-send "Caps Lock deactivated"
+	xdotool key Caps_Lock
+else
+	notify-send "Caps Lock OK"
+fi
+
+xdotool keyup Shift_L Shift_R Control_L Control_R Alt_L Alt_R Super_L Super_R

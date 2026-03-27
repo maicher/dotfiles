@@ -124,8 +124,14 @@ cmd copy-file-basename ${{
 	set -f
 	basename "$f" | tr -d \\n | xclip -i -selection clipbopard
 }}
-map \\b copy-file-basename
+map \\fb copy-file-basename
 
+# Format the xml to pretty
+cmd pretty-format-xml ${{
+	set -f
+	xmllint --format $f > $1
+}}
+map \\fp push :pretty-format-xml<space>
 
 # CUSTOM COMMANDS
 # Video manipulations (prefix key: \v)
