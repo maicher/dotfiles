@@ -17,7 +17,6 @@ o.cmdheight = 2
 o.updatetime = 1000
 o.shortmess:append "c"
 o.signcolumn = "yes"
-o.compatible = false
 o.termguicolors = true
 o.ttimeoutlen = 100
 o.wrap = false

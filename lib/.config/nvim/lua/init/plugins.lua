@@ -1,83 +1,78 @@
--- Packer is used as a package manager.
--- To install, follow guides on: https://github.com/wbthomason/packer.nvim
+-- pckr is used as a package manager.
+-- To install, follow guides on: https://github.com/lewis6991/pckr.nvim
 
-vim.cmd("packadd packer.nvim")
+local pckr_path = vim.fn.stdpath("data") .. "/pckr/pckr.nvim"
 
-return require("packer").startup(function(use)
-  use "wbthomason/packer.nvim"
+if not vim.uv.fs_stat(pckr_path) then
+  vim.fn.system({
+    "git", "clone", "https://github.com/lewis6991/pckr.nvim", pckr_path,
+  })
+end
 
+vim.opt.rtp:prepend(pckr_path)
+
+require("pckr").add{
   -- Theme
-  use {
-    'nvim-lualine/lualine.nvim',
-    requires = { 'nvim-tree/nvim-web-devicons', opt = true }
-  }
-  use "navarasu/onedark.nvim"
+  { "nvim-lualine/lualine.nvim",
+    requires = { "nvim-tree/nvim-web-devicons" },
+  };
+  "navarasu/onedark.nvim";
 
   -- Browsing
-  use "junegunn/fzf"
-  use "junegunn/fzf.vim"
-  use "airblade/vim-rooter"
-  use "nvim-tree/nvim-tree.lua"
-  use "ludovicchabant/vim-gutentags"
-  use({
-    "ThePrimeagen/harpoon",
+  "junegunn/fzf";
+  "junegunn/fzf.vim";
+  "airblade/vim-rooter";
+  "nvim-tree/nvim-tree.lua";
+  "ludovicchabant/vim-gutentags";
+  { "ThePrimeagen/harpoon",
     requires = "nvim-lua/plenary.nvim",
-  })
+  };
 
   -- Git
-  use "airblade/vim-gitgutter"
-  use "tpope/vim-fugitive"
+  "airblade/vim-gitgutter";
+  "tpope/vim-fugitive";
 
   -- Coding
-  use "editorconfig/editorconfig-vim"
-  use "mattn/vim-goimports"
+  "mattn/vim-goimports";
 
-  use({
-    "windwp/nvim-autopairs",
-    config = function() require('nvim-autopairs').setup {} end
-  })
-  use({
-    'windwp/nvim-ts-autotag',
-    config = function() require('nvim-ts-autotag').setup {} end
-  })
+  { "windwp/nvim-autopairs",
+    config = function() require("nvim-autopairs").setup {} end,
+  };
+  { "windwp/nvim-ts-autotag",
+    config = function() require("nvim-ts-autotag").setup {} end,
+  };
 
 -- DOT SKIP server
-  use "nvim-treesitter/nvim-treesitter"
-  use "nvim-treesitter/nvim-treesitter-textobjects"
-  use "RRethy/nvim-treesitter-endwise"
+  { "nvim-treesitter/nvim-treesitter",
+    run = ":TSUpdate",
+  };
+  "nvim-treesitter/nvim-treesitter-textobjects";
+  "RRethy/nvim-treesitter-endwise";
 
-  use({
-    "VonHeikemen/lsp-zero.nvim",
-    branch = "v2.x",
-    requires = {
-      { "neovim/nvim-lspconfig" },             -- Required
-      {                                        -- Optional
-        "williamboman/mason.nvim",
-        run = function()
-          pcall(vim.cmd, "MasonUpdate")
-        end,
-      },
-      { "williamboman/mason-lspconfig.nvim" }, -- Optional
+  -- LSP
+  "neovim/nvim-lspconfig";
+  { "williamboman/mason.nvim",
+    run = function() pcall(vim.cmd, "MasonUpdate") end,
+  };
+  "williamboman/mason-lspconfig.nvim";
 
-      -- Autocompletion
-      { "hrsh7th/nvim-cmp" },     -- Required
-      { "hrsh7th/cmp-nvim-lsp" }, -- Required
-      { "hrsh7th/cmp-buffer" },
-      { "hrsh7th/cmp-nvim-lua" },
-      {'hrsh7th/cmp-path'},
-      {'hrsh7th/cmp-cmdline'},
+  -- Completion
+  "hrsh7th/nvim-cmp";
+  "hrsh7th/cmp-nvim-lsp";
+  "hrsh7th/cmp-buffer";
+  "hrsh7th/cmp-nvim-lua";
+  "hrsh7th/cmp-path";
+  "hrsh7th/cmp-cmdline";
 
-      -- Snippets
-      {'L3MON4D3/LuaSnip'},
-      {'saadparwaiz1/cmp_luasnip'},
-      {'rafamadriz/friendly-snippets'},
-    }
-  })
+  -- Snippets
+  "L3MON4D3/LuaSnip";
+  "saadparwaiz1/cmp_luasnip";
+  "rafamadriz/friendly-snippets";
 
-  use("numToStr/Comment.nvim")
+  "numToStr/Comment.nvim";
 -- DOT END
 
-  use "bronson/vim-trailing-whitespace"
-  use "mbbill/undotree"          -- undo history visualizer
-  use "vim-scripts/YankRing.vim" -- history of previous yanks, changes and deletes
-end)
+  "bronson/vim-trailing-whitespace";
+  "mbbill/undotree";
+  "vim-scripts/YankRing.vim";
+}

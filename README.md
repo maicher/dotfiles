@@ -18,20 +18,16 @@ Just browse the files and copy what you need.
 
 ## Editor
 
-I use [Neovim](https://neovim.io/) with [Packer](https://github.com/wbthomason/packer.nvim) plugin manager.
+[Neovim](https://neovim.io/) (v0.12.1) with [pckr.nvim](https://github.com/lewis6991/pckr.nvim) plugin manager.
 
-To install Packer, run:
-
-    git clone --depth 1 https://github.com/wbthomason/packer.nvim ~/.local/share/nvim/site/pack/packer/start/packer.nvim
-
-You can take a look at the Vim plugins I currently use [here](lib/.config/nvim/lua/init/plugins.lua).
+You can take a look at the Vim plugins used [here](lib/.config/nvim/lua/init/plugins.lua).
 
 Useful maintenance commands:
 
-    :PackerSync
+    :Pckr sync
     :TSUpdate
     :Mason
-    :LspInfo
+    :checkhealth vim.lsp
 
 ## X Window Manager
 

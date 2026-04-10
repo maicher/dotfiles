@@ -1,8 +1,5 @@
 local k = vim.keymap
 
--- SPACE as the leader key
-vim.g.mapleader = " "
-
 -- Splits nav
 k.set("n", "<leader>j", "<C-W><C-j>")
 k.set("n", "<leader>k", "<C-W><C-k>")
