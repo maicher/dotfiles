@@ -1,0 +1,36 @@
+#!/bin/sh
+# DOT SKIP server
+
+# dmenu_open_doc displays a dmenu with entries from a given file,
+# then evaluates the program with it's argiments.
+# Can be used to open eg a given streadsheet.
+
+location="$1"
+
+if [ -z $1 ]; then
+	notify-send "No path to a file" -u critical
+	exit 1
+fi
+
+if [ ! -f $1 ]; then
+	notify-send "File does not exist" -u critical
+	exit 2
+fi
+
+text=$(cat "$location" | dmenu -l 10 -i -nb '#2e3440' -nf '#7b8396' -sb '#526884' -sf '#eee')
+
+if [ -z $text ]; then
+	notify-send "The entry is empty" -u critical
+	exit 3
+fi
+
+# Run mimeopen in background, capture its output and exit status;
+# if it fails, send a desktop notification with the error message.
+{
+	err=$(mimeopen "$text" 2>&1)
+	status=$?
+	if [ $status -ne 0 ]; then
+		notify-send "${err:-Failed to open file}" -u critical
+		exit 4
+	fi
+} &

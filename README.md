@@ -80,8 +80,8 @@ In both DWM and sxiv the prefix key is `super`, which gives:
 	M   set centered master layout      dwm
 	n
 	N
-	o
-	O
+	o   show docs dmenu                 sxhkd
+	O   edit docs                       sxhkd
 	q   close focused window            dwm
 	Q   restart dwm                     dwm
 	p   show projects dmenu

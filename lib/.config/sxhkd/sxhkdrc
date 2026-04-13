@@ -54,6 +54,12 @@ super + s
 super + S
 	st vim $DMENU_SNIPPETS
 
+# Open document
+super + o
+	dmenu_open_doc $DMENU_DOCS
+super + O
+	st vim $DMENU_DOCS
+
 # Bookmarks
 super + u
 	dmenu_pick_from_file $DMENU_URLS

@@ -22,6 +22,7 @@ export VIMINIT="source $MYVIMRC"
 
 export USER_TMPDIR="/dev/shm/tmp_$(whoami)" # /dev/shm means in RAM
 export DMENU_SNIPPETS="$HOME/.local/dmenu_snippets"
+export DMENU_DOCS="$HOME/.local/dmenu_docs"
 export DMENU_URLS="$HOME/.local/dmenu_urls"
 export DMENU_PASS="$USER_TMPDIR/dmenu_pass"
 export DWM_TEXT="$USER_TMPDIR/dwm_text"
