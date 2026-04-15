@@ -1,27 +1,39 @@
 -- DOT SKIP server
 
--- Parser management (new nvim-treesitter main branch API)
-require("nvim-treesitter").setup({
-  ensure_installed = {
-    "bash",
-    "c",
-    "cmake",
-    "gitignore",
-    "go",
-    "html",
-    "javascript",
-    "json",
-    "lua",
-    "php",
-    "query",
-    "ruby",
-    "sql",
-    "toml",
-    "vim",
-    "vimdoc",
-    "vue",
-  },
-  auto_install = true,
+-- Parsers (new nvim-treesitter main branch API).
+-- NOTE: the main branch is a full rewrite. `setup({ ensure_installed, auto_install })`
+-- from the legacy master branch is silently ignored — parsers must be installed
+-- via `require("nvim-treesitter").install(...)`. This call is async; on first run
+-- parsers download in the background, then highlighting works on next open.
+local parsers = {
+  "bash",
+  "c",
+  "cmake",
+  "gitignore",
+  "go",
+  "html",
+  "javascript",
+  "json",
+  "lua",
+  "php",
+  "query",
+  "ruby",
+  "sql",
+  "toml",
+  "vim",
+  "vimdoc",
+  "vue",
+}
+require("nvim-treesitter").install(parsers)
+
+-- Enable treesitter highlighting. The main branch no longer auto-attaches the
+-- highlighter (the old `highlight = { enable = true }` is gone), so we start it
+-- manually per buffer via FileType.
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = parsers,
+  callback = function(args)
+    pcall(vim.treesitter.start, args.buf)
+  end,
 })
 
 -- Disable treesitter highlighting for large files
