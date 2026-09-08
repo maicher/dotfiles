@@ -138,9 +138,14 @@ map \\fp push :pretty-format-xml<space>
 
 cmd video-frames-split !{{
 	set -f
-	video_frames_split -j 6 --name "$1" -f "$fx"
+	if [ "$#" -gt 0 ] && [ -n "$1" ]; then
+		video_frames_split -j 6 --name "$1" -f "$fx"
+	else
+		video_frames_split -j 6 -f "$fx"
+	fi
 }}
-map \\vfs push :video-frames-split
+
+map \\vfs push :video-frames-split<space>
 
 cmd video-frames-join !{{
 	set -f
@@ -416,7 +421,7 @@ map \\ios orientation-show
 
 cmd orientation-clear !{{
 	set -f
-	kfind -r "\.(jpeg|jpg)" -f "$fx" | xargs -d '\n' exiv2 -v -M"set Exif.Image.Orientation 0"
+	kfind -r "\.(jpeg|jpg)" -f "$fx" | xargs -d '\n' exiftool -overwrite_original_in_place -Orientation#=0
 }}
 map \\ioc orientation-clear
 
