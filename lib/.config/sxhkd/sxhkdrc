@@ -76,7 +76,8 @@ super + c
 
 # Screenshots
 Print
-	flameshot gui
+	maim -m 10 ~/screenshot.jpg && gimp ~/screenshot.jpg && sxiv ~/screenshot.jpg
+	#flameshot gui
 
 # Boot a dev project
 super + p
