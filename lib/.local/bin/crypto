@@ -1,0 +1,43 @@
+#!/usr/bin/env zsh
+
+set -e
+
+CRYPTO="${1:u}"
+AMOUNT="$2"
+
+if [[ -z "$CRYPTO" || -z "$AMOUNT" ]]; then
+  echo "Usage: crypto <symbol> <amount>"
+  echo "Example: crypto XMR 0.002342"
+  exit 1
+fi
+
+typeset -A COINGECKO_IDS=(
+  XMR monero
+  BTC bitcoin
+  ETH ethereum
+  LTC litecoin
+  SOL solana
+  USDT tether
+)
+
+ID="${COINGECKO_IDS[$CRYPTO]}"
+
+if [[ -z "$ID" ]]; then
+  echo "Unsupported crypto: $CRYPTO"
+  exit 1
+fi
+
+JSON=$(curl -fsSL \
+  "https://api.coingecko.com/api/v3/simple/price?ids=${ID}&vs_currencies=eur")
+
+RATE=$(python -c '
+import json, sys
+data = json.load(sys.stdin)
+coin = sys.argv[1]
+print(data[coin]["eur"])
+' "$ID" <<< "$JSON")
+
+EUR=$(awk -v amount="$AMOUNT" -v rate="$RATE" \
+  'BEGIN { printf "%.2f", amount * rate }')
+
+echo "$EUR EUR"

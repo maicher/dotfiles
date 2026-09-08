@@ -1,0 +1,24 @@
+#compdef _crypto crypto
+
+function _crypto {
+  local -a cryptos
+
+  cryptos=(
+    "XMR:Monero"
+    "BTC:Bitcoin"
+    "ETH:Ethereum"
+    "LTC:Litecoin"
+    "SOL:Solana"
+    "USDT:Tether"
+  )
+
+  _arguments -C \
+    "1:cryptocurrency:->crypto" \
+    "2:amount:"
+
+  case "$state" in
+    crypto)
+      _describe "cryptocurrency" cryptos
+      ;;
+  esac
+}
