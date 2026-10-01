@@ -1,39 +1,46 @@
 # DOT SKIP server
-#compdef _bt bt
+#compdef bt
 
 # zsh autocompletion for the bt script.
 #
-# Set the BT_DEVICES env for better autocompletion, eg:
+# Device names are read from bluetoothctl. Additional names (eg parts of the
+# names) can be set in the BT_DEVICES env, eg:
 #   $ export BT_DEVICES="MDR JBL"
 #
-function _bt {
-	local line state
+local curcontext="$curcontext" state line
+typeset -A opt_args
 
-	_arguments -C \
-		"-h[display help]" \
-		"1: :->cmds" \
-		"*::arg:->args"
+local -a commands=(
+	'on:turn the bt controller on'
+	'off:turn the bt controller off'
+	'restart:restart the bluetooth daemon'
+	'scan:scan for pairable devices'
+	'info:show device info'
+	'pair:pair with a device'
+	'trust:trust a device'
+	'connect:connect to a device'
+	'disconnect:disconnect a device'
+	'remove:remove a device'
+)
 
-	case "$state" in
-		cmds)
-			_values "dolt_table command" \
-			"connect" \
-			"disconnect" \
-			"remove" \
-			"info" \
-			"pair" \
-			"trust" \
-			"off" \
-			"on" \
-			"restart" \
-			"scan"
+_arguments -C \
+	'(- *)-h[display help]' \
+	'1:command:->command' \
+	'2:device:->device'
+
+case $state in
+	command)
+		_describe 'command' commands
 		;;
-		args)
-			if [[ $line[1] =~ ^(info|pair|connect|disconnect|remove)$ ]]; then
-				_arguments -C \
-					"1: :($BT_DEVICES)"
-			fi
+	device)
+		if [[ $line[1] == (info|pair|trust|connect|disconnect|remove) ]]; then
+			local -a devices
+			# The timeout prevents hanging when the bluetooth daemon is not running.
+			devices=(
+				${(f)"$(timeout 1 bluetoothctl devices 2>/dev/null | cut -d ' ' -f3-)"}
+				${=BT_DEVICES}
+			)
+			_wanted devices expl 'device' compadd -a devices
+		fi
 		;;
-	esac
-
-}
+esac

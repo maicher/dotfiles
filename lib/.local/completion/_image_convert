@@ -1,30 +1,10 @@
-#compdef _image_convert image_convert
+#compdef image_convert
 
-# Function to list images in current dir
-_image_files() {
-    local files
-    files=("${(@f)$(find . -maxdepth 1 -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.gif" -o -iname "*.bmp" -o -iname "*.webp" \))}")
-    _wanted files expl 'image file' compadd -a files
-}
+# zsh autocompletion for the image_convert script.
 
-function _image_convert {
-	local curcontext="$curcontext" state line
-	typeset -A opt_args
-
-	_arguments -C \
-		"-h[display help]" \
-		"--help[display help]" \
-		"-j[number of parallel jobs]" \
-		"--jobs[number of parallel jobs]" \
-		"-f[list of newline separated file name]:file:_image_files" \
-		"--files[list of newline separated file name]:file:_image_files" \
-		"-F[output format]" \
-		"--format[output format]" \
-		"*:: :->args"
-
-	case $state in
-		args)
-			_image_files
-			;;
-	esac
-}
+_arguments -s -S \
+	'(- *)'{-h,--help}'[display help and exit]' \
+	'(-j --jobs)'{-j,--jobs}'[number of parallel jobs (default: 1)]:jobs:' \
+	'(-f --files *)'{-f,--files}'[newline separated list of images]:image:_km_files images' \
+	'(-F --format)'{-F,--format}'[output format (default: jpg)]:format:(jpg png webp gif bmp tiff avif)' \
+	'*:image:_km_files images'

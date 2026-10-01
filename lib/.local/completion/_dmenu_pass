@@ -1,0 +1,12 @@
+# DOT SKIP server
+#compdef dmenu_pass
+
+# zsh autocompletion for the dmenu_pass script.
+
+_arguments -s -S \
+	'(- *)'{-h,--help}'[display help and exit]' \
+	'(-w --write)'{-w,--write}'[write selected entry to a file]:file:_files' \
+	'(-r --read)'{-r,--read}'[read the selection from a file instead of dmenu]:file:_files' \
+	'(-l --login)'{-l,--login}'[type login instead of pass]' \
+	'(-o --otp)'{-o,--otp}'[write the OTP to a file, if the entry has one]:file:_files' \
+	'(-c --cleanup)'{-c,--cleanup}'[remove the files and exit]'

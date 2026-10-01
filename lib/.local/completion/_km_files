@@ -1,0 +1,30 @@
+#autoload
+
+# Helper for the completions of the scripts in ~/.local/bin.
+#
+# Completes files of the given kind and dirs (to descend into), eg:
+#   _km_files images
+#   _km_files videos
+#
+# _arguments adds its own options (eg -J group) to the call, so the kind is
+# looked up among all the arguments and the rest is passed to _files.
+
+local -A patterns=(
+	images '*.(#i)(jpg|jpeg|png|gif|webp|bmp|tif|tiff|heic|avif|psd)(-.)'
+	videos '*.(#i)(mp4|mkv|mov|avi|webm|wmv|m4v|mpg|mpeg|ts|part)(-.)'
+	xcf    '*.(#i)xcf(-.)'
+	ods    '*.(#i)ods(-.)'
+	parts  '*_parts.txt(-.)'
+)
+
+local pattern='*' arg
+local -a rest
+for arg in "$@"; do
+	if (( ${+patterns[$arg]} )); then
+		pattern="${patterns[$arg]}"
+	else
+		rest+=("$arg")
+	fi
+done
+
+_files "${rest[@]}" -g "$pattern"

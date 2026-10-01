@@ -1,25 +1,16 @@
-#compdef _video_extract video_extract
+#compdef video_extract
 
-function _video_extract {
-	files=$(find . -maxdepth 1 -type f -print0)
-	if [ ! -z $files ]; then
-		files=$(echo "$files" | xargs -0 -I{} basename -a "{}" | xargs -I{} echo "\"{}\"")
-	fi
+# zsh autocompletion for the video_extract script.
+#
+# The source videos need a <video>_markers.txt file next to them.
 
-	_arguments -C \
-		"-h[display help]" \
-		"--help[display help]" \
-		"-j[number of parallel jobs]" \
-		"--jobs[number of parallel jobs]" \
-		"-f[list of newline separated file name]" \
-		"--files[list of newline separated file name]" \
-		"-o[output dir for generated parts]" \
-		"--out-dir[output dir for generated parts]" \
-		"-t[move source marker file to trash after processng]" \
-		"--trash[move source marker file to trash after processng]" \
-		"-v[show what the script is doing]" \
-		"--verbose[show what the script is doing]" \
-		"-d[dump debug info into ./video_extract_debug.txt file]" \
-		"--debug[dump debug info into ./video_extract_debug.txt file]" \
-		"*: :($files)"
-}
+_arguments -s -S \
+	'(- *)'{-h,--help}'[display help and exit]' \
+	'(-j --jobs)'{-j,--jobs}'[number of parallel jobs (default: 1)]:jobs:' \
+	'(-f --files *)'{-f,--files}'[newline separated list of source videos]:video:_km_files videos' \
+	'(-o --out-dir)'{-o,--out-dir}'[output dir for generated parts]:dir:_files -/' \
+	'(-p --parts)'{-p,--parts}'[generate a txt file with listed parts]' \
+	'(-t --trash)'{-t,--trash}'[move source marker file to trash after processing]' \
+	'(-v --verbose)'{-v,--verbose}'[show what the script is doing]' \
+	'(-d --debug)'{-d,--debug}'[dump debug info into ./video_extract_debug.txt file]' \
+	'*:video:_km_files videos'

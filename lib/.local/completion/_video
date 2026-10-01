@@ -1,0 +1,20 @@
+#compdef video_compress video_stabilize video_parts
+
+# zsh autocompletion for the video_compress, video_stabilize and video_parts
+# scripts.
+
+local -a args=(
+	'(- *)'{-h,--help}'[display help and exit]'
+	'(-f --files *)'{-f,--files}'[newline separated list of source videos]:video:_km_files videos'
+)
+
+case $service in
+	video_compress|video_stabilize)
+		args+=(
+			'(-j --jobs)'{-j,--jobs}'[number of parallel jobs (default: 1)]:jobs:'
+			'*:video:_km_files videos'
+		)
+		;;
+esac
+
+_arguments -s -S $args

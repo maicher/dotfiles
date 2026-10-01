@@ -1,0 +1,11 @@
+#compdef video_frames_split
+
+# zsh autocompletion for the video_frames_split script.
+
+_arguments -s -S \
+	'(- *)'{-h,--help}'[display help and exit]' \
+	'(-j --jobs)'{-j,--jobs}'[number of parallel jobs (default: 1)]:jobs:' \
+	'(-f --files *)'{-f,--files}'[newline separated list of source videos]:video:_km_files videos' \
+	'(-d --dir)'{-d,--dir}'[destination dir (default: $VIDEO_FRAMES_DIR)]:dir:_files -/' \
+	'(-n --name)'{-n,--name}"[output dir name (default: the video's name)]:name:" \
+	'*:video:_km_files videos'

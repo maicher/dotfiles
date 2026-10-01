@@ -1,0 +1,8 @@
+# DOT SKIP server
+#compdef odswap
+
+# zsh autocompletion for the odswap script.
+
+_arguments \
+	'(- *)'{-h,--help}'[display help and exit]' \
+	'1:ods file:_km_files ods'

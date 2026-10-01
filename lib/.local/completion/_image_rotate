@@ -1,38 +1,16 @@
-#compdef _image_rotate image_rotate
+#compdef image_rotate
 
-# Function to list images in current dir
-_image_files() {
-    local files
-    files=("${(@f)$(find . -maxdepth 1 -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.gif" -o -iname "*.bmp" -o -iname "*.webp" \))}")
-    _wanted files expl 'image file' compadd -a files
-}
+# zsh autocompletion for the image_rotate script.
 
-function _image_rotate {
-	local curcontext="$curcontext" state line
-	typeset -A opt_args
+local rotation='-l --left -r --right -R --rotate'
 
-	_arguments -C \
-		"-h[display help]" \
-		"--help[display help]" \
-		"-j[number of parallel jobs]" \
-		"--jobs[number of parallel jobs]" \
-		"-f[list of newline separated file name]:file:_image_files" \
-		"--files[list of newline separated file name]:file:_image_files" \
-		"-l[rotate 90 left (default)]" \
-		"--left[rotate 90 left (default)]" \
-		"-r[rotate 90 right]" \
-		"--right[rotate 90 right]" \
-		"-R[rotate 180]" \
-		"--rotate[rotate 180]" \
-		"-v[show what the script is doing]" \
-		"--verbose[show what the script is doing]" \
-		"-d[dump debug info into ./debug.txt file]" \
-		"--debug[dump debug info into ./debug.txt file]" \
-		"*:: :->args"
-
-	case $state in
-		args)
-			_image_files
-			;;
-	esac
-}
+_arguments -s -S \
+	'(- *)'{-h,--help}'[display help and exit]' \
+	'(-j --jobs)'{-j,--jobs}'[number of parallel jobs]:jobs:' \
+	'(-f --files *)'{-f,--files}'[newline separated list of images]:image:_km_files images' \
+	"($rotation)"{-l,--left}'[rotate 90 left (default)]' \
+	"($rotation)"{-r,--right}'[rotate 90 right]' \
+	"($rotation)"{-R,--rotate}'[rotate 180]' \
+	'(-v --verbose)'{-v,--verbose}'[show what the script is doing]' \
+	'(-d --debug)'{-d,--debug}'[dump debug info into ./debug.txt file]' \
+	'*:image:_km_files images'

@@ -1,14 +1,36 @@
-#compdef _usb usb
+#compdef usb
 
-# zsh autocompletion for usb script.
+# zsh autocompletion for the usb script.
 #
-# Set the USB_DEVICES env for better autocompletion, eg:
+# Device names are read from lsusb. Additional names (eg parts of the names)
+# can be set in the USB_DEVICES env, eg:
 #   $ export USB_DEVICES="keyboard mouse webcam"
 #
-function _usb {
-	_arguments -C \
-		"-h[display help]" \
-		"1: :($USB_DEVICES)" \
-		"2: :(on off restart)" \
-		"*::arg:->args"
-}
+local curcontext="$curcontext" state line
+typeset -A opt_args
+
+local -a commands=(
+	'on:bind the device'
+	'off:unbind the device'
+	'restart:unbind and bind the device again'
+)
+
+_arguments -C \
+	'(- *)-h[display help]' \
+	'1:device:->device' \
+	'2:command:->command'
+
+case $state in
+	device)
+		local -a devices
+		# Same list as printed by the usb script (without the hubs).
+		devices=(
+			${${(f)"$(lsusb 2>/dev/null | grep -iv 'hub$' | cut -d ' ' -f7-)"}%%[[:space:]]#}
+			${=USB_DEVICES}
+		)
+		_wanted devices expl 'device' compadd -a devices
+		;;
+	command)
+		_describe 'command' commands
+		;;
+esac

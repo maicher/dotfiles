@@ -1,19 +1,10 @@
-#compdef _kfind kfind
+#compdef kfind
 
-function _kfind {
-	files=$(find . -maxdepth 1 -print0)
-	if [ ! -z $files ]; then
-		files=$(echo "$files" | xargs -0 -I{} basename -a "{}" | xargs -I{} echo "\"{}\"")
-	fi
+# zsh autocompletion for the kfind script.
 
-	_arguments -C \
-		"-h[display help]" \
-		"--help[display help]" \
-		"-f[list of newline separated file name]" \
-		"--files[list of newline separated file name]" \
-		"-r[regex by which filter the files]" \
-		"--regex[regex by which filter the files]" \
-		"-s[display the results in a random order]" \
-		"--shuffle[display the results in a random order]" \
-		"*: :($files)"
-}
+_arguments -s -S \
+	'(- *)'{-h,--help}'[display help and exit]' \
+	'(-f --files *)'{-f,--files}'[newline separated list of files or dirs]:file:_files' \
+	'(-r --regex)'{-r,--regex}'[regex by which to filter the files]:regex:' \
+	'(-s --shuffle)'{-s,--shuffle}'[display the results in a random order]' \
+	'*:file or dir:_files'

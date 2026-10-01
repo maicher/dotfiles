@@ -1,0 +1,11 @@
+#compdef video_frames_join
+
+# zsh autocompletion for the video_frames_join script.
+
+_arguments -s -S \
+	'(- *)'{-h,--help}'[display help and exit]' \
+	'(-j --jobs)'{-j,--jobs}'[number of parallel jobs (default: 1)]:jobs:' \
+	'(-f --files *)'{-f,--files}'[newline separated list of dirs with frames]:dir:_files -/' \
+	'(-F --framerate)'{-F,--framerate}'[framerate (default: read from framerate.txt)]:framerate:(24 25 30 50 60)' \
+	'(-d --dir)'{-d,--dir}'[destination dir (default: $VIDEO_FRAMES_DIR)]:dir:_files -/' \
+	'*:dir with frames:_files -/'

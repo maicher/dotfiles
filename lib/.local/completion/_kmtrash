@@ -1,0 +1,14 @@
+#compdef kmtrash
+
+# zsh autocompletion for the kmtrash script.
+
+_arguments -s -S \
+	'(- *)'{-h,--help}'[display help and exit]' \
+	'(- *)'{-i,--info}'[show trash stats and exit]' \
+	'(-f --files *)'{-f,--files}'[newline separated list of files to move to the trash]:file:_files' \
+	'(-t --timestamp)'{-t,--timestamp}'[put the files into a dir in the trash]' \
+	'(-e --empty)'{-e,--empty}'[empty the trash]' \
+	'(-b --batch)'{-b,--batch}'[move also NUM consecutive files to the trash]:number:' \
+	'(-v --verbose)'{-v,--verbose}'[show what the script is doing]' \
+	'(-d --debug)'{-d,--debug}'[dump debug info into ./trash_debug.txt file]' \
+	'*:file:_files'

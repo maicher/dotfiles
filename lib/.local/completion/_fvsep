@@ -1,26 +1,15 @@
 # DOT SKIP server
-#compdef _fvsep fvsep
+#compdef fvsep
 
-# zsh autocompletion for fvsep script.
+# zsh autocompletion for the fvsep script.
 #
 # Set the FVSEP_CUSTOMERS env for better autocompletion, eg:
 #   $ export FVSEP_CUSTOMERS="A B C"
 #
-function _fvsep {
-	files=$(find . -maxdepth 1 -name "*.ods" -print0)
-
-	# Escape some special chars (not ideal)
-	if [ ! -z $files ]; then
-		files=$(echo "$files" | xargs -0 -I{} basename -a "{}" | xargs -I{} echo "\"{}\"")
-	fi
-
-	_arguments -C \
-		"-c[create also copies of the extracted pages]" \
-		"--copy[create also copies of the extracted pages]" \
-		"-p[add given phrase to the front of created result files]" \
-		"--prefix[add given phrase to the front of created result files]" \
-		"-s[add given phrase to the end of the name of created result files]" \
-		"--suffix[add given phrase to the end of the name of created result files]" \
-		"1: :($files)" \
-		"*: :(_ $FVSEP_CUSTOMERS)"
-}
+_arguments -s -S \
+	'(- *)'{-h,--help}'[display help and exit]' \
+	'(-c --copy)'{-c,--copy}'[create also copies of the extracted pages]' \
+	'(-p --prefix)'{-p,--prefix}'[add given phrase to the front of created result files]:prefix:' \
+	'(-s --suffix)'{-s,--suffix}'[add given phrase to the end of the name of created result files]:suffix:' \
+	'1:ods file:_km_files ods' \
+	"*:page (_ to skip):(_ $FVSEP_CUSTOMERS)"

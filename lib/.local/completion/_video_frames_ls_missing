@@ -1,0 +1,6 @@
+#compdef video_frames_ls_missing
+
+# zsh autocompletion for the video_frames_ls_missing script.
+
+_arguments \
+	'1:frames extension, png by default:(png jpg)'

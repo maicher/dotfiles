@@ -1,0 +1,13 @@
+#compdef gimp_merge gimp_extract_mask
+
+# zsh autocompletion for the gimp_merge and gimp_extract_mask scripts.
+#
+# Dirs are searched for xcf files too.
+
+_arguments -s -S \
+	'(- *)'{-h,--help}'[display help and exit]' \
+	'(-j --jobs)'{-j,--jobs}'[number of parallel jobs (default: 1)]:jobs:' \
+	'(-f --files *)'{-f,--files}'[newline separated list of xcf files or dirs]:xcf file:_km_files xcf' \
+	'(-v --verbose)'{-v,--verbose}'[show what the script is doing]' \
+	'(-d --debug)'{-d,--debug}"[dump debug info into ./${service}_debug.txt file]" \
+	'*:xcf file or dir:_km_files xcf'

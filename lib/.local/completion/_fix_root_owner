@@ -1,0 +1,8 @@
+#compdef fix_root_owner
+
+# zsh autocompletion for the fix_root_owner script.
+
+_arguments \
+	'(- *)'{-h,--help}'[display help and exit]' \
+	'--dry-run[only list matching files and dirs]' \
+	'1:path, . by default:_files -/'
