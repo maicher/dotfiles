@@ -18,13 +18,13 @@ OPTIONS
 	-f, --files FILES       list of newline separated file name
 	                        (when used, the FILENAME argument is ignored)
 	-v, --verbose           what the script is doing
-	-d, --debug             dump debug info into ./debug.txt file
+	-d, --debug             dump debug info into ./gimp_merge_debug.txt file
 
 EOF
 }
 
 # Init options.
-jobs=0
+jobs=1
 files=''
 verbose=''
 debug=0
@@ -56,7 +56,7 @@ if [[ -z $files ]]; then
 fi
 
 # Find also in dirs.
-files=$(kfind -r ".xcf$" -f "$fx" | tr '\n' '\0' | xargs -0 realpath)
+files=$(kfind -r "\.xcf$" -f "$files" | tr '\n' '\0' | xargs -0 realpath)
 
 # Build list of jobs
 i=0
@@ -64,7 +64,7 @@ counter=0
 list='gimp -i '
 
 while IFS= read -r file; do
-	target=$(printf '%s\n' "$file" | sed 's/xcf/png/')
+	target="${file:r}.png"
 
 	# Escape \ and " for the Script-Fu strings, then shell-quote the -b argument.
 	sf_file=${file//\\/\\\\}; sf_file=${sf_file//\"/\\\"}

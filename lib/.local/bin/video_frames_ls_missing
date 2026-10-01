@@ -1,10 +1,20 @@
-#!/bin/ruby
+#!/usr/bin/env ruby
+
+require 'set'
 
 ext = ARGV[0]
 ext = 'png' if ext.nil?
 
-existing = `ls`.split.map { |i| i.split('.').first.to_i }
+# Frame numbers of the existing frames, eg 00042.png => 42.
+# Other files in the dir (audio.mp4, framerate.txt, path.txt) are ignored.
+existing = Dir.glob("*.#{ext}")
+  .map { |i| File.basename(i, ".#{ext}") }
+  .grep(/\A\d+\z/)
+  .map(&:to_i)
+  .to_set
 
-(1..(existing.last)).each do |i|
+exit if existing.empty?
+
+(1..existing.max).each do |i|
   puts format("%05d.#{ext}", i) if !existing.include?(i)
 end

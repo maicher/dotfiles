@@ -61,12 +61,29 @@ if [ $? -eq 1 ]; then
 	echo "$devices_human"
 	exit 1
 fi
+if [ "$(printf '%s\n' "$selected_device" | wc -l)" -gt 1 ]; then
+	echo 'More than one device matches, be more specific:'
+	printf '%s\n' "$selected_device" | cut -d ' ' -f2-
+	exit 1
+fi
 echo "Selected device: $selected_device"
 
-lookup=$(echo "$selected_device" | cut -d ' ' -f1 | awk -F ':' '{printf "idVendor=%s.+idProduct=%s", $1, $2 }')
-echo "Search phrase: $lookup"
+# The first field is vendor:product, eg 046d:c52b.
+id="${selected_device%% *}"
+vendor="${id%%:*}"
+product="${id#*:}"
+echo "Vendor: $vendor, product: $product"
 
-device_address=$(journalctl --dmesg -o short-unix --no-hostname --no-pager | grep -E "$lookup" | awk '{print $4}' | tr -d ':' | sed 1q)
+# Find the device's address (eg 1-2) in sysfs by its vendor and product id.
+# The device stays listed there also when it's unbound (turned off).
+device_address=''
+for dev in /sys/bus/usb/devices/*(N); do
+	[ -r "$dev/idVendor" ] && [ -r "$dev/idProduct" ] || continue
+	if [ "$(<"$dev/idVendor")" = "$vendor" ] && [ "$(<"$dev/idProduct")" = "$product" ]; then
+		device_address="${dev:t}"
+		break
+	fi
+done
 
 if [ -z "$device_address" ]; then
 	echo "Device address not found"
@@ -96,5 +113,5 @@ if [ $? -eq 1 ]; then
 	echo ""
 	echo "If you're getting the permission denied error, here's a possible workaround:"
 	echo "    $ su -c \"crontab -e\""
-	echo "    $ @reboot chmod /sys/bus/usb/drivers/usb/bind /sys/bus/usb/drivers/usb/unding"
+	echo "    $ @reboot chmod a+w /sys/bus/usb/drivers/usb/bind /sys/bus/usb/drivers/usb/unbind"
 fi

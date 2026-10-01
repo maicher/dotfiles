@@ -58,7 +58,7 @@ fi
 results=''
 while IFS= read -r file; do
 	if [[ -d "$file" ]]; then
-		results+=$(find "$file/." -type f -print0 | xargs -0 realpath)
+		results+=$(find "$file/." -type f -print0 | xargs -0 -r realpath)
 		results+=$'\n'
 	elif [[ -f "$file" ]]; then
 		results+="$file"

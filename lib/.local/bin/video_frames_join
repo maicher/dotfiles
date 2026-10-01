@@ -77,18 +77,20 @@ while IFS= read -r file; do
 	origfilename=$(printf '%s\n' "$filename" | sed 's/_proc_.\+//')
 	dirname=$(dirname -- "$file")
 
-	if [ -z "$framerate" ]; then
-		framerate=$(cat "$dirname/$origfilename/framerate.txt")
+	# Use the -F framerate or read it separately for each dir.
+	dir_framerate="$framerate"
+	if [ -z "$dir_framerate" ]; then
+		dir_framerate=$(cat "$dirname/$origfilename/framerate.txt")
 	fi
 
-	echo "$framerate"
+	echo "$dir_framerate"
 
 
 	resultfilepath="$dirname/$(date +%F)_$filename"
 	audiopath="$dirname/$origfilename/audio.mp4"
 
 	# The *.png glob is quoted, so it is expanded by ffmpeg, not by the shell.
-	list+=$(printf 'ffmpeg -framerate %q -pattern_type glob -i %q %q' "$framerate" "$file/*.png" "$resultfilepath.mp4")
+	list+=$(printf 'ffmpeg -framerate %q -pattern_type glob -i %q %q' "$dir_framerate" "$file/*.png" "$resultfilepath.mp4")
 
 	if [ -f "$audiopath" ];then
 		list+=' && '

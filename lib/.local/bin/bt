@@ -65,13 +65,13 @@ case $command in
 
 		echo "Scanning... (press any key to stop)"
 		bluetoothctl scan on &
+		scan_pid=$!
 		while [ true ]; do
 			read -t 3 -k 1
 			if [ $? = 0 ] ; then
 				echo "stop"
-				pid=$(ps | awk '/bluetoothctl/{print $1}')
-				if [ ! -e $pid ]; then
-					kill $pid
+				if kill -0 "$scan_pid" 2>/dev/null; then
+					kill "$scan_pid"
 					sleep 1
 				fi
 

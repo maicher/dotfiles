@@ -2,4 +2,5 @@
 # DOT SKIP server
 
 date '+%Y-%m-%d %H:%M:%S'
-sleep "$POMODORO_SECONDS" && notify-send 'Pomodoro' -u critical
+# Default to 25 minutes.
+sleep "${POMODORO_SECONDS:-1500}" && notify-send 'Pomodoro' -u critical

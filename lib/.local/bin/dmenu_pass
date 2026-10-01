@@ -9,7 +9,7 @@ NAME
 	and auto type selected pass into the currently active input using xdotool.
 
 SYNOPSIS
-	type_pass [OPTION...]
+	dmenu_pass [OPTION...]
 
 OPTIONS
 	-h, --help         display this help and exit
@@ -32,7 +32,7 @@ login=0
 cleanup=0
 
 # Parse cmd args
-opts=$(getopt -l "help,write_file:,read_file:otp:,login,cleanup" -o "hw:r:o:lc" -a -- "$@")
+opts=$(getopt -l "help,write:,read:,otp:,login,cleanup" -o "hw:r:o:lc" -a -- "$@")
 eval set -- "$opts"
 
 while true; do
@@ -86,9 +86,9 @@ else
 	text=$(printf '%s\n' "$cont" | sed 1q)
 fi
 
-# Type the login or pass into the active input
-
-xdotool type --clearmodifiers --delay 25 "$text"
+# Type the login or pass into the active input.
+# The text is passed on stdin, so it does not show up in the process list.
+printf '%s' "$text" | xdotool type --clearmodifiers --delay 25 --file -
 
 # OTP
 if [ ! -z "$otp_file" ]; then

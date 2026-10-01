@@ -55,6 +55,7 @@ eval set -- "$opts"
 while true; do
 	case $1 in
 		-h|--help) showHelp; exit 0 ;;
+		-j|--jobs) shift; jobs="$1" ;;
 		-f|--files) shift; files="$1" ;;
 		-o|--out-dir) shift; out_dir="$1" ;;
 		-t|--trash) trash=1 ;;

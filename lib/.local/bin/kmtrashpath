@@ -1,21 +1,20 @@
 #!/usr/bin/env zsh
 
-# kmtrashpath walks up the current path trying to locate the .trash dir.
+# kmtrashpath walks up the current path trying to locate the nearest .trash dir.
 # If .trash dir is not found, it prints the $HOME/.trash, which is the default
 # trash path.
 
-# Remove training slash and split path into segments.
-segments=$(pwd | sed -e 's/^\///' -e 's/\//\n/g')
-
-# Lookup trash path up the current path.
-lookup=''
-while IFS= read -r segment; do
-	lookup+="/$segment"
-	if [ -d "$lookup/.trash" ]; then
-		trash_path="$lookup/.trash/"
+# Lookup trash path up the current path, starting from the current dir.
+dir="$PWD"
+while true; do
+	if [ -d "$dir/.trash" ]; then
+		trash_path="$dir/.trash/"
 		break
 	fi
-done <<< "$segments"
+
+	[ "$dir" = / ] && break
+	dir="${dir:h}"
+done
 
 # If trash not found, use default trash path.
 if [ -z "$trash_path" ]; then

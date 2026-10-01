@@ -49,6 +49,9 @@ fi
 # START
 odsfile="$1"
 
+# The copy is processed inside the tmp dir, so only the file name is used there.
+odsname="${odsfile:t}"
+
 tmpdir="$(mktemp -d)"
 if [[ ! $? -eq 0 ]]; then
 	echo "Error creating temp dir"
@@ -67,7 +70,7 @@ if [[ ! $? -eq 0 ]]; then
 	exit 1
 fi
 
-unzip -o "$odsfile" > /dev/null
+unzip -o "$odsname" > /dev/null
 if [[ ! $? -eq 0 ]]; then
 	echo "Error unzipping ods file"
 	exit 1
@@ -79,10 +82,10 @@ if [[ ! $? -eq 0 ]]; then
 	exit 1
 fi
 
-zip -f "$odsfile" content.xml > /dev/null
+zip -f "$odsname" content.xml > /dev/null
 if [[ ! $? -eq 0 ]]; then
 	echo "Error replacing content.xml in the ods file"
 	exit 1
 fi
 
-printf '%s\n' "$tmpdir/$odsfile"
+printf '%s\n' "$tmpdir/$odsname"

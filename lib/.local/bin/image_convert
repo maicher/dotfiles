@@ -5,7 +5,10 @@ cat << EOF
 
 NAME
 	image_convert converts images to different formats in parallel jobs
-	              it's a wrapper on top of ImageMagick(1) convert
+	              it's a wrapper on top of ImageMagick(1) convert;
+	              the result is saved next to the source with the new extension
+	              (eg photo.png -> photo.jpg), files already in the target
+	              format are skipped
 
 SYNOPSIS
 	image_convert [OPTION...] FILENAME...
@@ -28,7 +31,7 @@ EXAMPLES
 	examle below.
 	Below example converts 3 files to jpg with 2 parallel jobs:
 
-	$ image_convert -f jpg -j 2 'filename1.psd
+	$ image_convert -F jpg -j 2 -f 'filename1.psd
 	file name2.png
 	filename3.jpg'
 
@@ -65,7 +68,15 @@ fi
 
 # Prepare conversion commands (%q shell-quotes the file names)
 list=$(while IFS= read -r file; do
-	[ -n "$file" ] && printf 'convert -verbose %q %q\n' "$file" "$file.$format"
+	[ -n "$file" ] || continue
+
+	# Skip files already in the target format (they would be overwritten).
+	if [ "${file:e:l}" = "${format:l}" ]; then
+		echo "Skipping $file: already $format" >&2
+		continue
+	fi
+
+	printf 'convert -verbose %q %q\n' "$file" "${file:r}.$format"
 done <<< "$files")
 
 # Execute conversion commands in parallel
