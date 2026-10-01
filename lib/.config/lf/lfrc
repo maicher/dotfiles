@@ -265,7 +265,7 @@ map \\ic9 image_compress 90 $IMAGE_JOBS
 
 cmd image_convert !{{
 	set -f
-	files=$(kfind -f "$fx")
+	files=$(kfind -r "\.(jpeg|jpg|png|gif|webp|bmp|tiff?|heic|avif|psd)$" -f "$fx")
 
 	# todo handle jobs arg
 	image_convert --format $1 --jobs 4 -f "$files"
@@ -331,7 +331,7 @@ cmd open-sxiv &{{
 	lf -remote "send $id echo Searching $phrase"
 
 	files=$(kfind $shuffle -r "$(printf '%s.*\.(jpeg|jpg|png|gif|webp)$' $phrase)" -f "$fx")
-	if [ -z "$files"]; then
+	if [ -z "$files" ]; then
 		lf -remote "send $id echo No files found"
 		exit
 	fi
