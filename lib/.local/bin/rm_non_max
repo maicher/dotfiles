@@ -1,0 +1,18 @@
+#!/bin/ruby
+
+Dir.glob("*.mp4").group_by do |filename|
+  # Split by underscore and remove the last part (iterator)
+  parts = filename.split("_")
+  parts[0..-2].join("_")  # group key: everything except the iterator
+end.each do |prefix, files|
+  # Find the file with the max iterator
+  max_file = files.max_by do |f|
+    f.match(/_(\d+)\.mp4$/)[1].to_i
+  end
+
+  # Delete all other files
+  (files - [max_file]).each do |file|
+    puts "Deleting #{file}"
+    File.delete(file)
+  end
+end

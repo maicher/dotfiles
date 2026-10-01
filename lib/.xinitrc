@@ -44,6 +44,9 @@ pamixer --source $(pamixer_mic_source) -m
 # Status bar for DWM
 kmstatus -x & &> /tmp/x.$USER.log
 
+systemctl --user import-environment DISPLAY XAUTHORITY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE
+dbus-update-activation-environment --systemd DISPLAY XAUTHORITY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE
+
 # Boot DWM.
 # If DWM exits 0, restart.
 # To actually close, run `pkill dwm`.

@@ -1,0 +1,96 @@
+#!/bin/sh
+
+set -euo pipefail
+
+OWNER="kjm"
+GROUP="kjm"
+DRY_RUN=false
+SEARCH_PATH="."
+
+usage() {
+    echo "Usage: $0 [--dry-run] [PATH]"
+    echo
+    echo "Find files and directories:"
+    echo "  - created today"
+    echo "  - currently owned by root"
+    echo
+    echo "Then change ownership to ${OWNER}:${GROUP}."
+    echo
+    echo "Options:"
+    echo "  --dry-run   Only list matching files/directories"
+    echo "  -h, --help  Show this help"
+    echo
+    echo "Ignored:"
+    echo "  - hidden files and directories"
+    echo "  - ./tmp and everything below it"
+    echo "  - ./node_modules and everything below it"
+    echo "  - ./public and everything below it"
+}
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --dry-run)
+            DRY_RUN=true
+            shift
+            ;;
+        -h|--help)
+            usage
+            exit 0
+            ;;
+        -*)
+            echo "Unknown option: $1" >&2
+            usage >&2
+            exit 1
+            ;;
+        *)
+            SEARCH_PATH="$1"
+            shift
+            ;;
+    esac
+done
+
+# Remove trailing slash, except when SEARCH_PATH is "/".
+if [[ "$SEARCH_PATH" != "/" ]]; then
+    SEARCH_PATH="${SEARCH_PATH%/}"
+fi
+
+TODAY_START=$(date -d 'today 00:00:00' +%s)
+TOMORROW_START=$(date -d 'tomorrow 00:00:00' +%s)
+
+find "$SEARCH_PATH" -mindepth 1 \
+    \( \
+        -name '.*' \
+        -o -path "$SEARCH_PATH/tmp" \
+        -o -path "$SEARCH_PATH/node_modules" \
+        -o -path "$SEARCH_PATH/public" \
+    \) -prune \
+    -o \
+    \( \( -type f -o -type d \) -user root -print0 \) |
+while IFS= read -r -d '' path; do
+
+    # %W = creation/birth time as Unix timestamp.
+    birth=$(stat -c '%W' -- "$path" 2>/dev/null) || continue
+
+    # A value of 0 means creation time isn't available.
+    [[ "$birth" =~ ^[0-9]+$ ]] || continue
+    (( birth > 0 )) || continue
+
+    # Only entries created today.
+    if (( birth >= TODAY_START && birth < TOMORROW_START )); then
+
+        if [[ -d "$path" ]]; then
+            type="DIR "
+        else
+            type="FILE"
+        fi
+
+        if [[ "$DRY_RUN" == true ]]; then
+            printf '[DRY-RUN] %s  %s\n' "$type" "$path"
+        else
+            printf '[CHOWN]   %s  %s -> %s:%s\n' \
+                "$type" "$path" "$OWNER" "$GROUP"
+
+            chown -- "$OWNER:$GROUP" "$path"
+        fi
+    fi
+done

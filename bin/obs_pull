@@ -1,0 +1,5 @@
+#!/bin/sh
+
+mkdir lib/.config/obs-studio
+mkdir lib/.config/obs-studio/basic
+rsync -aP $HOME/.config/obs-studio/basic/ lib/.config/obs-studio/basic/

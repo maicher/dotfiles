@@ -13,6 +13,7 @@ alias \
 	cutt="cut -d$'\t'" \
 	copy="xclip -i -selection clipboard" \
 	trd="tr -d '\",'" \
+	lx="pdflatex -interaction=nonstopmode -halt-on-error" \
 
 alias so="source $HOME/.rvm/scripts/rvm"
 alias sonpx="source /usr/share/nvm/init-nvm.sh $$ nvm use --lts"
