@@ -2,9 +2,8 @@
 
 # zsh autocompletion for the usb script.
 #
-# Device names are read from lsusb. Additional names (eg parts of the names)
-# can be set in the USB_DEVICES env, eg:
-#   $ export USB_DEVICES="keyboard mouse webcam"
+# Device names are read from lsusb and offered with _ instead of spaces (the usb
+# script matches them either way).
 #
 local curcontext="$curcontext" state line
 typeset -A opt_args
@@ -24,10 +23,8 @@ case $state in
 	device)
 		local -a devices
 		# Same list as printed by the usb script (without the hubs).
-		devices=(
-			${${(f)"$(lsusb 2>/dev/null | grep -iv 'hub$' | cut -d ' ' -f7-)"}%%[[:space:]]#}
-			${=USB_DEVICES}
-		)
+		devices=(${${(f)"$(lsusb 2>/dev/null | grep -iv 'hub$' | cut -d ' ' -f7-)"}%%[[:space:]]#})
+		devices=(${devices// /_})
 		_wanted devices expl 'device' compadd -a devices
 		;;
 	command)

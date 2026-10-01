@@ -13,7 +13,8 @@ SYNOPSIS
 	bt COMMAND DEVICE     interact with given device
 
 ARGUMENTS
-	DEVICE     part of the device's name (to grep by)
+	DEVICE     part of the device's name or address (case insensitive),
+	           spaces can be written as _ (as in the completions)
 	COMMAND    one of the available commands:
 	           info connect disconnect remove
 
@@ -30,6 +31,8 @@ EXAMPLES
 	  $ bt connect MDR
 	  $ bt connect 04:5D
 	  $ bt connect 1000X
+
+	  $ bt connect JBL_Flip_3_SE
 
 EOF
 }
@@ -86,10 +89,23 @@ case $command in
 			exit 1
 		fi
 
-		selected_device=$(echo "$devices" | grep -i -- "$device_name" | awk '{ print $2 }')
+		# The completions offer the names with _ instead of spaces, so the name is
+		# matched (as a plain substring) against the device lines with spaces turned to _.
+		# Prints the address of the matched devices.
+		selected_device=$(printf '%s\n' "$devices" | awk -v name="${device_name// /_}" '
+			{ line = $0; gsub(/ /, "_", line) }
+			index(tolower(line), tolower(name)) { print $2 }
+		')
 		if [ -z "$selected_device" ]; then
 			echo 'Device not found'
 			echo "$devices"
+			exit 1
+		fi
+
+		if [ "$(printf '%s\n' "$selected_device" | wc -l)" -gt 1 ]; then
+			echo 'More than one device matches, be more specific:'
+			# Each line of the pattern (each address) is a separate pattern for grep.
+			printf '%s\n' "$devices" | grep -F -- "$selected_device"
 			exit 1
 		fi
 

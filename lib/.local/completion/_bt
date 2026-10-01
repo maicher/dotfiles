@@ -3,9 +3,8 @@
 
 # zsh autocompletion for the bt script.
 #
-# Device names are read from bluetoothctl. Additional names (eg parts of the
-# names) can be set in the BT_DEVICES env, eg:
-#   $ export BT_DEVICES="MDR JBL"
+# Device names are read from bluetoothctl and offered with _ instead of spaces
+# (the bt script matches them either way).
 #
 local curcontext="$curcontext" state line
 typeset -A opt_args
@@ -36,10 +35,8 @@ case $state in
 		if [[ $line[1] == (info|pair|trust|connect|disconnect|remove) ]]; then
 			local -a devices
 			# The timeout prevents hanging when the bluetooth daemon is not running.
-			devices=(
-				${(f)"$(timeout 1 bluetoothctl devices 2>/dev/null | cut -d ' ' -f3-)"}
-				${=BT_DEVICES}
-			)
+			devices=(${(f)"$(timeout 1 bluetoothctl devices 2>/dev/null | cut -d ' ' -f3-)"})
+			devices=(${devices// /_})
 			_wanted devices expl 'device' compadd -a devices
 		fi
 		;;

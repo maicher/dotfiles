@@ -8,7 +8,8 @@ SYNOPSIS
 	usb DEVICE COMMAND     change state of a given device
 
 ARGUMENTS
-	DEVICE     part of the name device's name (to grep by)
+	DEVICE     part of the device's name (case insensitive),
+	           spaces can be written as _ (as in the completions)
 	COMMAND    one of the available commands:
 	           on off restart
 
@@ -28,6 +29,7 @@ EXAMPLES
 		$ usb Kinesis restart
 		$ usb kinesis restart
 		$ usb keyboard restart
+		$ usb Kinesis_Corporation_Advantage2_Keyboard restart
 
 EOF
 }
@@ -54,9 +56,14 @@ if [ -z "$command" ]; then
 	exit 1
 fi
 
-selected_device=$(echo "$devices" | grep -i -- "$device_name")
+# The completions offer the names with _ instead of spaces, so the name is
+# matched (as a plain substring) against the device lines with spaces turned to _.
+selected_device=$(printf '%s\n' "$devices" | awk -v name="${device_name// /_}" '
+	{ line = $0; gsub(/ /, "_", line) }
+	index(tolower(line), tolower(name))
+')
 
-if [ $? -eq 1 ]; then
+if [ -z "$selected_device" ]; then
 	echo 'Device not found, available devices:'
 	echo "$devices_human"
 	exit 1
