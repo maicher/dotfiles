@@ -56,15 +56,17 @@ done
 
 # Init from arguments (unless -f was provided).
 if [ -z "$files" ]; then
-	files="$@"
+	files=$(printf '%s\n' "$@")
 fi
 
 if [[ -z $files ]]; then
 	exit 0
 fi
 
-# Prepare conversion commands
-list=$(printf '%s\0' "$files" | tr '\n' '\0' | xargs -0 -I{} echo "convert -verbose \"{}\" \"{}.$format\"")
+# Prepare conversion commands (%q shell-quotes the file names)
+list=$(while IFS= read -r file; do
+	[ -n "$file" ] && printf 'convert -verbose %q %q\n' "$file" "$file.$format"
+done <<< "$files")
 
 # Execute conversion commands in parallel
-echo "$list" | parallel --jobs $jobs
+printf '%s\n' "$list" | parallel --jobs "$jobs"

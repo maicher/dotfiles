@@ -18,7 +18,7 @@ while IFS= read -r segment; do
 done <<< "$segments"
 
 # If trash not found, use default trash path.
-if [ -z $trash_path ]; then
+if [ -z "$trash_path" ]; then
 	trash_path="$HOME/.trash/"
 fi
 

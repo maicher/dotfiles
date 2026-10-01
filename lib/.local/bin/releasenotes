@@ -1,7 +1,7 @@
 #!/bin/sh
 
 numsuffix() {
-  local number=$1
+  local number="$1"
   local suffix="th"
 
   if (( number % 100 >= 11 && number % 100 <= 13 )); then
@@ -30,9 +30,9 @@ if [ ! -z "$2" ]; then
 fi
 
 diffsegment="${url##*/}"
-numwithsuffix=$(numsuffix $num)
+numwithsuffix=$(numsuffix "$num")
 
-echo ":rocket: $(numsuffix $num) deploy of the day"
+echo ":rocket: $(numsuffix "$num") deploy of the day"
 echo "Changes: $url"
 echo "Release notes:"
-git --no-pager log $diffsegment --pretty=format:"* %s (%aN)" --date=short
+git --no-pager log "$diffsegment" --pretty=format:"* %s (%aN)" --date=short

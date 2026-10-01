@@ -46,7 +46,7 @@ done
 
 # Init from arguments (unless -f was provided).
 if [ -z "$files" ]; then
-	files="$@"
+	files=$(printf '%s\n' "$@")
 fi
 
 # Validate arguments.
@@ -60,11 +60,11 @@ while IFS= read -r file; do
 	if [[ -d "$file" ]]; then
 		results+=$(find "$file/." -type f -print0 | xargs -0 realpath)
 		results+=$'\n'
-	elif [[ -f $file ]]; then
+	elif [[ -f "$file" ]]; then
 		results+="$file"
 		results+=$'\n'
 	fi
 done <<< "$files"
 
 # Filter by regex and sort.
-echo "$results" | grep -iE "$regex" | sort $sort
+printf '%s\n' "$results" | grep -iE "$regex" | sort $sort

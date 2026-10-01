@@ -92,7 +92,7 @@ if [ ! -f "$odsfile" ]; then
 fi
 
 # Init arguments.
-pdffile=$(echo "$odsfile" | sed 's/.ods$/.pdf/')
+pdffile=$(printf '%s\n' "$odsfile" | sed 's/.ods$/.pdf/')
 
 # START
 
@@ -103,12 +103,12 @@ if [ $create_copies -eq 1 ]; then
 		echo "Error creating file with replacements"
 		exit 1
 	fi
-	args=$(echo "$@" | sed "s|$odsfile|$filewithreplacements|")
-	fvsep $args -s _c -p "$prefix"
+	# Same pages, but the ods file is replaced with the copy.
+	fvsep "$filewithreplacements" "${@:2}" -s _c -p "$prefix"
 fi
 
 # Produce a pdf.
-libreoffice --convert-to pdf --outdir $(dirname "$odsfile") "$odsfile"
+libreoffice --convert-to pdf --outdir "$(dirname -- "$odsfile")" "$odsfile"
 if [[ ! $? -eq 0 ]]; then
 	echo "Error converting to pdf"
 	exit 1
@@ -133,8 +133,8 @@ do
 		continue
 	fi
 
-	filename="$prefix$i_$page$suffix.pdf"
-	pdfseparate -f $i -l $i "$pdffile" "$filename"
+	filename="$prefix$page$suffix.pdf"
+	pdfseparate -f "$i" -l "$i" "$pdffile" "$filename"
 done
 
 rm "$pdffile"

@@ -12,9 +12,6 @@ NAME
 	File with markers should have the same name as the source file suffixed
 	with "_markers.txt" phrase.
 
-	Spaces in filenames are handled correctly but it fails when the file name
-	contains special chars like "'$%&. Don't use this special characters in file names.
-
 SYNOPSIS
 	video_extract [FILENAME] [OPTION...]
 
@@ -71,7 +68,7 @@ done
 
 # Init from arguments (unless -f was provided).
 if [ -z "$files" ]; then
-	files="$@"
+	files=$(printf '%s\n' "$@")
 fi
 
 # Create out dir if not exist.
@@ -82,14 +79,14 @@ if [ ! -z "$out_dir" ]; then
 fi
 
 # Remove empty lines and extract full paths.
-files=$(printf "$files" | sed '/^$/d' | tr '\n' '\0' | xargs -0 realpath)
+files=$(printf '%s' "$files" | sed '/^$/d' | tr '\n' '\0' | xargs -0 realpath)
 
 # Build list of jobs.
 list=""
 trash_list=""
 while IFS= read -r file; do
 	marker_file="${file}_markers.txt"
-	trash_list+=$(echo "$marker_file")
+	trash_list+="$marker_file"
 	trash_list+=$'\n'
 
 	parts_file="${file}_parts.txt"
@@ -101,30 +98,42 @@ while IFS= read -r file; do
 
 	marker_pairs=$(cat "$marker_file" | xargs -n2)
 
-	name=$(printf "$file" | sed 's/\.[^.]*$//')
-	ext=$(printf "$file" | sed 's/^.*\.//')
+	name=$(printf '%s\n' "$file" | sed 's/\.[^.]*$//')
+	ext=$(printf '%s\n' "$file" | sed 's/^.*\.//')
 
-	if [ -z $out_dir ]; then
+	if [ -z "$out_dir" ]; then
 		target_name="$name"
 	else
-		target_name="${out_dir}/$(basename "$name")"
+		target_name="${out_dir}/$(basename -- "$name")"
 	fi
 
-	list+=$(printf "$marker_pairs" | awk '{ printf "ffmpeg '"$verbose"' -y -ss %s -to %s -i \047'"$name"'.'"$ext"'\047 -acodec copy -vcodec copy \047'"$target_name"'.%s.'"$ext"'\047\n", $1, $2, NR }')
-	list+=$'\n'
+	# One ffmpeg command per "start end" pair (%q shell-quotes the values).
+	n=0
+	parts_list=""
+	while read -r start end; do
+		[ -n "$start" ] || continue
+		n=$((n + 1))
+		target="$target_name.$n.$ext"
+
+		list+=$(printf "ffmpeg $verbose -y -ss %q -to %q -i %q -acodec copy -vcodec copy %q" "$start" "$end" "$file" "$target")
+		list+=$'\n'
+
+		parts_list+="$target"
+		parts_list+=$'\n'
+	done <<< "$marker_pairs"
 
 	if [ $parts -eq 1 ]; then
-		printf "$marker_pairs" | awk '{ printf "'"$target_name"'.%s.'"$ext"'\n", NR }' > $parts_file
+		printf '%s' "$parts_list" > "$parts_file"
 	fi
 done <<< "$files"
 
 # Dump debug info
 if [ $debug -eq 1 ]; then
-	echo "$list" > ./video_extract_debug.txt
+	printf '%s\n' "$list" > ./video_extract_debug.txt
 fi
 
 # Run
-printf "$list" | parallel --jobs $jobs
+printf '%s' "$list" | parallel --jobs "$jobs"
 
 # Move to trash
 if [ $trash -eq 1 ]; then

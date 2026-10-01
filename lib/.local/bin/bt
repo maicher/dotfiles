@@ -81,23 +81,23 @@ case $command in
 		done
 	;;
 	info|pair|connect|trust|disconnect|remove)
-		if [ -z $device_name ]; then
+		if [ -z "$device_name" ]; then
 			echo "Missing device name"
 			exit 1
 		fi
 
-		selected_device=$(echo "$devices" | grep -i $device_name | awk '{ print $2 }')
-		if [ -z $selected_device ]; then
+		selected_device=$(echo "$devices" | grep -i -- "$device_name" | awk '{ print $2 }')
+		if [ -z "$selected_device" ]; then
 			echo 'Device not found'
 			echo "$devices"
 			exit 1
 		fi
 
-		if [ $command = "connect" ]; then
-			bluetoothctl info $selected_device | grep -q "Trusted: no"
+		if [ "$command" = "connect" ]; then
+			bluetoothctl info "$selected_device" | grep -q "Trusted: no"
 			if [ $? -eq 0 ]; then
 				echo "Trusting..."
-				bluetoothctl trust $selected_device
+				bluetoothctl trust "$selected_device"
 			fi
 
 			# bluetoothctl info $selected_device | grep -q "Paired: no"
@@ -109,7 +109,7 @@ case $command in
 			# fi
 		fi
 
-		bluetoothctl $command $selected_device
+		bluetoothctl "$command" "$selected_device"
 	;;
 	"")
 		echo "$devices"

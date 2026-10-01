@@ -67,35 +67,35 @@ else
 	selected=$(gopass ls -s -f | dmenu -nb '#2e3440' -nf '#7b8396' -sb '#526884' -sf '#eee')
 fi
 
-if [ -z $selected ]; then
+if [ -z "$selected" ]; then
 	exit 1
 fi
 
 # Fetch entry stored in gopass
-cont=$(gopass show $selected)
+cont=$(gopass show "$selected")
 
 # Remember the selection for future use
 if [ ! -z "$write_file" ]; then
-	echo $selected > "$write_file"
+	printf '%s\n' "$selected" > "$write_file"
 fi
 
 # Select either login of pass from the fetched content
 if [ $login -eq 1 ]; then
-	text=$(echo "$cont" | awk '/username:/ {print $2}')
+	text=$(printf '%s\n' "$cont" | awk '/username:/ {print $2}')
 else
-	text=$(echo "$cont" | sed 1q)
+	text=$(printf '%s\n' "$cont" | sed 1q)
 fi
 
 # Type the login or pass into the active input
 
-xdotool type --clearmodifiers --delay 25 $text
+xdotool type --clearmodifiers --delay 25 "$text"
 
 # OTP
 if [ ! -z "$otp_file" ]; then
-	echo "$cont" | grep otpauth --silent
+	printf '%s\n' "$cont" | grep otpauth --silent
 
 	# If OTP is available, fetch it and write to a file
 	if [ $? -eq 0 ]; then
-		gopass otp -o $selected > "$otp_file"
+		gopass otp -o "$selected" > "$otp_file"
 	fi
 fi

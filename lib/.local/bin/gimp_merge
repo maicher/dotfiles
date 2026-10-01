@@ -48,7 +48,7 @@ done
 
 # Init from arguments (unless -f was provided).
 if [ -z "$files" ]; then
-	files="$@"
+	files=$(printf '%s\n' "$@")
 fi
 
 if [[ -z $files ]]; then
@@ -64,8 +64,12 @@ counter=0
 list='gimp -i '
 
 while IFS= read -r file; do
-	target=$(echo "$file" | sed 's/xcf/png/')
-	list+="-b '(merge-layers-export-to-png \""$file"\" \""$target"\")' "
+	target=$(printf '%s\n' "$file" | sed 's/xcf/png/')
+
+	# Escape \ and " for the Script-Fu strings, then shell-quote the -b argument.
+	sf_file=${file//\\/\\\\}; sf_file=${sf_file//\"/\\\"}
+	sf_target=${target//\\/\\\\}; sf_target=${sf_target//\"/\\\"}
+	list+="-b $(printf '%q' "(merge-layers-export-to-png \"$sf_file\" \"$sf_target\")") "
 
 	if [[ $counter -eq 10 ]]; then
 		list+="-b '(gimp-quit 0)'"
@@ -88,10 +92,10 @@ list+=$'\n'
 
 # Dump debug info
 if [ $debug -eq 1 ]; then
-	echo "$list" > ./gimp_merge_debug.txt
+	printf '%s\n' "$list" > ./gimp_merge_debug.txt
 fi
 
 # Run
-echo "$list" | parallel --jobs $jobs
+printf '%s' "$list" | parallel --jobs "$jobs"
 
 kmstatus -u

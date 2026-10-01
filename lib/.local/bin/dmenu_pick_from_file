@@ -7,19 +7,19 @@
 
 location="$1"
 
-if [ -z $1 ]; then
+if [ -z "$location" ]; then
 	notify-send "No path to a file" -u critical
 	exit 1
 fi
 
-if [ ! -f $1 ]; then
+if [ ! -f "$location" ]; then
 	notify-send "File does not exist" -u critical
 	exit 2
 fi
 
 text=$(cat "$location" | dmenu -l 10 -i -nb '#2e3440' -nf '#7b8396' -sb '#526884' -sf '#eee')
 
-if [ -z $text ]; then
+if [ -z "$text" ]; then
 	notify-send "The entry is empty" -u critical
 	exit 3
 fi

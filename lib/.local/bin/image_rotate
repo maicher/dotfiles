@@ -67,27 +67,25 @@ done
 
 # Init from arguments (unless -f was provided).
 if [ -z "$files" ]; then
-	files="$@"
+	files=$(printf '%s\n' "$@")
 fi
 
 if [[ -z $files ]]; then
 	exit
 fi
 
-files=$(echo "$files" | tr '\n' '\0' | xargs -0 realpath)
+files=$(printf '%s' "$files" | tr '\n' '\0' | xargs -0 realpath)
 
-# Build list of jobs
+# Build list of jobs (%q shell-quotes the file names)
 list=""
 
 while IFS= read -r file; do
-	name=$(echo "$file" | sed -e 's/"/\\"/g' -e 's/\$/\\$/g')
-
-	case $(file -bi \"$name\") in
+	case $(file -bi -- "$file") in
 		image/jpeg*)
-			list+="jpegtran $verbose -rotate $degree -copy all -outfile \"$name\" \"$name\""
+			list+=$(printf 'jpegtran %s -rotate %s -copy all -outfile %q %q' "$verbose" "$degree" "$file" "$file")
 			;;
 		*)
-			list+="mogrify $verbose -rotate $degree \"$name\""
+			list+=$(printf 'mogrify %s -rotate %s %q' "$verbose" "$degree" "$file")
 			;;
 	esac
 
@@ -96,8 +94,8 @@ done <<< "$files"
 
 # Dump debug info
 if [ $debug -eq 1 ]; then
-	echo "$list" > ./debug.txt
+	printf '%s\n' "$list" > ./debug.txt
 fi
 
 # Execute conversion commands in parallel
-echo "$list" | parallel --jobs $jobs
+printf '%s\n' "$list" | parallel --jobs "$jobs"

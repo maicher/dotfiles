@@ -34,11 +34,11 @@ while true; do
 done
 
 # Extract full paths.
-files=$(printf "$files" | tr '\n' '\0' | xargs -0 realpath)
+files=$(printf '%s' "$files" | tr '\n' '\0' | xargs -0 realpath)
 
 # Remove count number from the file name and add suffix, eg
 # video.1.mp4 > video.mp4_parts.txt
 parts_file="$(echo "$files" | sed '1q' | sed -E 's/\.[[:digit:]]+(\.[[:alnum:]]+)$/\1/')_parts.txt"
 
-printf "$files" > $parts_file
-echo $parts_file
+printf '%s' "$files" > "$parts_file"
+echo "$parts_file"

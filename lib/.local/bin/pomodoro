@@ -2,4 +2,4 @@
 # DOT SKIP server
 
 date '+%Y-%m-%d %H:%M:%S'
-sleep $(echo $POMODORO_SECONDS) && notify-send 'Pomodoro' -u critical
+sleep "$POMODORO_SECONDS" && notify-send 'Pomodoro' -u critical

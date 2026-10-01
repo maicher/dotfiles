@@ -47,11 +47,11 @@ done
 
 # Init from arguments (unless -f was provided).
 if [ -z "$files" ]; then
-	files="$@"
+	files=$(printf '%s\n' "$@")
 fi
 
 # Extract full paths.
-files=$(printf "$files" | tr '\n' '\0' | xargs -0 realpath)
+files=$(printf '%s' "$files" | tr '\n' '\0' | xargs -0 realpath)
 list=""
 
 while IFS= read -r file; do
@@ -64,13 +64,13 @@ while IFS= read -r file; do
 	extension="${filename##*.}"
 
 	target="${filename%.*}_c.mp4"
-	list+=$(printf "ffmpeg -i '%s' -y -vcodec libx264 -tune film '%s'" "$file" "$target")
+	list+=$(printf 'ffmpeg -i %q -y -vcodec libx264 -tune film %q' "$file" "$target")
 	list+=$'\n'
 done <<< "$files"
 
 echo "==="
 echo "list:"
-echo "$list"
+printf '%s\n' "$list"
 
 # Run
-printf "$list" | parallel --jobs $jobs
+printf '%s' "$list" | parallel --jobs "$jobs"

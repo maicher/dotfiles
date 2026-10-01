@@ -48,13 +48,13 @@ if [ -z "$device_name" ]; then
 	exit
 fi
 
-if [ -z $command ]; then
+if [ -z "$command" ]; then
 	echo "No command, available commands:"
 	echo 'on off restart'
 	exit 1
 fi
 
-selected_device=$(echo "$devices" | grep -i $device_name)
+selected_device=$(echo "$devices" | grep -i -- "$device_name")
 
 if [ $? -eq 1 ]; then
 	echo 'Device not found, available devices:'

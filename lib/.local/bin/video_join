@@ -9,9 +9,6 @@ NAME
 	Use video_parts to generate the list or create the file by hand by pasting
 	newline-separated full paths to the videos.
 
-	It handle spaces in filenames correctly but fails when the file name contains
-	special chars like "'$%&. Don't use this special characters in file names.
-
 SYNOPSIS
 	video_join -f FILES [OPTION...]
 
@@ -56,11 +53,15 @@ while true; do
 done
 
 # Extract full paths.
-files=$(printf "$files" | tr '\n' '\0' | xargs -0 realpath)
+files=$(printf '%s' "$files" | tr '\n' '\0' | xargs -0 realpath)
 
 # Build list of jobs
 list=""
 trash_list=""
+
+# Used to escape single quotes in the ffmpeg concat list: ' -> '\''
+sq="'"
+sq_escaped="'\\''"
 
 while IFS= read -r file; do
 	if [ ! -f "$file" ]; then
@@ -69,25 +70,27 @@ while IFS= read -r file; do
 	fi
 	parts=$(cat "$file")
 
-	target=$(echo "$file" | sed 's/_parts.txt//')
-	name=$(printf "$target" | sed 's/\.[^.]*$//')
-	ext=$(printf "$target" | sed 's/^.*\.//')
+	target=$(printf '%s\n' "$file" | sed 's/_parts.txt//')
+	name=$(printf '%s\n' "$target" | sed 's/\.[^.]*$//')
+	ext=$(printf '%s\n' "$target" | sed 's/^.*\.//')
 	if [ -z "$name" ]; then
 		echo "Error extracting file name"
 		exit 1
 	fi
 
-	tempfile="___$(printf $RANDOM)_tmp.txt"
-	echo "$parts" | sed 's/ /\\ /g' | awk '{ print "file", $0 }' > $tempfile
+	tempfile="___${RANDOM}_tmp.txt"
+	while IFS= read -r part; do
+		[ -n "$part" ] && printf "file '%s'\n" "${part//$sq/$sq_escaped}"
+	done <<< "$parts" > "$tempfile"
 
-	list+=$(printf "ffmpeg $verbose -y -f concat -safe 0 -i %s -codec copy '%s_.%s'" $tempfile "$name" "$ext")
+	list+=$(printf "ffmpeg $verbose -y -f concat -safe 0 -i %q -codec copy %q" "$tempfile" "${name}_.$ext")
 	list+=$'\n'
 
-	trash_list+=$(printf "$file")
+	trash_list+="$file"
 	trash_list+=$'\n'
-	trash_list+=$(printf "$parts")
+	trash_list+="$parts"
 	trash_list+=$'\n'
-	trash_list+=$(printf "$tempfile")
+	trash_list+="$tempfile"
 	trash_list+=$'\n'
 
 done <<< "$files"
@@ -95,13 +98,13 @@ done <<< "$files"
 # Dump debug info
 if [ $debug -eq 1 ]; then
 	echo "List:" > ./video_join_debug.txt
-	echo "$list" >> ./video_join_debug.txt
+	printf '%s\n' "$list" >> ./video_join_debug.txt
 	echo "Trash:" >> ./video_join_debug.txt
-	echo "$trash_list" >> ./video_join_debug.txt
+	printf '%s\n' "$trash_list" >> ./video_join_debug.txt
 fi
 
 # Run
-printf "$list" | parallel --jobs $jobs
+printf '%s' "$list" | parallel --jobs "$jobs"
 
 # Move source and temp files to trash
 if [ $trash -eq 1 ]; then
