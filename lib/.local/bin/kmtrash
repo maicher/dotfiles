@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env zsh
 
 # TODO: handle delete directories
 
@@ -65,8 +65,8 @@ export empty=0
 export verbose=''
 export debug=0
 
-options=$(getopt -l "help,path,info,files:,batch:,timestamp,empty,debug,verbose" -o "hpif:b:tedv" -a -- "$@")
-eval set -- "$options"
+opts=$(getopt -l "help,path,info,files:,batch:,timestamp,empty,debug,verbose" -o "hpif:b:tedv" -a -- "$@")
+eval set -- "$opts"
 
 while true; do
 	case $1 in
@@ -118,7 +118,7 @@ fi
 # Dump debug info
 if [ $debug -eq 1 ]; then
 	printf '%s\n' "$files" > ./trash_debug.txt
-	echo "Trash: $trash_path" >> ./trash_debug.txt
+	printf 'Trash: %s\n' "$trash_path" >> ./trash_debug.txt
 fi
 
 results=''

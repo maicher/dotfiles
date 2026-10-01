@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env zsh
 
 showHelp () {
 cat << EOF
@@ -49,8 +49,8 @@ parts=0
 trash=0
 debug=0
 
-options=$(getopt -l "help,jobs:,files:,out-dir:,verbose,parts,trash,debug" -o "hj:f:o:vptd" -a -- "$@")
-eval set -- "$options"
+opts=$(getopt -l "help,jobs:,files:,out-dir:,verbose,parts,trash,debug" -o "hj:f:o:vptd" -a -- "$@")
+eval set -- "$opts"
 
 while true; do
 	case $1 in

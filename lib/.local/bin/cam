@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env zsh
 # DOT SKIP server
 
 v4l2-ctl -c brightness="$1"

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env zsh
 
 showHelp () {
 cat << EOF
@@ -30,8 +30,8 @@ files=''
 regex=''
 sort=''
 
-options=$(getopt -l "help,files:,regex:,shuffle" -o "hf:r:s" -a -- "$@")
-eval set -- "$options"
+opts=$(getopt -l "help,files:,regex:,shuffle" -o "hf:r:s" -a -- "$@")
+eval set -- "$opts"
 
 while true; do
 	case $1 in

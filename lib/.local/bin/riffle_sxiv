@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env zsh
 # DOT SKIP server
 # Compatible with ranger 1.6.0 through 1.7.*
 #

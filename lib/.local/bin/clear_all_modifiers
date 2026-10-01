@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env zsh
 # DOT SKIP server
 
 if xset q | grep "Caps Lock:\s*on" > /dev/null; then

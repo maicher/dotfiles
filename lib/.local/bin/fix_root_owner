@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env zsh
 
 set -euo pipefail
 
@@ -8,7 +8,7 @@ DRY_RUN=false
 SEARCH_PATH="."
 
 usage() {
-    echo "Usage: $0 [--dry-run] [PATH]"
+    echo "Usage: ${ZSH_ARGZERO:t} [--dry-run] [PATH]"
     echo
     echo "Find files and directories:"
     echo "  - created today"
@@ -66,10 +66,10 @@ find "$SEARCH_PATH" -mindepth 1 \
     \) -prune \
     -o \
     \( \( -type f -o -type d \) -user root -print0 \) |
-while IFS= read -r -d '' path; do
+while IFS= read -r -d '' entry; do
 
     # %W = creation/birth time as Unix timestamp.
-    birth=$(stat -c '%W' -- "$path" 2>/dev/null) || continue
+    birth=$(stat -c '%W' -- "$entry" 2>/dev/null) || continue
 
     # A value of 0 means creation time isn't available.
     [[ "$birth" =~ ^[0-9]+$ ]] || continue
@@ -78,19 +78,19 @@ while IFS= read -r -d '' path; do
     # Only entries created today.
     if (( birth >= TODAY_START && birth < TOMORROW_START )); then
 
-        if [[ -d "$path" ]]; then
+        if [[ -d "$entry" ]]; then
             type="DIR "
         else
             type="FILE"
         fi
 
         if [[ "$DRY_RUN" == true ]]; then
-            printf '[DRY-RUN] %s  %s\n' "$type" "$path"
+            printf '[DRY-RUN] %s  %s\n' "$type" "$entry"
         else
             printf '[CHOWN]   %s  %s -> %s:%s\n' \
-                "$type" "$path" "$OWNER" "$GROUP"
+                "$type" "$entry" "$OWNER" "$GROUP"
 
-            chown -- "$OWNER:$GROUP" "$path"
+            chown -- "$OWNER:$GROUP" "$entry"
         fi
     fi
 done

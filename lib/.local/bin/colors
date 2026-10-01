@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env zsh
 # DOT SKIP server
 
 for i in {0..255} ; do

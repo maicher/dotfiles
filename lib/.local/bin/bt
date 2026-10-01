@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env zsh
 # DOT SKIP server
 
 showHelp () {
@@ -66,7 +66,7 @@ case $command in
 		echo "Scanning... (press any key to stop)"
 		bluetoothctl scan on &
 		while [ true ]; do
-			read -t 3 -n 1
+			read -t 3 -k 1
 			if [ $? = 0 ] ; then
 				echo "stop"
 				pid=$(ps | awk '/bluetoothctl/{print $1}')

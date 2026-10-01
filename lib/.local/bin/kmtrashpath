@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env zsh
 
 # kmtrashpath walks up the current path trying to locate the .trash dir.
 # If .trash dir is not found, it prints the $HOME/.trash, which is the default
@@ -22,4 +22,4 @@ if [ -z "$trash_path" ]; then
 	trash_path="$HOME/.trash/"
 fi
 
-echo "$trash_path"
+printf '%s\n' "$trash_path"

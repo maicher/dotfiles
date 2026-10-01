@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env zsh
 
 showHelp () {
 cat << EOF
@@ -36,8 +36,8 @@ trash=0
 verbose='-hide_banner -loglevel error'
 debug=0
 
-options=$(getopt -l "help,jobs:,files:,trash,debug,verbose" -o "hj:f:tdv" -a -- "$@")
-eval set -- "$options"
+opts=$(getopt -l "help,jobs:,files:,trash,debug,verbose" -o "hj:f:tdv" -a -- "$@")
+eval set -- "$opts"
 
 while true; do
 	case $1 in

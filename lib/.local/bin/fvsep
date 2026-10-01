@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env zsh
 # DOT SKIP server
 
 showHelp () {
@@ -58,8 +58,8 @@ create_copies=0
 suffix=''
 prefix=''
 
-options=$(getopt -l "help,copy,suffix:,prefix" -o "hcs:p:" -a -- "$@")
-eval set -- "$options"
+opts=$(getopt -l "help,copy,suffix:,prefix" -o "hcs:p:" -a -- "$@")
+eval set -- "$opts"
 
 while true; do
 	case $1 in
@@ -80,7 +80,7 @@ if [ -z "$odsfile" ]; then
 	exit 1
 fi
 
-echo "$odsfile" | grep -qE "\.ods$"
+printf '%s\n' "$odsfile" | grep -qE "\.ods$"
 if [ $? -eq 1 ]; then
 	echo "The first argument has to have an ods extension" >&2
 	exit 1

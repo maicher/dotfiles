@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env zsh
 # DOT SKIP server
 
 # dmenu_open_doc displays a dmenu with entries from a given file,
@@ -28,8 +28,8 @@ fi
 # if it fails, send a desktop notification with the error message.
 {
 	err=$(mimeopen "$text" 2>&1)
-	status=$?
-	if [ "$status" -ne 0 ]; then
+	rc=$?
+	if [ "$rc" -ne 0 ]; then
 		notify-send "${err:-Failed to open file}" -u critical
 		exit 4
 	fi

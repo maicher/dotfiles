@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env zsh
 # DOT SKIP server
 
 # `webhooks_host` purpose is to print the url of the tunel created by `ngrok`.

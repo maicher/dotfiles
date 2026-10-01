@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env zsh
 
 showHelp () {
 cat << EOF
@@ -21,8 +21,8 @@ EOF
 # Init options.
 files=''
 
-options=$(getopt -l "help,files:" -o "hf:" -a -- "$@")
-eval set -- "$options"
+opts=$(getopt -l "help,files:" -o "hf:" -a -- "$@")
+eval set -- "$opts"
 
 while true; do
 	case $1 in
@@ -38,7 +38,7 @@ files=$(printf '%s' "$files" | tr '\n' '\0' | xargs -0 realpath)
 
 # Remove count number from the file name and add suffix, eg
 # video.1.mp4 > video.mp4_parts.txt
-parts_file="$(echo "$files" | sed '1q' | sed -E 's/\.[[:digit:]]+(\.[[:alnum:]]+)$/\1/')_parts.txt"
+parts_file="$(printf '%s\n' "$files" | sed '1q' | sed -E 's/\.[[:digit:]]+(\.[[:alnum:]]+)$/\1/')_parts.txt"
 
 printf '%s' "$files" > "$parts_file"
-echo "$parts_file"
+printf '%s\n' "$parts_file"

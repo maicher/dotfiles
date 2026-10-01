@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env zsh
 # DOT SKIP server
 
 # dmenu_pick_from_file displays a dmenu with entries from a given file,

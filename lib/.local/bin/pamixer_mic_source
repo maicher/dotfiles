@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env zsh
 # DOT SKIP server
 
 pamixer --list-sources | awk '/Microphone/ {print $1}'

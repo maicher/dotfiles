@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env zsh
 
 showHelp () {
 cat << EOF
@@ -40,8 +40,8 @@ format=jpg
 jobs=1
 
 # Parse command-line options
-options=$(getopt -l "help,format:,files:,jobs:" -o "hF:f:j:" -a -- "$@")
-eval set -- "$options"
+opts=$(getopt -l "help,format:,files:,jobs:" -o "hF:f:j:" -a -- "$@")
+eval set -- "$opts"
 
 while true; do
 	case $1 in

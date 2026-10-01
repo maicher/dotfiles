@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env zsh
 
 showHelp () {
 cat << EOF
@@ -32,8 +32,8 @@ debug=0
 
 kmstatus -t "Initializing gimp_extract_mask..."
 
-options=$(getopt -l "help,jobs:,files:,verbose,debug" -o "hj:cf:vd" -a -- "$@")
-eval set -- "$options"
+opts=$(getopt -l "help,jobs:,files:,verbose,debug" -o "hj:cf:vd" -a -- "$@")
+eval set -- "$opts"
 
 while true; do
 	case $1 in
