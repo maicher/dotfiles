@@ -111,7 +111,8 @@ end
 local function copy_current_path()
   local res = mp.command_native({
     name = "subprocess",
-    args = { "xclip", "-i", "-selection", "clipboard" },
+    -- xclip forks to serve the selection; detach its stdout/stderr so mpv doesn't block on the pipes
+    args = { "sh", "-c", "xclip -i -selection clipboard >/dev/null 2>&1" },
     stdin_data = get_final_path(),
     playback_only = false,
   })
