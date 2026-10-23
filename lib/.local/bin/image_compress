@@ -75,7 +75,7 @@ fi
 
 # Prepare conversion commands (%q shell-quotes the file names)
 list=$(while IFS= read -r file; do
-	[ -n "$file" ] && printf 'mogrify %s %s -quality %q %q\n' "$verbose" "$geometry" "$quality" "$file"
+	[ -n "$file" ] && printf 'image_mogrify %s %s -quality %q %q\n' "$verbose" "$geometry" "$quality" "$file"
 done <<< "$files")
 
 # Dump debug info

@@ -82,10 +82,10 @@ list=""
 while IFS= read -r file; do
 	case $(file -bi -- "$file") in
 		image/jpeg*)
-			list+=$(printf 'jpegtran %s -rotate %s -copy all -outfile %q %q' "$verbose" "$degree" "$file" "$file")
+			list+=$(printf 'mtime=$(stat -c %%y -- %q) && jpegtran %s -rotate %s -copy all -outfile %q %q && touch -d "$mtime" -- %q' "$file" "$verbose" "$degree" "$file" "$file" "$file")
 			;;
 		*)
-			list+=$(printf 'mogrify %s -rotate %s %q' "$verbose" "$degree" "$file")
+			list+=$(printf 'image_mogrify %s -rotate %s %q' "$verbose" "$degree" "$file")
 			;;
 	esac
 

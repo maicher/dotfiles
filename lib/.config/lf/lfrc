@@ -421,7 +421,7 @@ map \\ios orientation-show
 
 cmd orientation-clear !{{
 	set -f
-	kfind -r "\.(jpeg|jpg)" -f "$fx" | xargs -d '\n' exiftool -overwrite_original_in_place -Orientation#=0
+	kfind -r "\.(jpeg|jpg)" -f "$fx" | xargs -d '\n' exiftool -P -overwrite_original_in_place -Orientation#=0
 }}
 map \\ioc orientation-clear
 

@@ -76,7 +76,7 @@ list=$(while IFS= read -r file; do
 		continue
 	fi
 
-	printf 'convert -verbose %q %q\n' "$file" "${file:r}.$format"
+	printf 'convert -verbose %q %q && touch -r %q %q\n' "$file" "${file:r}.$format" "$file" "${file:r}.$format"
 done <<< "$files")
 
 # Execute conversion commands in parallel

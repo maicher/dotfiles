@@ -1,0 +1,38 @@
+#!/usr/bin/env zsh
+
+showHelp () {
+cat << EOF
+
+NAME
+	image_mogrify modifies an image in place like ImageMagick(1) mogrify,
+	              but preserves the file's creation (birth) and modification time;
+	              the result is written back into the original file (same inode)
+
+SYNOPSIS
+	image_mogrify [MAGICK_OPTION...] FILENAME
+
+EXAMPLES
+	image_mogrify -verbose -quality 80 filename.jpg
+
+EOF
+}
+
+if [[ $# -eq 0 || $1 == (-h|--help) ]]; then
+	showHelp
+	exit 0
+fi
+
+file=$@[-1]
+args=($@[1,-2])
+
+mtime=$(stat -c %y -- "$file") || exit 1
+tmp=$(mktemp -d) || exit 1
+trap 'rm -rf -- "$tmp"' EXIT
+
+# Keep the file name so magick infers the output format from the extension
+out="$tmp/${file:t}"
+
+magick "$file" "${args[@]}" "$out" || exit 1
+
+# Overwrite the contents (not the inode) and restore the modification time
+cat -- "$out" > "$file" && touch -d "$mtime" -- "$file"
