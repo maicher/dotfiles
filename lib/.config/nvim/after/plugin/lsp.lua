@@ -6,7 +6,7 @@ require("mason-lspconfig").setup({
     "eslint",
     "cssls",
     "lua_ls",
-    "solargraph",
+    "ruby_lsp",
     "gopls",
   },
   handlers = {
@@ -55,14 +55,17 @@ cmp.setup({
 })
 
 -- Neovim 0.12 provides built-in LSP keymaps on attach:
---   gd  = definition       grn = rename        grr = references
---   gra = code action      gri = implementation  K = hover
---   [d / ]d = diagnostics  <C-S> = signature help (insert mode)
+--   <C-]> = definition (via tagfunc)   grn = rename        grr = references
+--   gra = code action      gri = implementation  grt = type definition
+--   gO  = document symbols K = hover             [d / ]d = diagnostics
+--   <C-S> = signature help (insert mode)
 --
 -- Below we add a few extras not covered by defaults.
 vim.api.nvim_create_autocmd("LspAttach", {
   callback = function(args)
     local opts = { buffer = args.buf }
+    vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
+    vim.keymap.set("n", "gD", vim.lsp.buf.declaration, opts)
     vim.keymap.set("n", "<leader>vws", vim.lsp.buf.workspace_symbol, opts)
     vim.keymap.set("n", "<leader>vd", vim.diagnostic.open_float, opts)
   end,
